@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   ats:
     runs-on: ubuntu-latest
@@ -20,6 +24,15 @@ jobs:
       - name: Fetch main's ATS scores (badges branch)
         run: git fetch --depth 1 origin badges && git show origin/badges:scores.json > "$RUNNER_TEMP/base.json" || echo "no baseline yet"
       - name: ATS score must not drop below main
-        run: python3 resume-builder/ats_check.py --readme --baseline "$RUNNER_TEMP/base.json"
+        run: python3 resume-builder/ats_check.py --readme --baseline "$RUNNER_TEMP/base.json" --comment "$RUNNER_TEMP/comment.md"
+      - name: Comment main vs PR scores (updates the previous comment)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f "$RUNNER_TEMP/comment.md" ] || exit 0
+          gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} \
+            --edit-last --body-file "$RUNNER_TEMP/comment.md" 2>/dev/null \
+          || gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body-file "$RUNNER_TEMP/comment.md"
       - name: README score table must be up to date
         run: git diff --exit-code README.md

@@ -55,7 +55,7 @@ h2 { font-size: 1.6rem; border-bottom: 2px solid var(--border); padding-bottom: 
 .muted { color: var(--muted); font-weight: 400; }
 
 .hero { text-align: center; padding-top: 56px; }
-.avatar { border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); background: var(--surface); }
+.avatar { border-radius: 50%; object-fit: cover; object-position: center 25%; border: 3px solid var(--accent); background: var(--surface); }
 .title { font-size: 1.25rem; color: var(--accent); margin: 0; font-weight: 600; }
 .lead { max-width: 640px; margin: 16px auto; }
 

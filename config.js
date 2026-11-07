@@ -4,7 +4,7 @@ window.SITE_CONFIG = {
   "initials": "MN",
   "title": "Senior iOS Developer",
   "intro": "Senior iOS Developer with 8+ years building scalable, user-focused mobile apps.",
-  "photo": "images/profile.svg",
+  "photo": "images/profile.jpg",
   "resumes": [
     {
       "label": "Resume (India)",

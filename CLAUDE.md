@@ -10,7 +10,7 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 
 - Serve locally: `python3 -m http.server` in the repo root, then open `index.html`.
 - Regenerate everything: `python3 resume-builder/build.py all` (or one of `site|india|intl|de`). Needs PyYAML, Jinja2 (`resume-builder/requirements.txt`) and Chrome (override with `$CHROME`).
-- ATS check: parseability + content scores (own heuristics, needs poppler; keywords in `resume-builder/keywords.yaml`; only parseability gates CI): `python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]`; CI (`.github/workflows/ats-check.yml`) runs it on PRs and fails if the generated site files are stale.
+- ATS check: one final score plus an 8-category x resume table and top fixes (own heuristic, needs poppler; keywords in `resume-builder/keywords.yaml`; only the Parseability category gates CI via `--min`): `python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]`; CI (`.github/workflows/ats-check.yml`) runs it on PRs and fails if the generated site files are stale.
 - Check a PDF's ATS text order: `pdftotext -layout resumes/<file>.pdf -`.
 
 ## Single source of truth

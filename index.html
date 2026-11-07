@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portfolio</title>
+  <meta name="description" content="Portfolio, projects and contact details.">
+  <meta property="og:title" content="Portfolio">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://manikantanandam.github.io/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍💻</text></svg>">
+  <script>
+    // Apply saved theme / text size before paint to avoid a flash.
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+        var s = localStorage.getItem('fontScale');
+        if (s) document.documentElement.style.setProperty('--font-scale', s);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <nav aria-label="Primary">
+      <a class="brand" href="#top" id="brand"></a>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="controls">
+        <button type="button" id="font-down" aria-label="Decrease text size">A−</button>
+        <button type="button" id="font-up" aria-label="Increase text size">A+</button>
+        <button type="button" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme">🌙 Dark</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <img class="avatar" id="photo" alt="" width="160" height="160">
+      <h1 id="hero-name"></h1>
+      <p class="title" id="hero-title"></p>
+      <p class="lead" id="hero-intro"></p>
+      <div class="cta-row" id="hero-cta"></div>
+    </section>
+    <section id="about"><h2>About Me</h2><div id="about-body"></div></section>
+    <section id="skills"><h2>Skills</h2><div class="grid" id="skills-body"></div></section>
+    <section id="experience"><h2>Experience</h2><div id="experience-body"></div></section>
+    <section id="projects"><h2>Projects</h2><div class="grid" id="projects-body"></div></section>
+    <section id="contact">
+      <h2>Contact</h2>
+      <p>The fastest way to reach me is WhatsApp. Email and phone work too.</p>
+      <div class="cta-row" id="contact-cta"></div>
+      <p id="copy-status" class="muted" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer><p id="footer"></p></footer>
+  <a class="fab" id="fab" aria-label="Chat on WhatsApp" target="_blank" rel="noopener" hidden>💬</a>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

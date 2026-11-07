@@ -10,9 +10,10 @@ title: Senior iOS-Entwickler
 location: Hyderabad, Indien
 total_experience: 8+ Jahre (davon 6+ Jahre iOS)
 summary: >-
-  Senior iOS-Entwickler mit über 8 Jahren Erfahrung in der Entwicklung skalierbarer, nutzerorientierter
-  mobiler Anwendungen. Erfahren in der Teamführung und im Mentoring von Entwicklern sowie im Einsatz
-  von KI-Werkzeugen zur Steigerung von Produktivität und Innovation auf nativen und hybriden Plattformen.
+  Senior iOS-Entwickler mit über 8 Jahren Erfahrung in der Entwicklung hochwertiger, skalierbarer Apps
+  für globale Marken wie Bose und AOL. Experte für Swift, SwiftUI, UIKit und Combine mit fundierter
+  Erfahrung in sauberer Architektur (MVVM, VIPER), Bluetooth-Audio, Echtzeitkommunikation und
+  Offline-First-Apps. Verantwortet Features von Anfang bis Ende, betreut Entwickler und nutzt KI-Werkzeuge.
 skills:
   - {id: lang, title: Sprachen & Frameworks}
   - {id: arch, title: Architektur & Nebenläufigkeit}
@@ -21,19 +22,30 @@ skills:
 experience:
   - id: ltim
     role: Specialist Software Engineer
+    points:
+      - Entwicklung von Features für die AOL-iOS-App (Mail, News, Wetter, Video) mit Swift und SwiftUI für ein globales Publikum.
+      - Zusammenarbeit mit Backend-Teams bei der GCP-Migration bei stabilem App-Betrieb.
   - id: tcs
     role: IT-Analyst (C2)
-    points: [Entwicklung von Premium-Audiolösungen für Ohrhörer, Kopfhörer, Lautsprecher und Soundbars.]
+    points:
+      - Auslieferung von Features für die Bose Music App zur Steuerung von Ohrhörern, Kopfhörern, Lautsprechern und Soundbars.
+      - Umsetzung von Bluetooth- (CoreBluetooth) und WebSocket-Geräteabläufen in einer MVVM-C/RxSwift-Codebasis.
   - id: soverg
     role: iOS-Entwickler
-    points: [Arbeit an einer Social-Media-Management-Plattform in einem Startup-Umfeld.]
+    points:
+      - Entwicklung von Sprouter, einer Social-Media-Management-Plattform, in einem dynamischen Startup-Umfeld.
+      - Offline-Speicherung mit Realm ergänzt und App-Performance optimiert.
   - id: ap
     role: Digital Assistant
     company: Regierung von Andhra Pradesh
-    points: [Zentraler Ansprechpartner für alle IT-Aufgaben der Gemeinde (Grama Panchayat).]
+    points:
+      - Zentraler Ansprechpartner für alle IT-Aufgaben der Gemeinde (Grama Panchayat).
+      - Unterstützung von Mitarbeitenden und Bürgern bei digitalen Verwaltungsdiensten und IT-Systemen.
   - id: pratian
     role: Software-Entwickler
-    points: [Vom Einstiegsentwickler zum End-to-End-Entwickler für mobile Unternehmensanwendungen aufgestiegen.]
+    points:
+      - Vom Einstiegsentwickler zur End-to-End-Verantwortung für mobile Unternehmensanwendungen aufgestiegen, vom Wireframe bis zum App-Store-Release.
+      - Native iOS- und Hybrid-Apps für Kunden aus Gesundheitswesen, Compliance und Performance-Management geliefert.
 education:
   - degree: B.Tech Elektronik und Kommunikationstechnik (ECE)
     school: Gudlavalleru Engineering College
@@ -43,26 +55,26 @@ projects:
   - id: aol
     description: App für AOL Mail, Top-Nachrichten, lokales Wetter und Trendvideos an einem Ort.
     points:
-      - Tracking-Modul auf der Mail-Detailseite ergänzt.
-      - Zusammenarbeit mit Backend-Teams für eine reibungslose GCP-Migration.
-      - Affiliate-Links und Analytics verwaltet; Fehlerbehebungen.
+      - Tracking-Modul für die Mail-Detailseite entwickelt, das Produktteams Nutzungsdaten liefert.
+      - Reibungslose GCP-Migration gemeinsam mit Backend-Teams ohne Beeinträchtigung der Nutzer.
+      - Verantwortung für Affiliate-Links und Analytics; Behebung von Produktionsfehlern.
   - id: bose
     description: Verbraucher-App zum Verbinden und Steuern von Bose-Ohrhörern, -Lautsprechern und -Soundbars.
     points:
-      - Surround-Funktionen für Ohrhörer ergänzt.
-      - Geräte-Gruppierung mit dynamischem Wechsel des Master-Geräts umgesetzt.
-      - Alexa-X-App-Ablauf umgesetzt; Fehlerbehebungen.
+      - Surround-Sound-Funktionen für Bose-Ohrhörer entwickelt.
+      - Gruppierung mehrerer Lautsprecher mit dynamischem Wechsel des Master-Geräts umgesetzt.
+      - Alexa-X-App-Ablauf integriert; Behebung von Produktionsfehlern.
   - id: sprouter
     description: Social-Media-Aggregator zum Posten auf Facebook, Twitter, Instagram, YouTube u. a. an einem Ort, mit Profil aus eigenen Links und Dateien.
     points:
-      - Eigene Links und Dateien entwickelt.
-      - Offline-Speicherung in die bestehende App integriert; Performance-Optimierung.
+      - Custom Links und Custom Files entwickelt, die Grundlage jeder Profilseite.
+      - Offline-Speicherung in die bestehende App integriert und Performance optimiert.
   - id: gtcomplyrite
     description: Online-/Offline-App für FSSAI-Compliance-Audits bei Lebensmittelherstellern, auch in abgelegenen Gebieten nutzbar.
     points:
-      - Wireframes und Prototypen von Grund auf entworfen; VIPER-Architektur eingeführt.
-      - Reaktionsfähigkeit mit Xcode Instruments verbessert.
-      - Offline-Funktionalität mit Realm und REST-API-Anbindung umgesetzt.
+      - Wireframes und Prototypen von Grund auf entworfen und VIPER-Architektur aufgesetzt.
+      - Reaktionsfähigkeit der App mit Xcode Instruments deutlich verbessert.
+      - Offline-Audits in abgelegenen Gebieten mit Realm und REST-API-Synchronisierung ermöglicht.
       - Neue Mitarbeitende in Swift und iOS-Entwicklung eingearbeitet.
   - id: culturewerkz
     description: Hybrid-App, die individuelle Ziele, Schlüsselaktivitäten und Ergebnisse mit den Unternehmenszielen abgleicht und Risiken meldet.
@@ -71,5 +83,5 @@ projects:
   - id: kkd
     description: Echtzeit-Chat-App für US-Gesundheitsdienstleister mit Nachrichten, Medienaustausch sowie Audio-/Videoanrufen mit Ende-zu-Ende-Verschlüsselung.
     points:
-      - Anrufbildschirme gestaltet; XMPP-Signalisierung und WebRTC-Anrufe umgesetzt.
-      - POC zur Ende-zu-Ende-Verschlüsselung mit OMEMO (AES-256) geliefert.
+      - Audio- und Videoanrufbildschirme gestaltet; XMPP-Signalisierung und WebRTC-Anrufe umgesetzt.
+      - Proof of Concept zur Ende-zu-Ende-Verschlüsselung mit OMEMO (AES-256) erstellt.

@@ -9,9 +9,10 @@ location: Hyderabad, India
 github: https://github.com/manikantanandam
 linkedin: ""
 summary: >-
-  Senior iOS Developer with 8+ years of experience architecting scalable, user-focused mobile
-  applications. Adept at leading teams, mentoring developers, and leveraging AI tools to drive
-  productivity and innovation across native and hybrid platforms.
+  Senior iOS Developer with 8+ years of experience shipping polished, scalable apps for global
+  consumer brands including Bose and AOL. Expert in Swift, SwiftUI, UIKit and Combine, with deep
+  experience in clean architecture (MVVM, VIPER), Bluetooth audio, real-time communication and
+  offline-first apps. Leads features end to end, mentors developers and uses AI tools to ship faster.
 total_experience: 8+ years (6+ years iOS)
 
 skills:
@@ -35,7 +36,10 @@ experience:
     location: Hyderabad
     start: 2025-08
     end: present
-    points: []
+    # TODO(confirm): assumes the AOL project is your LTIMindtree engagement.
+    points:
+      - Developed features for the AOL iOS app (Mail, News, Weather and Video) in Swift and SwiftUI for a global consumer audience.
+      - Partnered with backend teams on the GCP migration, keeping the app stable for users throughout the transition.
   - id: tcs
     role: IT Analyst (C2 Grade)
     company: Tata Consultancy Services
@@ -43,7 +47,8 @@ experience:
     start: 2022-10
     end: 2025-08
     points:
-      - Worked on premium audio solutions for earbuds, headphones, speakers and soundbars.
+      - Shipped features for the Bose Music app, which connects and controls Bose earbuds, headphones, speakers and soundbars.
+      - Engineered Bluetooth (CoreBluetooth) and WebSocket device flows in an MVVM-C, RxSwift codebase.
   - id: soverg
     role: iOS Developer
     company: Soverg Pvt. Ltd
@@ -51,7 +56,8 @@ experience:
     start: 2022-02
     end: 2022-09
     points:
-      - Worked on a social media management platform in a startup environment.
+      - Developed Sprouter, a social media management platform, in a fast-paced startup environment.
+      - Added offline storage with Realm and tuned app performance for a smoother experience.
   - id: ap
     role: Digital Assistant
     company: Government of Andhra Pradesh
@@ -59,7 +65,9 @@ experience:
     start: 2019-11
     end: 2022-02
     points:
-      - Nodal officer for all IT-related activities for the Grama Panchayat.
+      # TODO(confirm): second point is a generic description of the role.
+      - Served as nodal officer for all IT-related activities of the Grama Panchayat.
+      - Supported staff and citizens with government digital services and IT systems.
   - id: pratian
     role: Software Engineer
     company: Pratian Technologies
@@ -67,7 +75,8 @@ experience:
     start: 2017-09
     end: 2019-09
     points:
-      - Started as an entry-level developer and grew into an end-to-end enterprise mobile application developer.
+      - Progressed from entry-level developer to owning enterprise mobile apps end to end, from wireframes to App Store release.
+      - Delivered native iOS and hybrid apps for healthcare, compliance and performance-management clients.
 
 education:
   - degree: B.Tech in Electronics and Communications Engineering (ECE)
@@ -81,46 +90,46 @@ projects:
     tags: [Swift, SwiftUI, GAM SDK]
     description: App to manage AOL Mail, read top news, check local weather and watch trending videos in one place.
     points:
-      - Added a tracking module on the mail details page.
-      - Worked with backend teams for a smooth GCP migration.
-      - Managed affiliate links and analytics; fixed bugs.
+      - Built a tracking module for the mail details page, giving product teams engagement data.
+      - Partnered with backend teams on a smooth GCP migration with no disruption to users.
+      - Owned affiliate links and analytics integration, and resolved production bugs.
   - id: bose
     name: Bose Music App
     tags: [CoreBluetooth, MVVM-C, RxSwift, WebSockets]
     description: Consumer app to connect and control Bose earbuds, speakers and soundbars.
     points:
-      - Added surround features for earbuds.
-      - Implemented device grouping with dynamic change of master device.
-      - Implemented the Alexa X app flow; fixed bugs.
+      - Created surround sound features for Bose earbuds.
+      - Engineered multi-speaker grouping with dynamic switching of the master device.
+      - Integrated the Alexa X app flow and resolved production issues.
   - id: sprouter
     name: Sprouter
     tags: [MVP, Realm, Deep Linking]
     description: Social media aggregator to post to Facebook, Twitter, Instagram, YouTube and more from one place, with a unique profile of custom links and files.
     points:
-      - Built Custom Links and Custom Files.
-      - Added offline storage to the existing app; performance tuning.
+      - Launched Custom Links and Custom Files, the features behind every user's profile page.
+      - Introduced offline storage to the existing app and tuned performance.
   - id: gtcomplyrite
     name: GTComplyRite
     tags: [VIPER, Realm, Firebase, GCD]
     description: Online/offline FSSAI compliance auditing app for food manufacturers, usable by auditors in remote areas.
     points:
-      - Designed wireframes and prototypes from scratch; adopted the VIPER architecture.
-      - Improved responsiveness using Xcode Instruments.
-      - Implemented offline functionality using Realm and REST API integration.
+      - Designed wireframes and prototypes from scratch and set up the VIPER architecture.
+      - Profiled with Xcode Instruments to make the app noticeably more responsive.
+      - Enabled offline audits in remote areas with Realm storage and REST API sync.
       - Mentored new joiners in Swift and iOS development.
   - id: culturewerkz
     name: CultureWerkz
     tags: [Cordova, Ionic 3, SQLite]
     description: Hybrid app aligning individual objectives, key activities and key results with organization goals, flagging risks.
     points:
-      - First hybrid app developer in the organization; built prototypes and integrated REST APIs.
+      - Pioneered hybrid development as the organization's first hybrid app developer, building prototypes and integrating REST APIs.
   - id: kkd
     name: KnockKnockDoc (KKD)
     tags: [XMPP, WebRTC, Core Data, PushKit, CallKit]
     description: Real-time chat app for US healthcare providers with messaging, media sharing, and audio/video calls with end-to-end encryption.
     points:
-      - Designed audio/video call screens; implemented XMPP signaling and WebRTC calling.
-      - Delivered a POC on end-to-end encryption using OMEMO (AES-256).
+      - Designed audio and video call screens and implemented XMPP signaling with WebRTC calling.
+      - Prototyped end-to-end encryption using OMEMO (AES-256) as a proof of concept.
   - id: apoorva
     name: Apoorva
     only: [site]

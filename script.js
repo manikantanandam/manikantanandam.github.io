@@ -117,6 +117,21 @@
     }
   });
 
+  var nav = document.querySelector('.nav');
+  var menuBtn = $('menu-toggle');
+  function setMenu(open) { nav.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', String(open)); menuBtn.textContent = open ? '✕' : '☰'; }
+  menuBtn.addEventListener('click', function () { setMenu(!nav.classList.contains('open')); });
+  document.querySelectorAll('.nav ul a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+
+  // Scroll-reveal via AOS (skipped for reduced motion or if the CDN failed).
+  if (window.AOS) {
+    document.querySelectorAll('main section:not(.hero) h2, .card').forEach(function (n, i) {
+      n.setAttribute('data-aos', 'fade-up');
+      n.setAttribute('data-aos-delay', String((i % 3) * 80));
+    });
+    AOS.init({ once: true, duration: 600, offset: 40, disable: matchMedia('(prefers-reduced-motion: reduce)').matches });
+  }
+
   // Highlight the nav link of the section in view.
   var links = document.querySelectorAll('.nav ul a');
   if ('IntersectionObserver' in window) {

@@ -10,6 +10,7 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 
 - Serve locally: `python3 -m http.server` in the repo root, then open `index.html`.
 - Regenerate everything: `python3 resume-builder/build.py all` (or one of `site|india|intl|de`). Needs PyYAML, Jinja2 (`resume-builder/requirements.txt`) and Chrome (override with `$CHROME`).
+- Structural ATS score (own heuristic, needs poppler): `python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]`; CI (`.github/workflows/ats-check.yml`) runs it on PRs and fails if `config.js` is stale.
 - Check a PDF's ATS text order: `pdftotext -layout resumes/<file>.pdf -`.
 
 ## Single source of truth
@@ -19,6 +20,7 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 - `resumes/` (repo root) holds the three PDFs; the site's two buttons (open in a new tab) link to the India and Intl ones via the `resumes` list in `site.yaml`.
 - `.github/workflows/resume.yml` is a manual (`workflow_dispatch`) action: pick `india|intl|de|all`, it runs `build.py` and uploads the PDFs as a run artifact (no commit/deploy).
 - German translations in `de.yaml` are a draft; DOB, nationality and India CTC/notice fields are empty and omitted until filled.
+- The `badges` branch is bot-managed by `.github/workflows/ats-badges.yml` (shields.io endpoint JSON for the README badges). Don't edit it by hand or protect it.
 
 ## Site architecture
 

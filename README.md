@@ -1,4 +1,7 @@
 # manikantanandam.github.io
+![ATS India](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-india.json) ![ATS Intl](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-intl.json) ![ATS DE](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-de.json)
+
+Badges show our own structural ATS heuristic for the committed PDFs (not a real ATS score); the "ATS badges" workflow refreshes them after every push to `main`.
 
 Personal portfolio, plain HTML/CSS/JS, served by GitHub Pages at https://manikantanandam.github.io/.
 
@@ -20,6 +23,10 @@ Outputs:
 - `resumes/`: India, International and German (Lebenslauf) ATS PDFs. The site buttons link to the India and International ones.
 
 Fill the empty personal fields (date of birth, nationality, CTC, notice period) in the overrides to include them. The German text is a draft translation.
+
+## ATS check
+
+`python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]` scores each PDF in `resumes/` on parseability (text, headings, contact, dates, length, fonts). This is our own structural heuristic, not a real ATS score (none is standard) and it cannot predict shortlisting. `--jd` adds a keyword match against a job description. Needs poppler. The "ATS check" workflow runs it on every PR to `main`.
 
 ## Get a resume PDF from GitHub
 

@@ -1,0 +1,20 @@
+name: ATS check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  ats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - run: pip install -r resume-builder/requirements.txt
+      - run: python3 resume-builder/build.py all
+      - name: config.js must be up to date
+        run: git diff --exit-code config.js
+      - run: python3 resume-builder/ats_check.py

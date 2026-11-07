@@ -17,9 +17,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - run: pip install -r resume/requirements.txt
-      - run: python3 resume/build.py ${{ inputs.variant }}
+      - run: pip install -r resume-builder/requirements.txt
+      - run: python3 resume-builder/build.py ${{ inputs.variant }}
       - uses: actions/upload-artifact@v4
         with:
           name: resume-${{ inputs.variant }}
-          path: resume/dist/*.pdf
+          path: resumes/*.pdf

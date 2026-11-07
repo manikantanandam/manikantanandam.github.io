@@ -17,4 +17,9 @@ jobs:
       - run: python3 resume-builder/build.py all
       - name: Generated site files must be up to date
         run: git diff --exit-code index.html sitemap.xml robots.txt
-      - run: python3 resume-builder/ats_check.py
+      - name: Fetch main's ATS scores (badges branch)
+        run: git fetch --depth 1 origin badges && git show origin/badges:scores.json > "$RUNNER_TEMP/base.json" || echo "no baseline yet"
+      - name: ATS score must not drop below main
+        run: python3 resume-builder/ats_check.py --readme --baseline "$RUNNER_TEMP/base.json"
+      - name: README score table must be up to date
+        run: git diff --exit-code README.md

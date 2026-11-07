@@ -57,13 +57,13 @@ Our own score, built from public ATS guidance (Jobscan-style categories, Workday
 | Market fit | India: A4, notice period, CTC. Intl: Letter, no personal data, relocation line. DE: A4, German headings, birth date/nationality, languages |
 
 ```
-python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--readme] [--baseline scores.json] [india|intl|de ...]
+python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--readme] [--baseline scores.json] [--comment out.md] [india|intl|de ...]
 ```
 
 - Prints the final scores, the category table and the fixes that lose the most points. Needs poppler.
 - `--readme` rewrites the table above; CI fails if it is stale, so rerun it after rebuilding the PDFs.
 - `--jd` adds a keyword match against a job description.
-- The "ATS check" workflow runs on every PR to `main` and fails if Parseability is below `--min` or any resume's final score drops below main's (`--baseline`, read from `scores.json` on the `badges` branch).
+- The "ATS check" workflow runs on every PR to `main` and fails if Parseability is below `--min` or any resume's final score drops below main's (`--baseline`, read from `scores.json` on the `badges` branch). It also posts a PR comment with a main → PR score table per category and resume (`--comment`), updated in place on each run.
 
 ## Get a resume PDF from GitHub
 

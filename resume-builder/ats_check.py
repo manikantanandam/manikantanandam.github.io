@@ -216,9 +216,9 @@ def write_comment(path, scores, base, dropped):
     """Markdown table of main's score -> this PR's score per category and resume."""
     def cell(t, c):
         new, old = scores[t][c], base.get(t, {}).get(c)
-        if old is None or old == new:
-            return "%d" % new
-        return "%d → %d (%+d)" % (old, new, new - old)
+        if old is None:
+            return "– → %d" % new
+        return "%d → %d" % (old, new) + (" (%+d)" % (new - old) if new != old else "")
     names = [build.PDF_NAMES[t] for t in scores]
     rows = ["<!-- ats-score-comment -->", "### ATS score: main → this PR", "",
             "| Category | %s |" % " | ".join(names), "|---|" + "---:|" * len(names)]

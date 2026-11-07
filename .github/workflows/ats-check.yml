@@ -26,10 +26,11 @@ jobs:
       - name: ATS score must not drop below main
         run: python3 resume-builder/ats_check.py --readme --baseline "$RUNNER_TEMP/base.json" --comment "$RUNNER_TEMP/comment.md"
       - name: Comment main vs PR scores (updates the previous comment)
-        if: always() && hashFiles(format('{0}/comment.md', runner.temp)) != ''
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          [ -f "$RUNNER_TEMP/comment.md" ] || exit 0
           gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} \
             --edit-last --body-file "$RUNNER_TEMP/comment.md" 2>/dev/null \
           || gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body-file "$RUNNER_TEMP/comment.md"

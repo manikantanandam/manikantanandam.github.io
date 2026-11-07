@@ -14,9 +14,10 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 
 ## Single source of truth
 
-- Edit only `resume/data.yaml` (shared content) and `resume/overrides/{site,india,intl,de}.yaml` (target-specific changes). Never hand-edit `config.js`, `resume.pdf` or `resume/dist/*`; they are generated and committed (Pages has no build step).
+- Edit only `resume/data.yaml` (shared content) and `resume/overrides/{site,india,intl,de}.yaml` (target-specific changes). Never hand-edit `config.js`, `resume-*.pdf` or `resume/dist/*`; they are generated and committed (Pages has no build step).
 - Overrides are deep-merged over the data. Lists whose items all have `id` merge per id; other lists are replaced. Items with `only: [targets]` are dropped elsewhere (e.g. `apoorva` is site-only).
-- `resume.pdf` (the site's Download Resume button) is a copy of the `intl` PDF. `resume/source-original.pdf` is the original hand-made resume the data came from.
+- Root `resume-india.pdf` and `resume-intl.pdf` are copies of those variants for the site's two resume buttons (open in a new tab) (`resumes` list in `site.yaml`).
+- `.github/workflows/resume.yml` is a manual (`workflow_dispatch`) action: pick `india|intl|de|all`, it runs `build.py` and uploads the PDFs as a run artifact (no commit/deploy).
 - German translations in `de.yaml` are a draft; DOB, nationality and India CTC/notice fields are empty and omitted until filled.
 
 ## Site architecture

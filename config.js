@@ -5,7 +5,16 @@ window.SITE_CONFIG = {
   "title": "Senior iOS Developer",
   "intro": "Senior iOS Developer with 8+ years building scalable, user-focused mobile apps.",
   "photo": "images/profile.svg",
-  "resume": "resume.pdf",
+  "resumes": [
+    {
+      "label": "Resume (India)",
+      "file": "resume-india.pdf"
+    },
+    {
+      "label": "Resume (International)",
+      "file": "resume-intl.pdf"
+    }
+  ],
   "contact": {
     "email": "nanirocks125@gmail.com",
     "phone": "+918121971462",

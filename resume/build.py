@@ -6,7 +6,7 @@ Overrides in resume/overrides/<target>.yaml are deep-merged over data.yaml; list
 all have an `id` are merged per id, other lists are replaced. Items with `only: [targets]`
 are dropped from other targets. PDFs are rendered with headless Chrome (override via $CHROME).
 """
-import copy, json, os, re, subprocess, sys, tempfile
+import copy, json, os, re, shutil, subprocess, sys, tempfile
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
@@ -74,7 +74,7 @@ def build_site():
     digits = re.sub(r"\D", "", d["phone"])
     cfg = {
         "name": d["name"], "initials": d["initials"], "title": d["title"], "intro": d["intro"],
-        "photo": d["photo"], "resume": d["resume"],
+        "photo": d["photo"], "resumes": d["resumes"],
         "contact": {"email": d["email"], "phone": d["phone"], "whatsapp": digits,
                     "whatsappMessage": d["whatsappMessage"], "emailSubject": d["emailSubject"]},
         "social": {"github": d["github"], "linkedin": d["linkedin"]},
@@ -131,10 +131,11 @@ def main():
         sys.exit(__doc__)
     for t in targets:
         build_site() if t == "site" else build_pdf(t)
-    if "intl" in targets:  # the website's Download Resume button serves the international variant
-        subprocess.check_call(["cp", os.path.join(HERE, "dist", "Manikanta_Nandam_Resume_Intl.pdf"),
-                               os.path.join(ROOT, "resume.pdf")])
-        print("wrote resume.pdf")
+    for t in ("india", "intl"):  # the website's download buttons serve these two variants
+        if t in targets:
+            shutil.copy(os.path.join(HERE, "dist", "Manikanta_Nandam_Resume_%s.pdf" % PDF_NAMES[t]),
+                        os.path.join(ROOT, "resume-%s.pdf" % t))
+            print("wrote resume-%s.pdf" % t)
 
 
 if __name__ == "__main__":

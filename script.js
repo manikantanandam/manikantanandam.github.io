@@ -38,11 +38,9 @@
 
   var heroCta = $('hero-cta');
   if (waUrl) heroCta.appendChild(link('💬 Chat on WhatsApp', waUrl, 'btn-whatsapp', true));
-  if (cfg.resume) {
-    var dl = link('⬇ Download Resume', cfg.resume);
-    dl.setAttribute('download', '');
-    heroCta.appendChild(dl);
-  }
+  (cfg.resumes || []).forEach(function (r) {
+    heroCta.appendChild(link('📄 ' + r.label, r.file, '', true));
+  });
   if (social.github) heroCta.appendChild(link('GitHub', social.github, 'btn-ghost', true));
   if (social.linkedin) heroCta.appendChild(link('LinkedIn', social.linkedin, 'btn-ghost', true));
 

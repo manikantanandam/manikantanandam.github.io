@@ -6,7 +6,7 @@ Workday/Greenhouse parsing notes, German Lebenslauf norms) and grouped into weig
 final score per resume, a category x resume table, and the fixes worth the most points.
 Needs poppler (pdftotext, pdfinfo, pdfimages, pdffonts).
 
-Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--json-dir DIR] [india|intl|de ...]
+Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--json-dir DIR] [--readme] [india|intl|de ...]
 --min gates the Parseability category (the part our template controls), not the final score.
 """
 import argparse, json, os, re, subprocess, sys
@@ -199,12 +199,26 @@ def keyword_match(text, jd_path):
     return 100 * len(hit) / max(len(jd), 1), missing
 
 
+def write_readme(res, final):
+    """Replace the block between the ats-table markers in README.md with a markdown score table."""
+    names = [build.PDF_NAMES[t] for t in res]
+    rows = ["| Category | Weight | %s |" % " | ".join(names), "|---|---:|" + "---:|" * len(names)]
+    rows += ["| %s | %d | %s |" % (c, w, " | ".join("%d" % round(pct(res[t][0][c])) for t in res)) for c, w in CATEGORIES]
+    rows.append("| **Final** | **100** | %s |" % " | ".join("**%d**" % round(final[t]) for t in res))
+    path = os.path.join(build.ROOT, "README.md")
+    s = open(path, encoding="utf-8").read()
+    start, end = "<!-- ats-table:start -->", "<!-- ats-table:end -->"
+    s = re.sub(re.escape(start) + ".*?" + re.escape(end), lambda _: "%s\n%s\n%s" % (start, "\n".join(rows), end), s, flags=re.S)
+    open(path, "w", encoding="utf-8").write(s)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("targets", nargs="*", default=["india", "intl", "de"])
     ap.add_argument("--min", type=int, default=89, help="minimum Parseability category score")
     ap.add_argument("--jd")
     ap.add_argument("--json-dir", help="write shields.io endpoint JSON per variant here")
+    ap.add_argument("--readme", action="store_true", help="rewrite the score table in README.md")
     a = ap.parse_args()
     res = {}
     for t in a.targets:
@@ -235,6 +249,9 @@ def main():
         for (c, n), v in sorted(lost.items(), key=lambda kv: -sum(kv[1]["pts"].values())):
             per = " ".join("%s -%.1f" % (build.PDF_NAMES[t], p) for t, p in v["pts"].items())
             print("  [%s] %s (%s): %s" % (c, n, per, v["hint"]))
+
+    if a.readme:
+        write_readme(res, final)
 
     failed = False
     for t in res:

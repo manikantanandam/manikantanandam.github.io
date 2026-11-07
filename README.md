@@ -21,6 +21,10 @@ Outputs:
 
 Fill the empty personal fields (date of birth, nationality, CTC, notice period) in the overrides to include them. The German text is a draft translation.
 
+## ATS check
+
+`python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]` scores each PDF in `resumes/` on parseability (text, headings, contact, dates, length, fonts). This is our own structural heuristic, not a real ATS score (none is standard) and it cannot predict shortlisting. `--jd` adds a keyword match against a job description. Needs poppler. The "ATS check" workflow runs it on every PR to `main`.
+
 ## Get a resume PDF from GitHub
 
 Actions tab, "Build resume", Run workflow, pick `india`, `intl`, `de` or `all`, then download the artifact from the finished run.

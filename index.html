@@ -23,15 +23,18 @@
       }
     })();
   </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="progress" aria-hidden="true"></div>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="nav">
     <nav aria-label="Primary">
       <a class="brand" href="#top" id="brand"></a>
-      <ul>
+      <button type="button" id="menu-toggle" aria-expanded="false" aria-controls="menu" aria-label="Menu">☰</button>
+      <ul id="menu">
         <li><a href="#about">About</a></li>
         <li><a href="#skills">Skills</a></li>
         <li><a href="#experience">Experience</a></li>
@@ -69,6 +72,7 @@
   <footer><p id="footer"></p></footer>
   <a class="fab" id="fab" aria-label="Chat on WhatsApp" target="_blank" rel="noopener" hidden>💬</a>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
   <script src="config.js"></script>
   <script src="script.js"></script>
 </body>

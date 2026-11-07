@@ -8,11 +8,11 @@ Personal portfolio, plain HTML/CSS/JS, served by GitHub Pages at https://manikan
 
 ## Content: single source
 
-Edit only `resume-generator/data.yaml` (shared content) and `resume-generator/overrides/{site,india,intl,de}.yaml` (changes specific to one output). `config.js` and `resumes/*` are generated; never edit them by hand.
+Edit only `resume-builder/data.yaml` (shared content) and `resume-builder/overrides/{site,india,intl,de}.yaml` (changes specific to one output). `config.js` and `resumes/*` are generated; never edit them by hand.
 
 ```
-pip install -r resume-generator/requirements.txt    # PyYAML, Jinja2 (Chrome is also required)
-python3 resume-generator/build.py all               # or: site | india | intl | de
+pip install -r resume-builder/requirements.txt    # PyYAML, Jinja2 (Chrome is also required)
+python3 resume-builder/build.py all               # or: site | india | intl | de
 ```
 
 Outputs:

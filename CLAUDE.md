@@ -9,12 +9,12 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 ## Commands
 
 - Serve locally: `python3 -m http.server` in the repo root, then open `index.html`.
-- Regenerate everything: `python3 resume-generator/build.py all` (or one of `site|india|intl|de`). Needs PyYAML, Jinja2 (`resume-generator/requirements.txt`) and Chrome (override with `$CHROME`).
+- Regenerate everything: `python3 resume-builder/build.py all` (or one of `site|india|intl|de`). Needs PyYAML, Jinja2 (`resume-builder/requirements.txt`) and Chrome (override with `$CHROME`).
 - Check a PDF's ATS text order: `pdftotext -layout resumes/<file>.pdf -`.
 
 ## Single source of truth
 
-- Edit only `resume-generator/data.yaml` (shared content) and `resume-generator/overrides/{site,india,intl,de}.yaml` (target-specific changes). Never hand-edit `config.js` or `resumes/*`; they are generated and committed (Pages has no build step).
+- Edit only `resume-builder/data.yaml` (shared content) and `resume-builder/overrides/{site,india,intl,de}.yaml` (target-specific changes). Never hand-edit `config.js` or `resumes/*`; they are generated and committed (Pages has no build step).
 - Overrides are deep-merged over the data. Lists whose items all have `id` merge per id; other lists are replaced. Items with `only: [targets]` are dropped elsewhere (e.g. `apoorva` is site-only).
 - `resumes/` (repo root) holds the three PDFs; the site's two buttons (open in a new tab) link to the India and Intl ones via the `resumes` list in `site.yaml`.
 - `.github/workflows/resume.yml` is a manual (`workflow_dispatch`) action: pick `india|intl|de|all`, it runs `build.py` and uploads the PDFs as a run artifact (no commit/deploy).

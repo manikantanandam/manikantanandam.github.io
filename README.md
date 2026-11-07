@@ -36,13 +36,13 @@ Our own score, built from public ATS guidance (Jobscan-style categories, Workday
 |---|---:|---:|---:|---:|
 | Parseability | 15 | 100 | 100 | 100 |
 | Structure & headings | 10 | 100 | 100 | 100 |
-| Contact info | 10 | 80 | 80 | 80 |
+| Contact info | 10 | 100 | 100 | 100 |
 | Experience & dates | 15 | 91 | 100 | 100 |
 | Keywords & skills | 20 | 88 | 88 | 88 |
 | Impact & wording | 20 | 61 | 61 | 60 |
 | Length | 5 | 100 | 100 | 100 |
 | Market fit | 5 | 40 | 80 | 40 |
-| **Final** | **100** | **83** | **87** | **85** |
+| **Final** | **100** | **85** | **89** | **87** |
 <!-- ats-table:end -->
 
 | Category | What it checks |

@@ -1,7 +1,7 @@
 # manikantanandam.github.io
 ![ATS India](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-india.json) ![ATS Intl](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-intl.json) ![ATS DE](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-de.json)
 
-Badges show our own parseability and content heuristics for the committed PDFs (not a real ATS score); the "ATS badges" workflow refreshes them after every push to `main`.
+Badges show our own final ATS score for the committed PDFs (not a real ATS score); the "ATS badges" workflow refreshes them after every push to `main`.
 
 Personal portfolio, plain HTML/CSS/JS, served by GitHub Pages at https://manikantanandam.github.io/.
 
@@ -27,7 +27,7 @@ Fill the empty personal fields (date of birth, nationality, CTC, notice period) 
 
 ## ATS check
 
-`python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]` reports two scores per PDF in `resumes/`: **parseability** (text, headings, contact, dates, length, fonts; our template makes 100 easy) and **content** (bullets per job, quantified results, action verbs, summary length, LinkedIn, keyword coverage from `resume-builder/keywords.yaml`). Both are our own heuristics, not a real ATS score (none is standard), and neither predicts shortlisting. Only parseability gates CI. `--jd` adds a keyword match against a job description. Needs poppler. The "ATS check" workflow runs it on every PR to `main`.
+`python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]` prints one final score per PDF in `resumes/`, a table of 8 weighted categories (Parseability, Structure & headings, Contact info, Experience & dates, Keywords & skills, Impact & wording, Length, Market fit) by resume, and the fixes that lose the most points. Checks are distilled from public ATS guidance (Jobscan-style categories, Workday/Greenhouse parsing notes, German Lebenslauf norms); keywords come from `resume-builder/keywords.yaml`. It is our own heuristic, not a real ATS score (none is standard). Only the Parseability category gates CI (`--min`). `--jd` adds a keyword match against a job description. Needs poppler. The "ATS check" workflow runs it on every PR to `main`.
 
 ## Get a resume PDF from GitHub
 

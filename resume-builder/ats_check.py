@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Heuristic ATS-readiness check for the generated resume PDFs in resumes/.
+"""Heuristic ATS-readiness check (parseability + content) for the generated resume PDFs in resumes/.
 
 This is OUR OWN structural score, not a real ATS score (no standard one exists). It checks that
 common parsers can read the file; it says nothing about whether a recruiter will shortlist.
@@ -9,6 +9,8 @@ Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--json-dir
 """
 import argparse, json, os, re, subprocess, sys
 from collections import Counter
+
+import yaml
 
 import build
 
@@ -53,6 +55,38 @@ def checks(target, pdf):
     ], text
 
 
+IRREGULAR = set("built led ran wrote made grew began drove took set won taught".split())
+
+
+def content_checks(target, text):
+    """Own heuristic for content quality. Returns [(name, weight, fraction 0..1, fix hint)]."""
+    d = build.resolve(target)
+    jobs = d["experience"]
+    bullets = [b for j in jobs for b in j["points"]] + [b for p in d["projects"] for b in p["points"]]
+    has_num = [b for b in bullets if re.search(r"\d", b)]
+    verbs = [b for b in bullets if b.split()[0].lower().rstrip(",") in IRREGULAR or b.split()[0].lower().endswith("ed")]
+    firsts = Counter(b.split()[0].lower() for b in bullets)
+    kws = yaml.safe_load(open(os.path.join(build.HERE, "keywords.yaml"), encoding="utf-8"))
+    low = text.lower()
+    missing = [k for k in kws if k not in low]
+    short_jobs = [j["company"] for j in jobs if len(j["points"]) < 2]
+    swords = len(d["summary"].split())
+    en = d["lang"] == "en"
+    return [
+        ("Every job has >= 2 bullets", 25, 1 - len(short_jobs) / len(jobs),
+         "add bullets for: " + ", ".join(short_jobs)),
+        ("40%+ bullets quantified", 25, min(1, len(has_num) / max(len(bullets), 1) / 0.4),
+         "%d of %d bullets contain a number; add metrics (users, %%, time saved)" % (len(has_num), len(bullets))),
+        ("Bullets start with action verbs", 10, 1 if not en else len(verbs) / max(len(bullets), 1),
+         "start bullets with verbs like Built, Led, Implemented"),
+        ("Summary 30-60 words", 10, 1 if 30 <= swords <= 60 else 0, "summary has %d words" % swords),
+        ("LinkedIn present", 10, 1 if d["linkedin"] else 0, "set linkedin in data.yaml"),
+        ("Core keyword coverage", 15, 1 - len(missing) / len(kws), "missing keywords: " + ", ".join(missing)),
+        ("Varied bullet openers", 5, 1 if max(firsts.values(), default=0) <= 2 else 0,
+         "repeated openers: " + ", ".join(w for w, c in firsts.items() if c > 2)),
+    ]
+
+
 def keyword_match(text, jd_path):
     tok = lambda s: re.findall(r"[a-z][a-z+#.\-]{2,}", s.lower())
     have = set(tok(text))
@@ -74,15 +108,22 @@ def main():
         pdf = os.path.join(build.ROOT, "resumes", "Manikanta_Nandam_Resume_%s.pdf" % build.PDF_NAMES[t])
         res, text = checks(t, pdf)
         score = sum(w for _, w, ok in res if ok)
-        print("%s: %d/100 (structural heuristic)" % (os.path.basename(pdf), score))
+        cres = content_checks(t, text)
+        content = round(sum(w * f for _, w, f, _ in cres))
+        print("%s: parseability %d/100, content %d/100 (own heuristics, not a real ATS score)"
+              % (os.path.basename(pdf), score, content))
         for name, w, ok in res:
             if not ok:
                 print("  FAIL (-%d) %s" % (w, name))
+        for name, w, f, hint in cres:
+            if f < 1:
+                print("  content -%d %s: %s" % (round(w * (1 - f)), name, hint))
         if a.json_dir:
             os.makedirs(a.json_dir, exist_ok=True)
-            color = "brightgreen" if score >= 89 else "yellow" if score >= 75 else "red"
+            low_score = min(score, content)
+            color = "brightgreen" if low_score >= 89 else "yellow" if low_score >= 75 else "red"
             with open(os.path.join(a.json_dir, "ats-%s.json" % t), "w") as f:
-                json.dump({"schemaVersion": 1, "label": "ATS (%s)" % build.PDF_NAMES[t], "message": "%d/100" % score,
+                json.dump({"schemaVersion": 1, "label": "ATS (%s)" % build.PDF_NAMES[t], "message": "parse %d | content %d" % (score, content),
                            "color": color}, f)
         if a.jd:
             pct, missing = keyword_match(text, a.jd)

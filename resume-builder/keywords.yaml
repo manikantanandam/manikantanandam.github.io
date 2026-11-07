@@ -1,0 +1,16 @@
+# Core keywords the content score looks for in every resume (case-insensitive substring match).
+# Edit to match the roles you apply to; use --jd for a specific job description.
+- swift
+- swiftui
+- uikit
+- combine
+- xctest
+- unit testing
+- ci/cd
+- mvvm
+- core data
+- rest
+- git
+- objective-c
+- firebase
+- async-await

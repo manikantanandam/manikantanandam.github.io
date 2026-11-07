@@ -1,0 +1,129 @@
+# SINGLE SOURCE OF TRUTH. Edit this file (and resume/overrides/*.yaml for variant-only changes),
+# then run: python3 resume/build.py all
+# Lists whose items all have an `id` are merged per-id by overrides; other lists are replaced.
+name: Manikanta Nandam
+title: Senior iOS Developer
+email: nanirocks125@gmail.com
+phone: "+918121971462"
+location: Hyderabad, India
+github: https://github.com/manikantanandam
+linkedin: ""
+summary: >-
+  Senior iOS Developer with 8+ years of experience architecting scalable, user-focused mobile
+  applications. Adept at leading teams, mentoring developers, and leveraging AI tools to drive
+  productivity and innovation across native and hybrid platforms.
+total_experience: 8+ years (6+ years iOS)
+
+skills:
+  - id: lang
+    title: Languages & Frameworks
+    items: [Swift, Objective-C, SwiftUI, UIKit, Combine, RxSwift, Flutter, Dart]
+  - id: arch
+    title: Architecture & Concurrency
+    items: [MVC, MVP, MVVM, VIPER, Async-Await, GCD, Operation Queue, Memory Management, Data Structures]
+  - id: data
+    title: Storage, Security & Services
+    items: [Core Data, Realm, Firebase, Push Notifications, WebRTC, Keychain, Obfuscation, File Manager]
+  - id: tools
+    title: Tools & CI/CD
+    items: [Xcode, VS Code, Git, Jira, Source Tree, SPM, CocoaPods, Bitrise, GitHub Actions, SonarCloud, Codecov, TestFlight, App Release, Logging]
+
+experience:
+  - id: ltim
+    role: Specialist Software Engineer
+    company: LTIMindtree
+    location: Hyderabad
+    start: 2025-08
+    end: present
+    points: []
+  - id: tcs
+    role: IT Analyst (C2 Grade)
+    company: Tata Consultancy Services
+    location: Bangalore
+    start: 2022-10
+    end: 2025-08
+    points:
+      - Worked on premium audio solutions for earbuds, headphones, speakers and soundbars.
+  - id: soverg
+    role: iOS Developer
+    company: Soverg Pvt. Ltd
+    location: Bangalore
+    start: 2022-02
+    end: 2022-09
+    points:
+      - Worked on a social media management platform in a startup environment.
+  - id: ap
+    role: Digital Assistant
+    company: Government of Andhra Pradesh
+    location: Andhra Pradesh
+    start: 2019-11
+    end: 2022-02
+    points:
+      - Nodal officer for all IT-related activities for the Grama Panchayat.
+  - id: pratian
+    role: Software Engineer
+    company: Pratian Technologies
+    location: Bangalore
+    start: 2017-09
+    end: 2019-09
+    points:
+      - Started as an entry-level developer and grew into an end-to-end enterprise mobile application developer.
+
+education:
+  - degree: B.Tech in Electronics and Communications Engineering (ECE)
+    school: Gudlavalleru Engineering College
+    start: 2013
+    end: 2017
+
+projects:
+  - id: aol
+    name: AOL (America Online)
+    tags: [Swift, SwiftUI, GAM SDK]
+    description: App to manage AOL Mail, read top news, check local weather and watch trending videos in one place.
+    points:
+      - Added a tracking module on the mail details page.
+      - Worked with backend teams for a smooth GCP migration.
+      - Managed affiliate links and analytics; fixed bugs.
+  - id: bose
+    name: Bose Music App
+    tags: [CoreBluetooth, MVVM-C, RxSwift, WebSockets]
+    description: Consumer app to connect and control Bose earbuds, speakers and soundbars.
+    points:
+      - Added surround features for earbuds.
+      - Implemented device grouping with dynamic change of master device.
+      - Implemented the Alexa X app flow; fixed bugs.
+  - id: sprouter
+    name: Sprouter
+    tags: [MVP, Realm, Deep Linking]
+    description: Social media aggregator to post to Facebook, Twitter, Instagram, YouTube and more from one place, with a unique profile of custom links and files.
+    points:
+      - Built Custom Links and Custom Files.
+      - Added offline storage to the existing app; performance tuning.
+  - id: gtcomplyrite
+    name: GTComplyRite
+    tags: [VIPER, Realm, Firebase, GCD]
+    description: Online/offline FSSAI compliance auditing app for food manufacturers, usable by auditors in remote areas.
+    points:
+      - Designed wireframes and prototypes from scratch; adopted the VIPER architecture.
+      - Improved responsiveness using Xcode Instruments.
+      - Implemented offline functionality using Realm and REST API integration.
+      - Mentored new joiners in Swift and iOS development.
+  - id: culturewerkz
+    name: CultureWerkz
+    tags: [Cordova, Ionic 3, SQLite]
+    description: Hybrid app aligning individual objectives, key activities and key results with organization goals, flagging risks.
+    points:
+      - First hybrid app developer in the organization; built prototypes and integrated REST APIs.
+  - id: kkd
+    name: KnockKnockDoc (KKD)
+    tags: [XMPP, WebRTC, Core Data, PushKit, CallKit]
+    description: Real-time chat app for US healthcare providers with messaging, media sharing, and audio/video calls with end-to-end encryption.
+    points:
+      - Designed audio/video call screens; implemented XMPP signaling and WebRTC calling.
+      - Delivered a POC on end-to-end encryption using OMEMO (AES-256).
+  - id: apoorva
+    name: Apoorva
+    only: [site]
+    tags: [Swift, SwiftUI, Firebase]
+    description: Offline-first POS and business management app built with Swift, SwiftUI and Skip.
+    link: https://github.com/manikantanandam

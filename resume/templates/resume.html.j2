@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<title>{{ name }} - {{ title }}</title>
+<style>
+@page { size: {{ page_size }}; margin: 14mm 15mm; }
+{% include 'resume.css' %}
+</style>
+</head>
+<body>
+<h1>{{ name }}</h1>
+<p class="role">{{ title }}</p>
+<p class="contact">{{ contact_line }}</p>
+{% if details_line %}<p class="contact">{{ details_line }}</p>{% endif %}
+
+<h2>{{ labels.summary }}</h2>
+<p>{{ summary }}</p>
+
+<h2>{{ labels.skills }}</h2>
+<ul class="plain">
+{% for s in skills %}<li><strong>{{ s.title }}:</strong> {{ s['items']|join(', ') }}</li>
+{% endfor %}</ul>
+
+<h2>{{ labels.experience }}</h2>
+{% for e in experience %}
+<div class="entry">
+<p class="head"><strong>{{ e.role }}</strong>, {{ e.company }}, {{ e.location }} | {{ e.period }}</p>
+{% if e.points %}<ul>{% for p in e.points %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+</div>
+{% endfor %}
+
+<h2>{{ labels.projects }}</h2>
+{% for p in projects %}
+<div class="entry">
+<p class="head"><strong>{{ p.name }}</strong> | {{ p.tags|join(', ') }}</p>
+<p>{{ p.description }}</p>
+<ul>{% for pt in p.points %}<li>{{ pt }}</li>{% endfor %}</ul>
+</div>
+{% endfor %}
+
+<h2>{{ labels.education }}</h2>
+{% for ed in education %}<p><strong>{{ ed.degree }}</strong>, {{ ed.school }} | {{ ed.start }} - {{ ed.end }}</p>
+{% endfor %}
+</body>
+</html>

@@ -1,0 +1,10 @@
+/* Single column, system fonts, no tables/images/icons: parses cleanly in ATS. */
+body { font: 10pt/1.35 Helvetica, Arial, sans-serif; color: #000; margin: 0; }
+h1 { font-size: 20pt; margin: 0; }
+h2 { font-size: 11pt; text-transform: uppercase; border-bottom: 1px solid #000; margin: 12pt 0 4pt; padding-bottom: 1pt; }
+p { margin: 2pt 0; }
+.role { font-size: 12pt; }
+.contact { margin: 1pt 0; }
+ul { margin: 2pt 0 4pt 16pt; padding: 0; }
+ul.plain { list-style: none; margin-left: 0; }
+.entry { margin-bottom: 6pt; break-inside: avoid; }

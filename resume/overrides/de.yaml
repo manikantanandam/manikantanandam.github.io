@@ -1,0 +1,75 @@
+# German Lebenslauf (ATS-friendly, no photo). Translations are a draft: please review.
+variant: de
+lang: de
+page_size: A4
+labels: {summary: Profil, skills: Kenntnisse, experience: Berufserfahrung, education: Ausbildung, projects: Projekte, present: heute}
+details:
+  Geburtsdatum: ""    # fill in, or leave empty to omit
+  Staatsangehörigkeit: ""
+title: Senior iOS-Entwickler
+location: Hyderabad, Indien
+total_experience: 8+ Jahre (davon 6+ Jahre iOS)
+summary: >-
+  Senior iOS-Entwickler mit über 8 Jahren Erfahrung in der Entwicklung skalierbarer, nutzerorientierter
+  mobiler Anwendungen. Erfahren in der Teamführung und im Mentoring von Entwicklern sowie im Einsatz
+  von KI-Werkzeugen zur Steigerung von Produktivität und Innovation auf nativen und hybriden Plattformen.
+skills:
+  - {id: lang, title: Sprachen & Frameworks}
+  - {id: arch, title: Architektur & Nebenläufigkeit}
+  - {id: data, title: "Speicherung, Sicherheit & Dienste"}
+  - {id: tools, title: Werkzeuge & CI/CD}
+experience:
+  - id: ltim
+    role: Specialist Software Engineer
+  - id: tcs
+    role: IT-Analyst (C2)
+    points: [Entwicklung von Premium-Audiolösungen für Ohrhörer, Kopfhörer, Lautsprecher und Soundbars.]
+  - id: soverg
+    role: iOS-Entwickler
+    points: [Arbeit an einer Social-Media-Management-Plattform in einem Startup-Umfeld.]
+  - id: ap
+    role: Digital Assistant
+    company: Regierung von Andhra Pradesh
+    points: [Zentraler Ansprechpartner für alle IT-Aufgaben der Gemeinde (Grama Panchayat).]
+  - id: pratian
+    role: Software-Entwickler
+    points: [Vom Einstiegsentwickler zum End-to-End-Entwickler für mobile Unternehmensanwendungen aufgestiegen.]
+education:
+  - degree: B.Tech Elektronik und Kommunikationstechnik (ECE)
+    school: Gudlavalleru Engineering College
+    start: 2013
+    end: 2017
+projects:
+  - id: aol
+    description: App für AOL Mail, Top-Nachrichten, lokales Wetter und Trendvideos an einem Ort.
+    points:
+      - Tracking-Modul auf der Mail-Detailseite ergänzt.
+      - Zusammenarbeit mit Backend-Teams für eine reibungslose GCP-Migration.
+      - Affiliate-Links und Analytics verwaltet; Fehlerbehebungen.
+  - id: bose
+    description: Verbraucher-App zum Verbinden und Steuern von Bose-Ohrhörern, -Lautsprechern und -Soundbars.
+    points:
+      - Surround-Funktionen für Ohrhörer ergänzt.
+      - Geräte-Gruppierung mit dynamischem Wechsel des Master-Geräts umgesetzt.
+      - Alexa-X-App-Ablauf umgesetzt; Fehlerbehebungen.
+  - id: sprouter
+    description: Social-Media-Aggregator zum Posten auf Facebook, Twitter, Instagram, YouTube u. a. an einem Ort, mit Profil aus eigenen Links und Dateien.
+    points:
+      - Eigene Links und Dateien entwickelt.
+      - Offline-Speicherung in die bestehende App integriert; Performance-Optimierung.
+  - id: gtcomplyrite
+    description: Online-/Offline-App für FSSAI-Compliance-Audits bei Lebensmittelherstellern, auch in abgelegenen Gebieten nutzbar.
+    points:
+      - Wireframes und Prototypen von Grund auf entworfen; VIPER-Architektur eingeführt.
+      - Reaktionsfähigkeit mit Xcode Instruments verbessert.
+      - Offline-Funktionalität mit Realm und REST-API-Anbindung umgesetzt.
+      - Neue Mitarbeitende in Swift und iOS-Entwicklung eingearbeitet.
+  - id: culturewerkz
+    description: Hybrid-App, die individuelle Ziele, Schlüsselaktivitäten und Ergebnisse mit den Unternehmenszielen abgleicht und Risiken meldet.
+    points:
+      - Erster Hybrid-App-Entwickler im Unternehmen; Prototypen gebaut und REST-APIs integriert.
+  - id: kkd
+    description: Echtzeit-Chat-App für US-Gesundheitsdienstleister mit Nachrichten, Medienaustausch sowie Audio-/Videoanrufen mit Ende-zu-Ende-Verschlüsselung.
+    points:
+      - Anrufbildschirme gestaltet; XMPP-Signalisierung und WebRTC-Anrufe umgesetzt.
+      - POC zur Ende-zu-Ende-Verschlüsselung mit OMEMO (AES-256) geliefert.

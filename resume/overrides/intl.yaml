@@ -1,0 +1,6 @@
+# International (US-style): no personal data, concise, Letter size.
+variant: intl
+lang: en
+page_size: Letter
+labels: {summary: Summary, skills: Skills, experience: Experience, education: Education, projects: Selected Projects}
+details: {}

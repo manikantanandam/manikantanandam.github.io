@@ -1,0 +1,9 @@
+# India: personal details allowed, up to 2 pages.
+variant: india
+lang: en
+page_size: A4
+labels: {summary: Professional Summary, skills: Technical Skills, experience: Work Experience, education: Education, projects: Projects}
+details:
+  Notice period: ""   # fill in, or leave empty to omit
+  Current CTC: ""
+  Expected CTC: ""

@@ -18,7 +18,8 @@ jobs:
           python-version: "3.x"
       - run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - run: pip install -r resume-builder/requirements.txt
-      - name: Score committed PDFs
+      - run: python3 resume-builder/build.py all
+      - name: Score freshly built PDFs
         run: python3 resume-builder/ats_check.py --min 0 --json-dir "$RUNNER_TEMP/badges"
       - name: Publish to badges branch
         run: |

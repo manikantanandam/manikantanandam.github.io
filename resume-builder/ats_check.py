@@ -6,7 +6,7 @@ Workday/Greenhouse parsing notes, German Lebenslauf norms) and grouped into weig
 final score per resume, a category x resume table, and the fixes worth the most points.
 Needs poppler (pdftotext, pdfinfo, pdfimages, pdffonts).
 
-Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--json-dir DIR] [--readme] [india|intl|de ...]
+Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--json-dir DIR] [--readme] [--baseline scores.json] [india|intl|de ...]
 --min gates the Parseability category (the part our template controls), not the final score.
 """
 import argparse, json, os, re, subprocess, sys
@@ -219,6 +219,7 @@ def main():
     ap.add_argument("--jd")
     ap.add_argument("--json-dir", help="write shields.io endpoint JSON per variant here")
     ap.add_argument("--readme", action="store_true", help="rewrite the score table in README.md")
+    ap.add_argument("--baseline", help="scores.json from main; fail if any final score drops below it")
     a = ap.parse_args()
     res = {}
     for t in a.targets:
@@ -254,6 +255,15 @@ def main():
         write_readme(res, final)
 
     failed = False
+    if a.json_dir:
+        os.makedirs(a.json_dir, exist_ok=True)
+        with open(os.path.join(a.json_dir, "scores.json"), "w") as f:
+            json.dump({t: round(final[t]) for t in res}, f)
+    base = json.load(open(a.baseline)) if a.baseline and os.path.exists(a.baseline) else {}
+    for t in res:
+        if t in base and round(final[t]) < base[t]:
+            print("FAIL: %s ATS score %d is below main's %d" % (build.PDF_NAMES[t], round(final[t]), base[t]))
+            failed = True
     for t in res:
         text = res[t][1]
         if a.jd:

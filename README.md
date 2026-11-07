@@ -1,7 +1,7 @@
 # manikantanandam.github.io
 ![ATS India](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-india.json) ![ATS Intl](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-intl.json) ![ATS DE](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/manikantanandam/manikantanandam.github.io/badges/ats-de.json)
 
-Badges show our own final ATS score (out of 100) for each committed resume PDF; the "ATS badges" workflow refreshes them after every push to `main`. It is not a real ATS score (none is standard).
+Badges show our own final ATS score (out of 100) for each committed resume PDF; the "ATS badges" workflow rebuilds the PDFs and refreshes them after every push to `main`. It is not a real ATS score (none is standard).
 
 Personal portfolio, plain HTML/CSS/JS, served by GitHub Pages at https://manikantanandam.github.io/.
 
@@ -57,13 +57,13 @@ Our own score, built from public ATS guidance (Jobscan-style categories, Workday
 | Market fit | India: A4, notice period, CTC. Intl: Letter, no personal data, relocation line. DE: A4, German headings, birth date/nationality, languages |
 
 ```
-python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--readme] [india|intl|de ...]
+python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--readme] [--baseline scores.json] [india|intl|de ...]
 ```
 
 - Prints the final scores, the category table and the fixes that lose the most points. Needs poppler.
 - `--readme` rewrites the table above; CI fails if it is stale, so rerun it after rebuilding the PDFs.
 - `--jd` adds a keyword match against a job description.
-- Only the Parseability category gates CI (`--min`). The "ATS check" workflow runs on every PR to `main`.
+- The "ATS check" workflow runs on every PR to `main` and fails if Parseability is below `--min` or any resume's final score drops below main's (`--baseline`, read from `scores.json` on the `badges` branch).
 
 ## Get a resume PDF from GitHub
 

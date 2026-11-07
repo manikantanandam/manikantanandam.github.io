@@ -10,7 +10,7 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 
 - Serve locally: `python3 -m http.server` in the repo root, then open `index.html`.
 - Regenerate everything: `python3 resume-builder/build.py all` (or one of `site|india|intl|de`). Needs PyYAML, Jinja2 (`resume-builder/requirements.txt`) and Chrome (override with `$CHROME`).
-- ATS check: one final score plus an 8-category x resume table and top fixes (own heuristic, needs poppler; keywords in `resume-builder/keywords.yaml`; only the Parseability category gates CI via `--min`; `--readme` refreshes the README table, CI fails if stale): `python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]`; CI (`.github/workflows/ats-check.yml`) runs it on PRs and fails if the generated site files are stale.
+- ATS check: one final score plus an 8-category x resume table and top fixes (own heuristic, needs poppler; keywords in `resume-builder/keywords.yaml`; only the Parseability category gates CI via `--min`; `--readme` refreshes the README table, CI fails if stale; CI also fails if a final score drops below main's, from `scores.json` on the `badges` branch): `python3 resume-builder/ats_check.py [--min 89] [--jd job.txt]`; CI (`.github/workflows/ats-check.yml`) runs it on PRs and fails if the generated site files are stale.
 - Check a PDF's ATS text order: `pdftotext -layout resumes/<file>.pdf -`.
 
 ## Single source of truth
@@ -20,7 +20,7 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 - `resumes/` (repo root) holds the three PDFs; the site's two buttons (open in a new tab) link to the India and Intl ones via the `resumes` list in `site.yaml`.
 - `.github/workflows/resume.yml` is a manual (`workflow_dispatch`) action: pick `india|intl|de|all`, it runs `build.py` and uploads the PDFs as a run artifact (no commit/deploy).
 - German translations in `de.yaml` are a draft; DOB, nationality and India CTC/notice fields are empty and omitted until filled.
-- The `badges` branch is bot-managed by `.github/workflows/ats-badges.yml` (shields.io endpoint JSON for the README badges). Don't edit it by hand or protect it.
+- The `badges` branch is bot-managed by `.github/workflows/ats-badges.yml` (shields.io endpoint JSON for the README badges, plus `scores.json`, the PR baseline). Don't edit it by hand or protect it.
 
 ## Site architecture
 

@@ -84,7 +84,6 @@ h2 { font-size: clamp(1.5rem, 4vw, 2rem); letter-spacing: -.02em; margin: 0 0 24
 h2::after { content: ""; display: block; width: 48px; height: 4px; border-radius: 4px; margin-top: 10px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
 .muted { color: var(--muted); font-weight: 400; }
 
-<<<<<<< HEAD
 .hero { text-align: center; padding-top: clamp(48px, 10vw, 110px); position: relative; }
 .hero::before {
   content: ""; position: absolute; inset: -20% -10% auto; height: 520px; z-index: -1; filter: blur(60px); opacity: .35;
@@ -98,16 +97,10 @@ h2::after { content: ""; display: block; width: 48px; height: 4px; border-radius
 .hero > :nth-child(4) { animation-delay: .24s; }
 .hero > :nth-child(5) { animation-delay: .32s; }
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } }
-.avatar { width: clamp(112px, 28vw, 160px); height: auto; aspect-ratio: 1; border-radius: 50%; object-fit: cover; border: 3px solid var(--surface); box-shadow: 0 0 0 3px var(--accent), var(--shadow); background: var(--surface); }
+.avatar { width: clamp(112px, 28vw, 160px); height: auto; aspect-ratio: 1; border-radius: 50%; object-fit: cover; object-position: center 25%; border: 3px solid var(--surface); box-shadow: 0 0 0 3px var(--accent), var(--shadow); background: var(--surface); }
 #hero-name { background: linear-gradient(90deg, var(--text), var(--accent) 60%, var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .title { font-size: clamp(1.05rem, 3vw, 1.35rem); color: var(--accent); margin: 0; font-weight: 600; }
 .lead { max-width: 640px; margin: 16px auto; color: var(--muted); font-size: 1.05rem; }
-=======
-.hero { text-align: center; padding-top: 56px; }
-.avatar { border-radius: 50%; object-fit: cover; object-position: center 25%; border: 3px solid var(--accent); background: var(--surface); }
-.title { font-size: 1.25rem; color: var(--accent); margin: 0; font-weight: 600; }
-.lead { max-width: 640px; margin: 16px auto; }
->>>>>>> origin/main
 
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 20px; }
 section:not(.hero) .cta-row { justify-content: flex-start; }

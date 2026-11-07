@@ -20,6 +20,7 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 - `resumes/` (repo root) holds the three PDFs; the site's two buttons (open in a new tab) link to the India and Intl ones via the `resumes` list in `site.yaml`.
 - `.github/workflows/resume.yml` is a manual (`workflow_dispatch`) action: pick `india|intl|de|all`, it runs `build.py` and uploads the PDFs as a run artifact (no commit/deploy).
 - German translations in `de.yaml` are a draft; DOB, nationality and India CTC/notice fields are empty and omitted until filled.
+- The `badges` branch is bot-managed by `.github/workflows/ats-badges.yml` (shields.io endpoint JSON for the README badges). Don't edit it by hand or protect it.
 
 ## Site architecture
 

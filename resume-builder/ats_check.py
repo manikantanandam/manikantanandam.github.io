@@ -5,9 +5,9 @@ This is OUR OWN structural score, not a real ATS score (no standard one exists).
 common parsers can read the file; it says nothing about whether a recruiter will shortlist.
 Needs poppler (pdftotext, pdfinfo, pdfimages, pdffonts).
 
-Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [india|intl|de ...]
+Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--json-dir DIR] [india|intl|de ...]
 """
-import argparse, os, re, subprocess, sys
+import argparse, json, os, re, subprocess, sys
 from collections import Counter
 
 import build
@@ -67,6 +67,7 @@ def main():
     ap.add_argument("targets", nargs="*", default=["india", "intl", "de"])
     ap.add_argument("--min", type=int, default=89)
     ap.add_argument("--jd")
+    ap.add_argument("--json-dir", help="write shields.io endpoint JSON per variant here")
     a = ap.parse_args()
     failed = False
     for t in a.targets:
@@ -77,6 +78,12 @@ def main():
         for name, w, ok in res:
             if not ok:
                 print("  FAIL (-%d) %s" % (w, name))
+        if a.json_dir:
+            os.makedirs(a.json_dir, exist_ok=True)
+            color = "brightgreen" if score >= 89 else "yellow" if score >= 75 else "red"
+            with open(os.path.join(a.json_dir, "ats-%s.json" % t), "w") as f:
+                json.dump({"schemaVersion": 1, "label": "ATS (%s)" % build.PDF_NAMES[t], "message": "%d/100" % score,
+                           "color": color}, f)
         if a.jd:
             pct, missing = keyword_match(text, a.jd)
             print("  JD keyword match: %.0f%%; missing: %s" % (pct, ", ".join(missing)))

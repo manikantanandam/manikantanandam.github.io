@@ -17,4 +17,6 @@ jobs:
       - run: python3 resume-builder/build.py all
       - name: Generated site files must be up to date
         run: git diff --exit-code index.html sitemap.xml robots.txt
-      - run: python3 resume-builder/ats_check.py
+      - run: python3 resume-builder/ats_check.py --readme
+      - name: README score table must be up to date
+        run: git diff --exit-code README.md

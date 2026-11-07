@@ -1,78 +1,6 @@
+// Interactivity only: all content is pre-rendered into index.html by resume-builder/build.py.
 (function () {
-  var cfg = window.SITE_CONFIG || {};
-  var c = cfg.contact || {};
-  var social = cfg.social || {};
-
   function $(id) { return document.getElementById(id); }
-  // Build elements with textContent only, so config values are never parsed as HTML.
-  function el(tag, props, children) {
-    var n = document.createElement(tag);
-    Object.keys(props || {}).forEach(function (k) {
-      if (k === 'text') n.textContent = props[k]; else n.setAttribute(k, props[k]);
-    });
-    (children || []).forEach(function (ch) { n.appendChild(ch); });
-    return n;
-  }
-  function link(text, href, cls, external) {
-    var a = el('a', { text: text, href: href, 'class': 'btn ' + (cls || '') });
-    if (external) { a.target = '_blank'; a.rel = 'noopener'; }
-    return a;
-  }
-  function list(items) {
-    return el('ul', {}, (items || []).map(function (i) { return el('li', { text: i }); }));
-  }
-
-  var waUrl = c.whatsapp
-    ? 'https://wa.me/' + c.whatsapp + '?text=' + encodeURIComponent(c.whatsappMessage || '')
-    : '';
-
-  document.title = cfg.name + ' | ' + cfg.title;
-  document.querySelector('meta[name="description"]').content = 'Portfolio of ' + cfg.name + ', ' + cfg.title + '.';
-  document.querySelector('meta[property="og:title"]').content = document.title;
-  $('brand').textContent = cfg.initials || cfg.name;
-  $('photo').src = cfg.photo;
-  $('photo').alt = 'Portrait of ' + cfg.name;
-  $('hero-name').textContent = "Hi, I'm " + cfg.name;
-  $('hero-title').textContent = cfg.title;
-  $('hero-intro').textContent = cfg.intro;
-
-  var heroCta = $('hero-cta');
-  if (waUrl) heroCta.appendChild(link('💬 Chat on WhatsApp', waUrl, 'btn-whatsapp', true));
-  (cfg.resumes || []).forEach(function (r) {
-    heroCta.appendChild(link('📄 ' + r.label, r.file, '', true));
-  });
-  if (social.github) heroCta.appendChild(link('GitHub', social.github, 'btn-ghost', true));
-  if (social.linkedin) heroCta.appendChild(link('LinkedIn', social.linkedin, 'btn-ghost', true));
-
-  (cfg.about || []).forEach(function (p) { $('about-body').appendChild(el('p', { text: p })); });
-
-  (cfg.skills || []).forEach(function (s) {
-    $('skills-body').appendChild(el('div', { 'class': 'card' }, [el('h3', { text: s.title }), list(s.items)]));
-  });
-
-  (cfg.experience || []).forEach(function (e) {
-    var h = el('h3', { text: e.role + ', ' + e.company + ' ' }, [el('span', { 'class': 'muted', text: '· ' + e.period })]);
-    $('experience-body').appendChild(el('article', { 'class': 'card' }, [h, list(e.points)]));
-  });
-
-  (cfg.projects || []).forEach(function (p) {
-    var kids = [el('h3', { text: p.name }), el('p', { text: p.description }),
-      el('p', { 'class': 'tags' }, (p.tags || []).map(function (t) { return el('span', { text: t }); }))];
-    if (p.link) kids.push(el('a', { text: 'View project →', href: p.link, target: '_blank', rel: 'noopener' }));
-    $('projects-body').appendChild(el('article', { 'class': 'card' }, kids));
-  });
-
-  var contactCta = $('contact-cta');
-  if (waUrl) contactCta.appendChild(link('💬 Chat on WhatsApp', waUrl, 'btn-whatsapp', true));
-  if (c.email) {
-    contactCta.appendChild(link('✉ Email me', 'mailto:' + c.email + '?subject=' + encodeURIComponent(c.emailSubject || ''), ''));
-    contactCta.appendChild(el('button', { type: 'button', 'class': 'btn btn-ghost', id: 'copy-email', 'data-email': c.email, text: 'Copy email' }));
-  }
-  if (c.phone) contactCta.appendChild(link('📞 Call', 'tel:' + c.phone, 'btn-ghost'));
-
-  $('footer').textContent = '© ' + new Date().getFullYear() + ' ' + cfg.name;
-  if (waUrl) { $('fab').href = waUrl; $('fab').hidden = false; }
-
   var root = document.documentElement;
   var toggle = $('theme-toggle');
 
@@ -84,7 +12,6 @@
     var dark = root.getAttribute('data-theme') === 'dark';
     toggle.setAttribute('aria-pressed', String(dark));
     toggle.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
-    toggle.textContent = dark ? '☀️ Light' : '🌙 Dark';
   }
 
   toggle.addEventListener('click', function () {
@@ -101,11 +28,11 @@
     root.style.setProperty('--font-scale', next);
     store('fontScale', String(next));
   }
-  document.getElementById('font-up').addEventListener('click', function () { changeScale(0.1); });
-  document.getElementById('font-down').addEventListener('click', function () { changeScale(-0.1); });
+  $('font-up').addEventListener('click', function () { changeScale(0.1); });
+  $('font-down').addEventListener('click', function () { changeScale(-0.1); });
 
-  var copyBtn = document.getElementById('copy-email');
-  var status = document.getElementById('copy-status');
+  var copyBtn = $('copy-email');
+  var status = $('copy-status');
   if (copyBtn) copyBtn.addEventListener('click', function () {
     var email = copyBtn.getAttribute('data-email');
     var done = function (msg) { status.textContent = msg; };
@@ -119,29 +46,41 @@
 
   var nav = document.querySelector('.nav');
   var menuBtn = $('menu-toggle');
-  function setMenu(open) { nav.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', String(open)); menuBtn.textContent = open ? '✕' : '☰'; }
-  menuBtn.addEventListener('click', function () { setMenu(!nav.classList.contains('open')); });
-  document.querySelectorAll('.nav ul a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
-
-  // Scroll-reveal via AOS (skipped for reduced motion or if the CDN failed).
-  if (window.AOS) {
-    document.querySelectorAll('main section:not(.hero) h2, .card').forEach(function (n, i) {
-      n.setAttribute('data-aos', 'fade-up');
-      n.setAttribute('data-aos-delay', String((i % 3) * 80));
-    });
-    AOS.init({ once: true, duration: 600, offset: 40, disable: matchMedia('(prefers-reduced-motion: reduce)').matches });
+  function setMenu(open) {
+    nav.classList.toggle('open', open);
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
   }
+  menuBtn.addEventListener('click', function () { setMenu(!nav.classList.contains('open')); });
+  document.querySelectorAll('.nav a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+
+  // Shadow under the nav once the page scrolls.
+  function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var reveals = document.querySelectorAll('.reveal');
+  var links = document.querySelectorAll('.nav ul a');
+  if (!('IntersectionObserver' in window)) {
+    reveals.forEach(function (n) { n.classList.add('in'); });
+    return;
+  }
+
+  // Fade sections in as they enter the viewport (CSS skips this for reduced motion).
+  var revealer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); revealer.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  reveals.forEach(function (n) { revealer.observe(n); });
 
   // Highlight the nav link of the section in view.
-  var links = document.querySelectorAll('.nav ul a');
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) {
-          links.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id); });
-        }
-      });
-    }, { rootMargin: '-40% 0px -55% 0px' });
-    document.querySelectorAll('main section[id]').forEach(function (s) { io.observe(s); });
-  }
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id); });
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('main section[id]').forEach(function (s) { spy.observe(s); });
 })();

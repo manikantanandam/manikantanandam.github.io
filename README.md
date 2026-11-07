@@ -11,7 +11,7 @@ Personal portfolio, plain HTML/CSS/JS, served by GitHub Pages at https://manikan
 
 ## Content: single source
 
-Edit only `resume-builder/data.yaml` (shared content) and `resume-builder/overrides/{site,india,intl,de}.yaml` (changes specific to one output). `config.js` and `resumes/*` are generated; never edit them by hand.
+Edit only `resume-builder/data.yaml` (shared content) and `resume-builder/overrides/{site,india,intl,de}.yaml` (changes specific to one output). `index.html`, `sitemap.xml`, `robots.txt` and `resumes/*` are generated; never edit them by hand.
 
 ```
 pip install -r resume-builder/requirements.txt    # PyYAML, Jinja2 (Chrome is also required)
@@ -19,7 +19,8 @@ python3 resume-builder/build.py all               # or: site | india | intl | de
 ```
 
 Outputs:
-- `config.js`: site content, read by `script.js`.
+- `index.html`: the pre-rendered site (content, meta tags, JSON-LD for SEO) from `resume-builder/templates/site.html.j2`; `script.js` adds interactivity only.
+- `sitemap.xml`, `robots.txt`: for search engines.
 - `resumes/`: India, International and German (Lebenslauf) ATS PDFs. The site buttons link to the India and International ones.
 
 Fill the empty personal fields (date of birth, nationality, CTC, notice period) in the overrides to include them. The German text is a draft translation.

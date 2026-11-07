@@ -1,5 +1,5 @@
-# SINGLE SOURCE OF TRUTH. Edit this file (and resume/overrides/*.yaml for variant-only changes),
-# then run: python3 resume/build.py all
+# SINGLE SOURCE OF TRUTH. Edit this file (and resume-generator/overrides/*.yaml for variant-only changes),
+# then run: python3 resume-generator/build.py all
 # Lists whose items all have an `id` are merged per-id by overrides; other lists are replaced.
 name: Manikanta Nandam
 title: Senior iOS Developer

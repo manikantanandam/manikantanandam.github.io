@@ -6,7 +6,7 @@ Workday/Greenhouse parsing notes, German Lebenslauf norms) and grouped into weig
 final score per resume, a category x resume table, and the fixes worth the most points.
 Needs poppler (pdftotext, pdfinfo, pdfimages, pdffonts).
 
-Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--json-dir DIR] [--readme] [--baseline scores.json] [india|intl|de ...]
+Usage: python3 resume-builder/ats_check.py [--min 89] [--jd job.txt] [--json-dir DIR] [--readme] [--baseline scores.json] [--comment out.md] [india|intl|de ...]
 --min gates the Parseability category (the part our template controls), not the final score.
 """
 import argparse, json, os, re, subprocess, sys
@@ -212,6 +212,28 @@ def write_readme(res, final):
     open(path, "w", encoding="utf-8").write(s)
 
 
+def write_comment(path, scores, base, dropped):
+    """Markdown table of main's score -> this PR's score per category and resume."""
+    def cell(t, c):
+        new, old = scores[t][c], base.get(t, {}).get(c)
+        if old is None or old == new:
+            return "%d" % new
+        return "%d → %d (%+d)" % (old, new, new - old)
+    names = [build.PDF_NAMES[t] for t in scores]
+    rows = ["<!-- ats-score-comment -->", "### ATS score: main → this PR", "",
+            "| Category | %s |" % " | ".join(names), "|---|" + "---:|" * len(names)]
+    rows += ["| %s | %s |" % (c, " | ".join(cell(t, c) for t in scores)) for c, _ in CATEGORIES]
+    rows.append("| **Final** | %s |" % " | ".join("**%s**" % cell(t, "Final") for t in scores))
+    rows.append("")
+    if dropped:
+        rows.append("❌ Score dropped below main for: " + ", ".join(build.PDF_NAMES[t] for t in dropped))
+    elif base:
+        rows.append("✅ No resume scores lower than main.")
+    else:
+        rows.append("No baseline from main yet; showing this PR's scores only.")
+    open(path, "w", encoding="utf-8").write("\n".join(rows) + "\n")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("targets", nargs="*", default=["india", "intl", "de"])
@@ -220,6 +242,7 @@ def main():
     ap.add_argument("--json-dir", help="write shields.io endpoint JSON per variant here")
     ap.add_argument("--readme", action="store_true", help="rewrite the score table in README.md")
     ap.add_argument("--baseline", help="scores.json from main; fail if any final score drops below it")
+    ap.add_argument("--comment", help="write a markdown main-vs-PR score table here (for a PR comment)")
     a = ap.parse_args()
     res = {}
     for t in a.targets:
@@ -255,15 +278,20 @@ def main():
         write_readme(res, final)
 
     failed = False
+    scores = {t: dict({c: round(pct(res[t][0][c])) for c, _ in CATEGORIES}, Final=round(final[t])) for t in res}
     if a.json_dir:
         os.makedirs(a.json_dir, exist_ok=True)
         with open(os.path.join(a.json_dir, "scores.json"), "w") as f:
-            json.dump({t: round(final[t]) for t in res}, f)
+            json.dump(scores, f)
     base = json.load(open(a.baseline)) if a.baseline and os.path.exists(a.baseline) else {}
-    for t in res:
-        if t in base and round(final[t]) < base[t]:
-            print("FAIL: %s ATS score %d is below main's %d" % (build.PDF_NAMES[t], round(final[t]), base[t]))
-            failed = True
+    # Older scores.json held only {target: final}.
+    base = {t: v if isinstance(v, dict) else {"Final": v} for t, v in base.items()}
+    dropped = [t for t in res if t in base and scores[t]["Final"] < base[t]["Final"]]
+    for t in dropped:
+        print("FAIL: %s ATS score %d is below main's %d" % (build.PDF_NAMES[t], scores[t]["Final"], base[t]["Final"]))
+        failed = True
+    if a.comment:
+        write_comment(a.comment, scores, base, dropped)
     for t in res:
         text = res[t][1]
         if a.jd:

@@ -1,0 +1,30 @@
+{
+  "id": "k-closest-points-to-origin",
+  "title": "K Closest Points to Origin",
+  "difficulty": "Medium",
+  "tags": [
+    "heap",
+    "quickselect"
+  ],
+  "summary": "Return the k points closest to (0, 0).",
+  "approach": "Max-heap of size k keyed by squared distance; push each point and pop when size exceeds k. Quickselect gives O(n) average.",
+  "complexity": "O(n log k) time, O(k) space",
+  "body": [
+    "iOS link: 'show the 20 nearest stores' on a map; for large datasets use a spatial index (geohash/quad tree) instead."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func kClosest(_ points: [[Int]], _ k: Int) -> [[Int]] {\n    func d(_ p: [Int]) -> Int { p[0] * p[0] + p[1] * p[1] }\n    var heap = Heap<[Int]>({ d($0) > d($1) })     // farthest on top\n    for p in points {\n        heap.push(p)\n        if heap.count > k { heap.pop() }\n    }\n    var result: [[Int]] = []\n    while let p = heap.pop() { result.append(p) }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/k-closest-points-to-origin/"
+    }
+  ],
+  "category": "heap"
+}

@@ -1,0 +1,44 @@
+{
+  "id": "analytics-sdk",
+  "title": "Analytics / event logging SDK",
+  "tags": [
+    "sdk",
+    "analytics",
+    "batching",
+    "privacy"
+  ],
+  "summary": "An SDK used by every feature team to log events: typed schemas, persistent queue, batching and compression, no impact on launch or scroll performance, privacy controls, and guaranteed eventual delivery.",
+  "requirements": [
+    "Simple API: `analytics.track(.screenViewed(name:))`; thread-safe from any context.",
+    "No events lost on crash or kill; delivered within minutes; works offline.",
+    "Minimal battery, data and launch impact; consent and opt-out respected."
+  ],
+  "components": [
+    "Typed event definitions generated from a shared schema registry (also used by Android/backend)",
+    "In-memory buffer → append-only on-disk queue (SQLite or segmented files)",
+    "Uploader: batches of up to N events or T seconds, gzip, retry with backoff, deletes after 2xx",
+    "Context enrichment: session ID, app version, device class, sampling flags",
+    "Consent manager and privacy filters; kill switch via remote config"
+  ],
+  "tradeoffs": [
+    "Writing every event to disk immediately is safest but costs I/O; buffering in memory risks losing the last few events on crash. Common compromise: flush to disk every second and on backgrounding.",
+    "Larger batches save radio wake-ups and battery but increase delivery latency.",
+    "Typed events catch schema errors at compile time but need codegen and a schema process."
+  ],
+  "body": [
+    "**Threading:** public API is nonisolated and cheap (enqueue to an actor or a `Mutex`-protected buffer); all I/O on a background executor; never block the caller.",
+    "**Lifecycle:** flush on `didEnterBackground` with `beginBackgroundTask`; schedule `BGAppRefreshTask` for stragglers; upload on next launch after a delay so it does not compete with startup.",
+    "**Deduplication:** each event has a UUID; server dedupes retries.",
+    "**Queue bounds:** cap disk usage (drop oldest low-priority events first) and record drop counts as a metric.",
+    "**Staff angle:** schema governance (owners, review, deprecation), data quality dashboards (events with nulls, volume anomalies), and keeping the SDK's own overhead measured in CI."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Public API",
+      "text": "public protocol AnalyticsEvent: Sendable, Encodable {\n    static var name: String { get }\n    static var schemaVersion: Int { get }\n}\n\npublic final class Analytics: Sendable {\n    private let pipeline: EventPipeline          // actor: buffer -> disk -> uploader\n    public func track<E: AnalyticsEvent>(_ event: E) {\n        let envelope = Envelope(id: UUID(), name: E.name, version: E.schemaVersion,\n                                timestamp: .now, payload: event)\n        Task { await pipeline.enqueue(envelope) }   // returns immediately\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "designs"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "retry-with-backoff",
+  "title": "Retry with exponential backoff and jitter",
+  "difficulty": "Medium",
+  "tags": [
+    "networking",
+    "resilience",
+    "concurrency"
+  ],
+  "summary": "Write a generic async retry helper for transient failures.",
+  "approach": "Loop up to maxAttempts; on a retryable error sleep `base * 2^attempt` with full jitter, capped; rethrow non-retryable errors and cancellation immediately.",
+  "complexity": "O(attempts)",
+  "body": [
+    "Only retry idempotent requests (or ones with an idempotency key). Honor `Retry-After`. Full jitter prevents synchronized retry storms after an outage."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func withRetry<T: Sendable>(\n    maxAttempts: Int = 4,\n    base: Duration = .milliseconds(300),\n    cap: Duration = .seconds(10),\n    isRetryable: (Error) -> Bool = { ($0 as? URLError)?.code == .timedOut || ($0 as? URLError)?.code == .networkConnectionLost },\n    _ operation: () async throws -> T\n) async throws -> T {\n    var attempt = 0\n    while true {\n        do { return try await operation() }\n        catch {\n            attempt += 1\n            if error is CancellationError || attempt >= maxAttempts || !isRetryable(error) { throw error }\n            let exp = min(cap, base * (1 << attempt))\n            let ms = Double(exp.components.seconds) * 1000 + Double(exp.components.attoseconds) / 1e15\n            try await Task.sleep(for: .milliseconds(Int.random(in: 0...Int(ms))))   // full jitter\n        }\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "ios-practical"
+}

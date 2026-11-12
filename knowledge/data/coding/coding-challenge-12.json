@@ -1,0 +1,27 @@
+{
+  "id": "two-sum-ii-input-array-is-sorted",
+  "title": "Two Sum II (sorted input)",
+  "difficulty": "Medium",
+  "tags": [
+    "two pointers"
+  ],
+  "summary": "In a sorted array, find two numbers that add to target; return 1-based indices.",
+  "approach": "Pointers at both ends: if the sum is too small move left up, too big move right down.",
+  "complexity": "O(n) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func twoSum(_ numbers: [Int], _ target: Int) -> [Int] {\n    var l = 0, r = numbers.count - 1\n    while l < r {\n        let s = numbers[l] + numbers[r]\n        if s == target { return [l + 1, r + 1] }\n        if s < target { l += 1 } else { r -= 1 }\n    }\n    return []\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/"
+    }
+  ],
+  "category": "two-pointers"
+}

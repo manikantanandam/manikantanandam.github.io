@@ -1,0 +1,28 @@
+{
+  "id": "merge-k-sorted-lists",
+  "title": "Merge k Sorted Lists",
+  "difficulty": "Hard",
+  "tags": [
+    "divide and conquer",
+    "heap"
+  ],
+  "summary": "Merge k sorted linked lists.",
+  "approach": "Pairwise merge in rounds (divide and conquer) reuses merge-two; or use a min-heap of list heads.",
+  "complexity": "O(N log k) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class ListNode { var val: Int; var next: ListNode?; init(_ v: Int, _ n: ListNode? = nil) { val = v; next = n } }\nfunc mergeKLists(_ lists: [ListNode?]) -> ListNode? {\n    var lists = lists\n    guard !lists.isEmpty else { return nil }\n    while lists.count > 1 {\n        var merged: [ListNode?] = []\n        for i in stride(from: 0, to: lists.count, by: 2) {\n            merged.append(mergeTwoLists(lists[i], i + 1 < lists.count ? lists[i + 1] : nil))\n        }\n        lists = merged\n    }\n    return lists[0]\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/merge-k-sorted-lists/"
+    }
+  ],
+  "category": "linked-list"
+}

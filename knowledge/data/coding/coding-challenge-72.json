@@ -1,0 +1,27 @@
+{
+  "id": "generate-parentheses",
+  "title": "Generate Parentheses",
+  "difficulty": "Medium",
+  "tags": [
+    "backtracking"
+  ],
+  "summary": "All well-formed combinations of n pairs of parentheses.",
+  "approach": "Add `(` while open < n; add `)` while close < open.",
+  "complexity": "O(Catalan(n)) results",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func generateParenthesis(_ n: Int) -> [String] {\n    var result: [String] = []\n    func build(_ s: String, _ open: Int, _ close: Int) {\n        if s.count == 2 * n { result.append(s); return }\n        if open < n { build(s + \"(\", open + 1, close) }\n        if close < open { build(s + \")\", open, close + 1) }\n    }\n    build(\"\", 0, 0)\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/generate-parentheses/"
+    }
+  ],
+  "category": "backtracking"
+}

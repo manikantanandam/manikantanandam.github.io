@@ -1,0 +1,50 @@
+{
+  "id": "mobile-observability",
+  "title": "Observability for mobile apps",
+  "tags": [
+    "logging",
+    "metrics",
+    "tracing",
+    "crash reporting"
+  ],
+  "summary": "You cannot attach a debugger to a user's phone. Combine crash reporting, MetricKit performance data, structured logs, client-side traces and business funnels, all privacy-safe and sampled.",
+  "requirements": [
+    "Detect regressions within hours of a release; diagnose without user reports.",
+    "No PII in telemetry; bounded battery and data cost."
+  ],
+  "components": [
+    "Crash reporter (signal + exception handlers, symbolication with dSYMs)",
+    "MetricKit: launch time, hangs, hitches, memory, disk writes, CPU exceptions, diagnostics",
+    "Structured logging (`os.Logger` locally; sampled upload of error-level events)",
+    "Client tracing: spans for screen load, network, DB; correlated with backend trace IDs via headers",
+    "Dashboards and alerts per release and per feature"
+  ],
+  "tradeoffs": [
+    "Verbose logging helps debugging but costs battery, storage, data and privacy risk; use levels, sampling and on-demand upload.",
+    "Third-party SDKs are fast to adopt but add launch time, size and data-sharing concerns; in-house gives control at engineering cost."
+  ],
+  "body": [
+    "**Key metrics:** crash-free users/sessions, hang rate, launch p50/p90, scroll hitch rate, screen time-to-interactive, API error rate and latency by endpoint, OOM rate, app size.",
+    "**Time to interactive:** start a span on navigation intent, end when the first meaningful content renders; tag with network type and device class.",
+    "**Remote debug logging:** a flag enables verbose logging for a specific user (with consent) for 24h to investigate issues.",
+    "**Privacy:** hash or drop identifiers, redact URLs and free text, declare collection in the privacy manifest, honor opt-outs."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Structured, privacy-aware logging",
+      "text": "import os\nlet log = Logger(subsystem: \"com.app\", category: \"checkout\")\n\nlog.info(\"Payment started for order \\(orderID, privacy: .private(mask: .hash))\")\nlog.error(\"Payment failed: \\(error.code, privacy: .public)\")"
+    }
+  ],
+  "links": [
+    {
+      "label": "MetricKit",
+      "url": "https://developer.apple.com/documentation/metrickit"
+    },
+    {
+      "label": "Logger",
+      "url": "https://developer.apple.com/documentation/os/logger"
+    }
+  ],
+  "category": "fundamentals"
+}

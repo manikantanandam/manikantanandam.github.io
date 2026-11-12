@@ -1,0 +1,29 @@
+{
+  "id": "lowest-common-ancestor-of-a-binary-tree",
+  "title": "Lowest Common Ancestor of a Binary Tree",
+  "difficulty": "Medium",
+  "tags": [
+    "dfs"
+  ],
+  "summary": "Find the lowest common ancestor of nodes p and q.",
+  "approach": "Post-order: return the node if it is p or q; if both subtrees return non-nil, the current node is the LCA.",
+  "complexity": "O(n) time",
+  "body": [
+    "iOS link: finding the common superview of two views (walk up `superview` chains with a set) is the parent-pointer version of this."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc lowestCommonAncestor(_ root: TreeNode?, _ p: TreeNode, _ q: TreeNode) -> TreeNode? {\n    guard let root else { return nil }\n    if root === p || root === q { return root }\n    let l = lowestCommonAncestor(root.left, p, q)\n    let r = lowestCommonAncestor(root.right, p, q)\n    if l != nil && r != nil { return root }\n    return l ?? r\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/"
+    }
+  ],
+  "category": "trees"
+}

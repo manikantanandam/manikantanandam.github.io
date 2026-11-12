@@ -1,0 +1,29 @@
+{
+  "id": "contains-duplicate",
+  "title": "Contains Duplicate",
+  "difficulty": "Easy",
+  "tags": [
+    "hash set"
+  ],
+  "summary": "Return true if any value appears at least twice in the array.",
+  "approach": "Insert into a set; if `insert` reports the value was already present, return true.",
+  "complexity": "O(n) time, O(n) space",
+  "body": [
+    "Trade-off: sorting first gives O(1) extra space but O(n log n) time."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func containsDuplicate(_ nums: [Int]) -> Bool {\n    var seen = Set<Int>()\n    for n in nums where !seen.insert(n).inserted { return true }\n    return false\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/contains-duplicate/"
+    }
+  ],
+  "category": "arrays-hashing"
+}

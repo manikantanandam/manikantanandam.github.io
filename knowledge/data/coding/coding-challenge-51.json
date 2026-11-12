@@ -1,0 +1,30 @@
+{
+  "id": "serialize-and-deserialize-binary-tree",
+  "title": "Serialize and Deserialize Binary Tree",
+  "difficulty": "Hard",
+  "tags": [
+    "dfs",
+    "design"
+  ],
+  "summary": "Encode a tree to a string and decode it back.",
+  "approach": "Pre-order with a null marker. Decoding consumes tokens in the same order.",
+  "complexity": "O(n) time and space",
+  "body": [
+    "In an iOS context the same question appears as 'persist a view hierarchy/state tree'; mention Codable with indirect enums as the idiomatic Swift approach."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc serialize(_ root: TreeNode?) -> String {\n    var out: [String] = []\n    func walk(_ n: TreeNode?) {\n        guard let n else { out.append(\"#\"); return }\n        out.append(String(n.val)); walk(n.left); walk(n.right)\n    }\n    walk(root)\n    return out.joined(separator: \",\")\n}\n\nfunc deserialize(_ data: String) -> TreeNode? {\n    var tokens = data.split(separator: \",\").makeIterator()\n    func build() -> TreeNode? {\n        guard let t = tokens.next(), t != \"#\", let v = Int(t) else { return nil }\n        let node = TreeNode(v)\n        node.left = build(); node.right = build()\n        return node\n    }\n    return build()\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/"
+    }
+  ],
+  "category": "trees"
+}

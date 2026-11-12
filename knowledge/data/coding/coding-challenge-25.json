@@ -1,0 +1,27 @@
+{
+  "id": "daily-temperatures",
+  "title": "Daily Temperatures",
+  "difficulty": "Medium",
+  "tags": [
+    "monotonic stack"
+  ],
+  "summary": "For each day, how many days until a warmer temperature?",
+  "approach": "Monotonic decreasing stack of indices; a warmer day pops and resolves all cooler days on the stack.",
+  "complexity": "O(n) time, O(n) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func dailyTemperatures(_ t: [Int]) -> [Int] {\n    var answer = [Int](repeating: 0, count: t.count)\n    var stack: [Int] = []\n    for i in t.indices {\n        while let top = stack.last, t[top] < t[i] {\n            answer[top] = i - top\n            stack.removeLast()\n        }\n        stack.append(i)\n    }\n    return answer\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/daily-temperatures/"
+    }
+  ],
+  "category": "stack"
+}

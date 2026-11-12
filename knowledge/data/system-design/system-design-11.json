@@ -1,0 +1,55 @@
+{
+  "id": "chat-messaging",
+  "title": "Chat / messaging app (WhatsApp, iMessage style)",
+  "tags": [
+    "chat",
+    "websocket",
+    "offline",
+    "e2ee",
+    "push"
+  ],
+  "summary": "1:1 and group chat with real-time delivery, offline send, read receipts, media, and push when backgrounded. The core is a local message store plus ordered, idempotent sync.",
+  "requirements": [
+    "Send and receive text and media; delivery states (sending, sent, delivered, read); typing indicators.",
+    "Works offline: compose and queue; history available offline.",
+    "Real-time while foregrounded; notifications while backgrounded; multi-device.",
+    "Optional: end-to-end encryption."
+  ],
+  "components": [
+    "Local DB: conversations, messages (indexed by conversation + sequence), outbox",
+    "Connection manager: WebSocket with heartbeat, reconnect with backoff, auth",
+    "Sync service: on connect/foreground, fetch messages after last sequence per conversation (REST)",
+    "Media service: upload to object storage via pre-signed URL first, then send message referencing it",
+    "Push: APNs alerts; Notification Service Extension to decrypt and show content",
+    "Crypto (if E2EE): identity keys in Keychain/Secure Enclave, Signal-style sessions"
+  ],
+  "tradeoffs": [
+    "Server-assigned per-conversation sequence numbers give total order and simple gap detection; client timestamps are unreliable.",
+    "WebSocket gives low latency but must be backed by REST sync for correctness after disconnects.",
+    "E2EE prevents server-side search and moderation and complicates multi-device (per-device keys, fan-out encryption).",
+    "Storing full history locally gives offline access and search but grows storage; offer media auto-download settings and cleanup."
+  ],
+  "body": [
+    "**Send flow:** create message with client UUID, status `.sending`, insert into DB and outbox; UI shows it instantly. Send over socket (or REST fallback) with the client UUID as idempotency key. Server acks with sequence number and timestamp; client updates status to `.sent` and reorders if needed.",
+    "**Receive flow:** socket event or push → insert by (conversation, sequence) ignoring duplicates → if sequence gap detected, fetch missing range → send delivery receipt.",
+    "**Read receipts:** send the highest read sequence per conversation (not per message) to reduce traffic.",
+    "**Media:** compress/transcode on device, upload with background URLSession (resumable), show progress; thumbnails inline in the message for fast display.",
+    "**Push in background:** Notification Service Extension fetches/decrypts the message, writes it to the shared App Group DB so the app opens already up to date.",
+    "**Scale numbers:** 1B messages/day ≈ 12k/s average; group fan-out on server; clients only handle their own conversations.",
+    "**Edge cases:** message edited/deleted (tombstones), clock skew, app killed during send (outbox retried on launch), blocked users, very large groups (paginate members, no per-member receipts)."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Message state and protocol",
+      "text": "enum DeliveryState: String, Codable { case sending, sent, delivered, read, failed }\n\nstruct Message: Identifiable, Codable, Sendable {\n    let id: UUID                  // client generated, idempotency key\n    let conversationID: String\n    var sequence: Int64?          // assigned by server\n    let senderID: String\n    let body: Body                // .text / .media(ref, thumbnail)\n    let sentAt: Date\n    var state: DeliveryState\n}\n\n// socket frames\n// -> {\"type\":\"send\",\"id\":\"<uuid>\",\"conv\":\"c1\",\"body\":{...}}\n// <- {\"type\":\"ack\",\"id\":\"<uuid>\",\"seq\":1042,\"ts\":...}\n// <- {\"type\":\"msg\",\"conv\":\"c1\",\"seq\":1043,...}\n// -> {\"type\":\"read\",\"conv\":\"c1\",\"upTo\":1043}"
+    }
+  ],
+  "links": [
+    {
+      "label": "Signal protocol documentation",
+      "url": "https://signal.org/docs/"
+    }
+  ],
+  "category": "designs"
+}

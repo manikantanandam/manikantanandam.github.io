@@ -1,0 +1,48 @@
+{
+  "id": "realtime-communication",
+  "title": "Real-time updates: polling, SSE, WebSockets, push",
+  "tags": [
+    "websocket",
+    "sse",
+    "push",
+    "real-time"
+  ],
+  "summary": "Pick the channel by direction, frequency and app state: polling for rare updates, SSE for server-to-client streams, WebSockets for bidirectional low latency while foregrounded, APNs when the app is backgrounded.",
+  "requirements": [
+    "Latency target (sub-second chat vs minutes for a feed badge).",
+    "Behavior in background and on flaky networks; battery cost."
+  ],
+  "components": [
+    "Short polling with ETag/backoff",
+    "Long polling",
+    "Server-Sent Events (one-way over HTTP, auto-reconnect)",
+    "WebSocket (`URLSessionWebSocketTask`) with heartbeats and reconnect",
+    "APNs (alert or silent) to wake or notify when not connected"
+  ],
+  "tradeoffs": [
+    "Polling is simple and cache-friendly but wastes requests and adds latency.",
+    "WebSockets give the lowest latency but need stateful servers, sticky routing, and are dropped when the app is suspended.",
+    "Push works in background but is best-effort, throttled (silent pushes) and limited in payload (4KB).",
+    "HTTP/2/3 streams reduce the cost of many small requests, narrowing the gap with sockets."
+  ],
+  "body": [
+    "**Typical hybrid (chat):** WebSocket while foregrounded; on disconnect, fall back to push for new-message alerts; on reconnect or foreground, sync missed messages via REST using the last received sequence number. The socket is an optimization; REST sync is the source of truth.",
+    "**Reconnect:** exponential backoff with jitter, reset on success; react to `NWPathMonitor` changes; heartbeat (ping) every 20-30s to detect dead connections behind NATs.",
+    "**Ordering and dedupe:** server-assigned sequence numbers per conversation/channel; client tracks the highest contiguous sequence and requests gaps.",
+    "**Battery:** close the socket when backgrounded; batch updates; avoid waking the radio for low-priority data."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "WebSocket receive loop",
+      "text": "actor SocketClient {\n    private var task: URLSessionWebSocketTask?\n\n    func connect(_ url: URL) -> AsyncThrowingStream<Data, Error> {\n        let task = URLSession.shared.webSocketTask(with: url)\n        self.task = task\n        task.resume()\n        return AsyncThrowingStream { continuation in\n            let reader = Task {\n                do {\n                    while !Task.isCancelled {\n                        switch try await task.receive() {\n                        case .data(let d): continuation.yield(d)\n                        case .string(let s): continuation.yield(Data(s.utf8))\n                        @unknown default: break\n                        }\n                    }\n                } catch { continuation.finish(throwing: error) }   // caller reconnects with backoff\n            }\n            continuation.onTermination = { _ in reader.cancel(); task.cancel(with: .goingAway, reason: nil) }\n        }\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "URLSessionWebSocketTask",
+      "url": "https://developer.apple.com/documentation/foundation/urlsessionwebsockettask"
+    }
+  ],
+  "category": "fundamentals"
+}

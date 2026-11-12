@@ -1,0 +1,49 @@
+{
+  "id": "news-feed",
+  "title": "News feed (Instagram / X style) client",
+  "tags": [
+    "feed",
+    "pagination",
+    "caching",
+    "images",
+    "video"
+  ],
+  "summary": "An infinite, media-heavy feed that opens instantly from cache, scrolls at 120fps, works offline for already-seen content, and supports likes and comments with optimistic updates.",
+  "requirements": [
+    "Functional: scroll ranked feed, pull to refresh, like/comment, posts with images and video, new-posts indicator.",
+    "Non-functional: first content under 1s (from cache), no scroll hitches, bounded memory and data usage, offline read of cached feed.",
+    "Scale: 100M DAU, ~200 feed items viewed per session."
+  ],
+  "components": [
+    "Feed API (BFF): `GET /feed?cursor=` returning items with author, media variants, counts, and `nextCursor`",
+    "FeedRepository: cache-first, merges network pages into local store",
+    "Local store (SQLite) for posts and authors (normalized), with TTL and size cap",
+    "Image pipeline: memory + disk cache, downsampling, prefetching, CDN URLs per size",
+    "Video player pool: reuse AVPlayer instances, autoplay only the most visible cell, muted by default",
+    "Mutation queue for likes/comments (optimistic, idempotent)",
+    "Impression tracker (visible > 50% for > 1s) batched to analytics"
+  ],
+  "tradeoffs": [
+    "Server-ranked feed keeps clients simple and consistent; client re-ranking allows instant personalization but duplicates logic.",
+    "Normalized storage (posts + users) keeps updates consistent (rename once) but costs joins; denormalized per-feed blobs are faster to render.",
+    "Aggressive prefetch improves smoothness but wastes data on cellular; adapt by network type and Low Data Mode.",
+    "Showing new posts automatically shifts content under the user; a 'new posts' pill is usually better UX."
+  ],
+  "body": [
+    "**Launch path:** render the cached first page synchronously from SQLite, then refresh in the background and merge (diffable snapshot, keep scroll position).",
+    "**Media:** server returns multiple renditions (thumb, 1x, 2x, video HLS); client picks by cell size and network. Use blurhash/dominant color placeholders to avoid layout jumps; fixed aspect ratio from metadata.",
+    "**Optimistic like:** update local count and state immediately, enqueue mutation with idempotency key; on failure revert and show a toast. Server is the source of truth on next refresh.",
+    "**Memory:** cap decoded image cache by cost; release offscreen video players; window very long lists.",
+    "**Failure modes:** partial page decode errors (drop the item, not the page), stale cache after account switch (key by user), duplicate posts across pages (dedupe by ID).",
+    "**Metrics:** time to first post, scroll hitch rate, image load p95, feed refresh success rate, impressions per session."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Post model (client)",
+      "text": "struct Post: Identifiable, Codable, Sendable {\n    let id: String\n    let authorID: String\n    let createdAt: Date\n    let text: String?\n    let media: [Media]           // each with renditions + aspect ratio + placeholder\n    var likeCount: Int\n    var viewerHasLiked: Bool\n}"
+    }
+  ],
+  "links": [],
+  "category": "designs"
+}

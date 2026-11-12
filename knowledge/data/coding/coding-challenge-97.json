@@ -1,0 +1,26 @@
+{
+  "id": "async-image-loader",
+  "title": "Async image loader with dedup and cancellation",
+  "difficulty": "Medium",
+  "tags": [
+    "actor",
+    "networking",
+    "caching"
+  ],
+  "summary": "Load images for a scrolling list: memory cache, deduplicate concurrent requests for the same URL, and cancel when a cell is reused.",
+  "approach": "Actor holding a cache and in-flight tasks keyed by URL (see actor reentrancy). Per-cell, keep the `Task` handle and cancel it in `prepareForReuse`/`onDisappear`.",
+  "complexity": "O(1) lookups",
+  "body": [
+    "Follow-ups: cancelling the shared download only when no caller still wants it (reference count waiters); disk cache; prefetching; downsampling to the cell size to bound memory."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "actor ImageLoader {\n    static let shared = ImageLoader()\n    private let cache = NSCache<NSURL, UIImage>()\n    private var inFlight: [URL: Task<UIImage, Error>] = [:]\n\n    func image(for url: URL, targetSize: CGSize) async throws -> UIImage {\n        if let img = cache.object(forKey: url as NSURL) { return img }\n        if let task = inFlight[url] { return try await task.value }\n\n        let task = Task<UIImage, Error> {\n            let (data, _) = try await URLSession.shared.data(from: url)\n            guard let img = await UIImage(data: data)?.byPreparingThumbnail(ofSize: targetSize) else {\n                throw URLError(.cannotDecodeContentData)\n            }\n            return img\n        }\n        inFlight[url] = task\n        defer { inFlight[url] = nil }\n        let img = try await task.value\n        cache.setObject(img, forKey: url as NSURL)\n        return img\n    }\n}\n\nfinal class PhotoCell: UICollectionViewCell {\n    private var loadTask: Task<Void, Never>?\n    let imageView = UIImageView()\n\n    func configure(url: URL) {\n        loadTask = Task { [weak self] in\n            guard let self else { return }\n            let img = try? await ImageLoader.shared.image(for: url, targetSize: bounds.size)\n            if !Task.isCancelled { imageView.image = img }\n        }\n    }\n    override func prepareForReuse() {\n        super.prepareForReuse()\n        loadTask?.cancel(); imageView.image = nil\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "ios-practical"
+}

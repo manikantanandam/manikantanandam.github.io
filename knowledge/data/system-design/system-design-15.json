@@ -1,0 +1,53 @@
+{
+  "id": "video-streaming",
+  "title": "Video streaming player (Netflix / YouTube style)",
+  "tags": [
+    "video",
+    "hls",
+    "avfoundation",
+    "offline"
+  ],
+  "summary": "Adaptive streaming with HLS, fast start, resume across devices, offline downloads with DRM, and a player architecture that is testable and measurable (startup time, rebuffering ratio).",
+  "requirements": [
+    "Play on-demand video with adaptive bitrate; start in under 2s; minimal rebuffering.",
+    "Resume position across devices; subtitles, audio tracks, Picture in Picture, AirPlay.",
+    "Download for offline with DRM and expiry."
+  ],
+  "components": [
+    "Backend: transcoding into an HLS bitrate ladder, CDN, manifest service, DRM license server (FairPlay)",
+    "Player layer: AVPlayer + AVPlayerItem, a PlayerController state machine, UI separate from playback logic",
+    "Playback session service: progress heartbeats every N seconds, resume position, concurrent stream limits",
+    "Download manager: `AVAssetDownloadURLSession` for HLS offline, persistent FairPlay keys",
+    "QoE telemetry: startup time, rebuffer count/duration, bitrate switches, errors"
+  ],
+  "tradeoffs": [
+    "Lower starting bitrate starts faster but looks worse at first; use network estimates to pick.",
+    "Larger forward buffer reduces rebuffering but wastes data if users abandon.",
+    "Preloading the next episode/feed video improves start time at a data cost."
+  ],
+  "body": [
+    "**Fast start:** prefetch manifest and first segments for likely-next content, reuse a warmed AVPlayer, set `preferredForwardBufferDuration`, and show the poster frame immediately.",
+    "**Feed autoplay (short video):** a small pool of players, play only the most visible cell, preload the next 1-2 items, muted by default; release players aggressively to cap memory.",
+    "**State machine:** idle → loading → readyToPlay → playing ⇄ paused/buffering → ended/failed; observe `timeControlStatus`, `status` and item notifications; expose as an async stream to the UI.",
+    "**Offline:** download the chosen rendition and subtitles; store persistent content keys; enforce license expiry; clean up when storage is low.",
+    "**Metrics:** video start time p50/p95, rebuffering ratio, playback failure rate, average bitrate by network."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Observing playback state",
+      "text": "@MainActor\nfinal class PlayerController {\n    let player = AVPlayer()\n    private var observations: [NSKeyValueObservation] = []\n\n    func load(_ url: URL, resumeAt: CMTime) {\n        let item = AVPlayerItem(url: url)\n        item.preferredForwardBufferDuration = 5\n        player.replaceCurrentItem(with: item)\n        observations = [\n            player.observe(\\.timeControlStatus) { p, _ in\n                MainActor.assumeIsolated { self.report(p.timeControlStatus) }\n            }\n        ]\n        player.seek(to: resumeAt)\n        player.play()\n    }\n    private func report(_ s: AVPlayer.TimeControlStatus) { /* buffering vs playing metrics */ }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "HTTP Live Streaming",
+      "url": "https://developer.apple.com/streaming/"
+    },
+    {
+      "label": "AVFoundation",
+      "url": "https://developer.apple.com/documentation/avfoundation"
+    }
+  ],
+  "category": "designs"
+}

@@ -1,0 +1,52 @@
+{
+  "id": "payments-checkout",
+  "title": "Payments and checkout flow",
+  "tags": [
+    "payments",
+    "idempotency",
+    "apple pay",
+    "security"
+  ],
+  "summary": "A checkout that never double-charges and never loses an order: idempotent payment intents, Apple Pay, 3-D Secure, and clear recovery when the app dies mid-payment.",
+  "requirements": [
+    "Cart → checkout → pay with card or Apple Pay → confirmation; support 3-D Secure challenges.",
+    "Exactly-once charging even with retries and app crashes.",
+    "PCI scope minimized: card data never touches our servers in raw form."
+  ],
+  "components": [
+    "Order service creates an order and a payment intent (with idempotency key) server-side",
+    "Payment provider SDK (Stripe/Adyen) for card tokenization and 3DS; PassKit for Apple Pay",
+    "Client checkout state machine persisted locally (orderID, intentID, step)",
+    "Webhooks from the provider to the backend as the source of truth for payment status"
+  ],
+  "tradeoffs": [
+    "Client-confirmed payments feel faster; server-confirmed via webhooks are authoritative. Show 'processing' until the server confirms.",
+    "Native UI gives the best UX; provider-hosted sheets reduce PCI scope and maintenance.",
+    "Aggressive retries recover more payments but risk duplicates without idempotency keys."
+  ],
+  "body": [
+    "**Flow:** client `POST /orders` (Idempotency-Key = cart snapshot UUID) → server returns orderID + client secret → client collects payment (Apple Pay token or tokenized card) → confirm with provider → handle 3DS challenge if required → poll/subscribe to order status until `paid` or `failed`.",
+    "**Crash recovery:** persist the checkout step; on relaunch, if an order is `pendingPayment`, ask the server for status instead of re-charging.",
+    "**Apple Pay:** `PKPaymentRequest` with merchant ID, supported networks, line items; the token goes to the provider; requires domain/merchant validation for web.",
+    "**Security:** never log card data, use the provider's tokenization, App Attest on checkout endpoints to reduce fraud, jailbreak signals only as risk input.",
+    "**Metrics:** checkout conversion by step, payment failure reasons, 3DS challenge rate, time to confirmation."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Checkout state",
+      "text": "enum CheckoutStep: Codable {\n    case cart\n    case creatingOrder(idempotencyKey: UUID)\n    case awaitingPayment(orderID: String, clientSecret: String)\n    case confirming(orderID: String)\n    case requiresAction(orderID: String, redirect: URL)    // 3DS\n    case completed(orderID: String)\n    case failed(orderID: String?, reason: String)\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "Apple Pay (PassKit)",
+      "url": "https://developer.apple.com/documentation/passkit/apple-pay"
+    },
+    {
+      "label": "Stripe: idempotent requests",
+      "url": "https://docs.stripe.com/api/idempotent_requests"
+    }
+  ],
+  "category": "designs"
+}

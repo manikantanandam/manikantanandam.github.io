@@ -1,0 +1,30 @@
+{
+  "id": "kth-smallest-element-in-a-bst",
+  "title": "Kth Smallest Element in a BST",
+  "difficulty": "Medium",
+  "tags": [
+    "inorder",
+    "bst"
+  ],
+  "summary": "Return the k-th smallest value in a BST.",
+  "approach": "In-order traversal visits values in sorted order; stop at the k-th. Iterative stack avoids recursion overhead.",
+  "complexity": "O(h + k) time",
+  "body": [
+    "Follow-up for frequent queries with inserts: augment nodes with subtree sizes."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc kthSmallest(_ root: TreeNode?, _ k: Int) -> Int {\n    var stack: [TreeNode] = [], node = root, k = k\n    while true {\n        while let n = node { stack.append(n); node = n.left }\n        let n = stack.removeLast()\n        k -= 1\n        if k == 0 { return n.val }\n        node = n.right\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/"
+    }
+  ],
+  "category": "trees"
+}

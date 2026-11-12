@@ -1,0 +1,30 @@
+{
+  "id": "task-scheduler",
+  "title": "Task Scheduler",
+  "difficulty": "Medium",
+  "tags": [
+    "greedy",
+    "math"
+  ],
+  "summary": "Minimum intervals to run tasks when the same task needs n idle slots between runs.",
+  "approach": "Count-based formula: (maxFreq - 1) * (n + 1) + number of tasks with maxFreq, and at least tasks.count.",
+  "complexity": "O(n) time, O(1) space",
+  "body": [
+    "Simulation with a max-heap plus a cooldown queue is the general approach if asked for the actual schedule."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func leastInterval(_ tasks: [Character], _ n: Int) -> Int {\n    var freq = [Int](repeating: 0, count: 26)\n    for t in tasks { freq[Int(t.asciiValue! - 65)] += 1 }\n    let maxF = freq.max()!\n    let maxCount = freq.filter { $0 == maxF }.count\n    return max(tasks.count, (maxF - 1) * (n + 1) + maxCount)\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/task-scheduler/"
+    }
+  ],
+  "category": "heap"
+}

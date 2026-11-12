@@ -1,0 +1,28 @@
+{
+  "id": "design-add-and-search-words-data-structure",
+  "title": "Design Add and Search Words",
+  "difficulty": "Medium",
+  "tags": [
+    "trie",
+    "dfs"
+  ],
+  "summary": "Add words and search with `.` as a wildcard for any letter.",
+  "approach": "Trie; on `.` try every child recursively.",
+  "complexity": "Add O(L); search O(26^dots * L) worst case",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "final class WordDictionary {\n    private final class Node { var children: [Character: Node] = [:]; var isWord = false }\n    private let root = Node()\n\n    func addWord(_ word: String) {\n        var node = root\n        for c in word { node = node.children[c] ?? { let n = Node(); node.children[c] = n; return n }() }\n        node.isWord = true\n    }\n\n    func search(_ word: String) -> Bool {\n        let chars = Array(word)\n        func dfs(_ i: Int, _ node: Node) -> Bool {\n            if i == chars.count { return node.isWord }\n            if chars[i] == \".\" { return node.children.values.contains { dfs(i + 1, $0) } }\n            guard let next = node.children[chars[i]] else { return false }\n            return dfs(i + 1, next)\n        }\n        return dfs(0, root)\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/design-add-and-search-words-data-structure/"
+    }
+  ],
+  "category": "tries"
+}

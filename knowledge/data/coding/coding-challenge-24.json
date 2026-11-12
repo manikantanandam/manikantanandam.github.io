@@ -1,0 +1,27 @@
+{
+  "id": "evaluate-reverse-polish-notation",
+  "title": "Evaluate Reverse Polish Notation",
+  "difficulty": "Medium",
+  "tags": [
+    "stack"
+  ],
+  "summary": "Evaluate an expression in postfix notation (integer division truncates toward zero).",
+  "approach": "Push numbers; on an operator, pop two (right first), apply, push the result.",
+  "complexity": "O(n) time, O(n) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func evalRPN(_ tokens: [String]) -> Int {\n    var stack: [Int] = []\n    for t in tokens {\n        if let n = Int(t) { stack.append(n); continue }\n        let b = stack.removeLast(), a = stack.removeLast()\n        switch t {\n        case \"+\": stack.append(a + b)\n        case \"-\": stack.append(a - b)\n        case \"*\": stack.append(a * b)\n        default:  stack.append(a / b)\n        }\n    }\n    return stack[0]\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/evaluate-reverse-polish-notation/"
+    }
+  ],
+  "category": "stack"
+}

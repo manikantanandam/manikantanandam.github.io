@@ -3,22 +3,39 @@
   "title": "URL shortener",
   "tags": [
     "storage",
-    "hashing"
+    "hashing",
+    "backend"
   ],
-  "summary": "Map a short code to a long URL with high read volume and simple writes.",
+  "summary": "Map a short code to a long URL with very high read volume and simple writes. A classic warm-up that tests ID generation, caching and scaling reads.",
   "requirements": [
-    "Create short links, redirect on read, optional expiry.",
-    "Read-heavy, roughly 100:1 reads to writes."
+    "Create short links, redirect on read, optional expiry and custom aliases.",
+    "Read-heavy, roughly 100:1 reads to writes; redirects under 50ms p99.",
+    "Analytics on clicks without slowing redirects."
   ],
   "components": [
     "API service behind a load balancer",
-    "Key-value store keyed by short code",
-    "Cache in front of the store for hot links"
+    "ID generator (counter ranges per node, or hash + collision check)",
+    "Key-value store keyed by short code (DynamoDB/Cassandra)",
+    "Cache and CDN edge for hot links",
+    "Async click stream (Kafka) to an analytics store"
   ],
   "tradeoffs": [
-    "Base62 counter-based IDs are simple and collision free; random IDs need a uniqueness check."
+    "Base62 counter-based IDs are short and collision free but guessable; random IDs need a uniqueness check.",
+    "301 (cached by browsers, fewer hits, less analytics) vs 302 (every click reaches you).",
+    "Synchronous click counting is simple but slows redirects; async logging is eventually consistent."
   ],
-  "code": [],
+  "body": [
+    "**Estimates:** 100M new links/month → ~40 writes/s, ~4k reads/s average, more at peak. 7 base62 chars give 3.5 trillion codes.",
+    "**ID generation:** each app server leases a range of 1M IDs from a coordinator (ZooKeeper/DB row) and encodes to base62; no hot spot and no collisions.",
+    "**Mobile angle:** if asked from an iOS perspective, discuss universal links (apple-app-site-association) so short links open the app, deferred deep links after install, and link previews."
+  ],
+  "code": [
+    {
+      "lang": "text",
+      "caption": "API",
+      "text": "POST /v1/links        { url, alias?, expiresAt? } -> { code, shortUrl }\nGET  /{code}          -> 302 Location: <long url>\nGET  /v1/links/{code}/stats -> { clicks, byDay[] }"
+    }
+  ],
   "links": [],
   "category": "designs"
 }

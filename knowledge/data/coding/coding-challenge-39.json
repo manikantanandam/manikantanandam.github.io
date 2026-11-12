@@ -1,0 +1,28 @@
+{
+  "id": "add-two-numbers",
+  "title": "Add Two Numbers",
+  "difficulty": "Medium",
+  "tags": [
+    "linked list",
+    "math"
+  ],
+  "summary": "Add two numbers stored as reversed digit lists.",
+  "approach": "Walk both lists with a carry, creating a node per digit; continue while either list or the carry remains.",
+  "complexity": "O(max(m, n)) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class ListNode { var val: Int; var next: ListNode?; init(_ v: Int, _ n: ListNode? = nil) { val = v; next = n } }\nfunc addTwoNumbers(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {\n    let dummy = ListNode(0)\n    var tail = dummy, a = l1, b = l2, carry = 0\n    while a != nil || b != nil || carry > 0 {\n        let sum = (a?.val ?? 0) + (b?.val ?? 0) + carry\n        carry = sum / 10\n        tail.next = ListNode(sum % 10)\n        tail = tail.next!\n        a = a?.next; b = b?.next\n    }\n    return dummy.next\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/add-two-numbers/"
+    }
+  ],
+  "category": "linked-list"
+}

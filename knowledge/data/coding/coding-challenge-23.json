@@ -1,0 +1,28 @@
+{
+  "id": "min-stack",
+  "title": "Min Stack",
+  "difficulty": "Medium",
+  "tags": [
+    "stack",
+    "design"
+  ],
+  "summary": "Stack supporting push, pop, top and getMin in O(1).",
+  "approach": "Store pairs of (value, min so far) so the minimum is always on top.",
+  "complexity": "O(1) per operation",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "struct MinStack {\n    private var items: [(value: Int, min: Int)] = []\n    mutating func push(_ v: Int) { items.append((v, min(v, items.last?.min ?? v))) }\n    mutating func pop() { items.removeLast() }\n    func top() -> Int { items.last!.value }\n    func getMin() -> Int { items.last!.min }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/min-stack/"
+    }
+  ],
+  "category": "stack"
+}

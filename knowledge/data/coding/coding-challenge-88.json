@@ -1,0 +1,28 @@
+{
+  "id": "unique-paths",
+  "title": "Unique Paths",
+  "difficulty": "Medium",
+  "tags": [
+    "2d dp",
+    "combinatorics"
+  ],
+  "summary": "Number of paths from top-left to bottom-right moving only right or down.",
+  "approach": "dp[c] += dp[c-1] row by row (paths from above plus from the left). Closed form C(m+n-2, m-1).",
+  "complexity": "O(m * n) time, O(n) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func uniquePaths(_ m: Int, _ n: Int) -> Int {\n    var dp = [Int](repeating: 1, count: n)\n    for _ in 1..<m {\n        for c in 1..<n { dp[c] += dp[c - 1] }\n    }\n    return dp[n - 1]\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/unique-paths/"
+    }
+  ],
+  "category": "dynamic-programming"
+}

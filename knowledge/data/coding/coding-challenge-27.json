@@ -1,0 +1,28 @@
+{
+  "id": "decode-string",
+  "title": "Decode String",
+  "difficulty": "Medium",
+  "tags": [
+    "stack",
+    "parsing"
+  ],
+  "summary": "Decode strings like `3[a2[c]]` into `accaccacc`.",
+  "approach": "Stack of (previous string, repeat count). On `[` push and reset; on `]` pop and append current repeated.",
+  "complexity": "O(output length) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func decodeString(_ s: String) -> String {\n    var stack: [(String, Int)] = []\n    var current = \"\", k = 0\n    for c in s {\n        if let d = c.wholeNumberValue { k = k * 10 + d }\n        else if c == \"[\" { stack.append((current, k)); current = \"\"; k = 0 }\n        else if c == \"]\" {\n            let (prev, n) = stack.removeLast()\n            current = prev + String(repeating: current, count: n)\n        } else { current.append(c) }\n    }\n    return current\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/decode-string/"
+    }
+  ],
+  "category": "stack"
+}

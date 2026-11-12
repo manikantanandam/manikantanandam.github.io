@@ -1,0 +1,31 @@
+{
+  "id": "design-hit-counter",
+  "title": "Design Hit Counter",
+  "difficulty": "Medium",
+  "tags": [
+    "queue",
+    "design",
+    "sliding window"
+  ],
+  "summary": "Count hits in the past 300 seconds; timestamps arrive in order.",
+  "approach": "Circular buffer of 300 buckets storing (timestamp, count); a bucket is reset when its timestamp is stale. Memory is constant regardless of traffic.",
+  "complexity": "O(1) hit, O(300) getHits",
+  "body": [
+    "iOS link: client-side rate limiting of analytics events or API calls per window."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "struct HitCounter {\n    private var times = [Int](repeating: 0, count: 300)\n    private var counts = [Int](repeating: 0, count: 300)\n\n    mutating func hit(_ timestamp: Int) {\n        let i = timestamp % 300\n        if times[i] != timestamp { times[i] = timestamp; counts[i] = 0 }\n        counts[i] += 1\n    }\n    func getHits(_ timestamp: Int) -> Int {\n        (0..<300).reduce(0) { $0 + (timestamp - times[$1] < 300 ? counts[$1] : 0) }\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/design-hit-counter/"
+    }
+  ],
+  "category": "caching"
+}

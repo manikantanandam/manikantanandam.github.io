@@ -1,0 +1,31 @@
+{
+  "id": "lfu-cache",
+  "title": "LFU Cache",
+  "difficulty": "Hard",
+  "tags": [
+    "hash map",
+    "linked list",
+    "design"
+  ],
+  "summary": "Cache that evicts the least frequently used key, breaking ties by least recently used; O(1) get and put.",
+  "approach": "Map key → (value, freq); map freq → ordered keys (LRU within frequency); track the minimum frequency. On access, move the key to freq + 1.",
+  "complexity": "O(1) per operation (with linked lists); the sketch below uses ordered arrays for clarity",
+  "body": [
+    "Say explicitly that production O(1) needs a doubly linked list per frequency (like the LRU entry) and a key → node map."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "final class LFUCache {\n    private let capacity: Int\n    private var values: [Int: (value: Int, freq: Int)] = [:]\n    private var buckets: [Int: [Int]] = [:]      // freq -> keys, oldest first\n    private var minFreq = 0\n\n    init(_ capacity: Int) { self.capacity = capacity }\n\n    func get(_ key: Int) -> Int {\n        guard let entry = values[key] else { return -1 }\n        touch(key, entry)\n        return entry.value\n    }\n\n    func put(_ key: Int, _ value: Int) {\n        guard capacity > 0 else { return }\n        if let entry = values[key] { values[key] = (value, entry.freq); touch(key, (value, entry.freq)); return }\n        if values.count == capacity, let evict = buckets[minFreq]?.first {\n            buckets[minFreq]!.removeFirst()\n            values[evict] = nil\n        }\n        values[key] = (value, 1)\n        buckets[1, default: []].append(key)\n        minFreq = 1\n    }\n\n    private func touch(_ key: Int, _ entry: (value: Int, freq: Int)) {\n        buckets[entry.freq]!.removeAll { $0 == key }          // O(n) here; use a linked list + node map for O(1)\n        if entry.freq == minFreq && buckets[entry.freq]!.isEmpty { minFreq += 1 }\n        values[key] = (entry.value, entry.freq + 1)\n        buckets[entry.freq + 1, default: []].append(key)\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/lfu-cache/"
+    }
+  ],
+  "category": "caching"
+}

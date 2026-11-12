@@ -1,0 +1,30 @@
+{
+  "id": "subarray-sum-equals-k",
+  "title": "Subarray Sum Equals K",
+  "difficulty": "Medium",
+  "tags": [
+    "prefix sum",
+    "hash map"
+  ],
+  "summary": "Count contiguous subarrays whose sum equals k (values may be negative).",
+  "approach": "Running prefix sum; the number of earlier prefixes equal to `sum - k` is the number of subarrays ending here. Seed the map with {0: 1}.",
+  "complexity": "O(n) time, O(n) space",
+  "body": [
+    "Sliding window does not work here because negative numbers break monotonicity."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func subarraySum(_ nums: [Int], _ k: Int) -> Int {\n    var counts: [Int: Int] = [0: 1]\n    var sum = 0, result = 0\n    for n in nums {\n        sum += n\n        result += counts[sum - k, default: 0]\n        counts[sum, default: 0] += 1\n    }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/subarray-sum-equals-k/"
+    }
+  ],
+  "category": "arrays-hashing"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "maximum-depth-of-binary-tree",
+  "title": "Maximum Depth of Binary Tree",
+  "difficulty": "Easy",
+  "tags": [
+    "dfs"
+  ],
+  "summary": "Number of nodes on the longest root-to-leaf path.",
+  "approach": "Depth = 1 + max(depth(left), depth(right)). BFS level count also works.",
+  "complexity": "O(n) time, O(h) stack",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc maxDepth(_ root: TreeNode?) -> Int {\n    guard let root else { return 0 }\n    return 1 + max(maxDepth(root.left), maxDepth(root.right))\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/maximum-depth-of-binary-tree/"
+    }
+  ],
+  "category": "trees"
+}

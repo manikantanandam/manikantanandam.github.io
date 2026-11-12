@@ -1,0 +1,27 @@
+{
+  "id": "diameter-of-binary-tree",
+  "title": "Diameter of Binary Tree",
+  "difficulty": "Easy",
+  "tags": [
+    "dfs"
+  ],
+  "summary": "Length (in edges) of the longest path between any two nodes.",
+  "approach": "Post-order: each node returns its height; the path through it is leftHeight + rightHeight. Track the max.",
+  "complexity": "O(n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc diameterOfBinaryTree(_ root: TreeNode?) -> Int {\n    var best = 0\n    func height(_ node: TreeNode?) -> Int {\n        guard let node else { return 0 }\n        let l = height(node.left), r = height(node.right)\n        best = max(best, l + r)\n        return 1 + max(l, r)\n    }\n    _ = height(root)\n    return best\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/diameter-of-binary-tree/"
+    }
+  ],
+  "category": "trees"
+}

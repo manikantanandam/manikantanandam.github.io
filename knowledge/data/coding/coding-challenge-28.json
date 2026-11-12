@@ -1,0 +1,29 @@
+{
+  "id": "binary-search",
+  "title": "Binary Search",
+  "difficulty": "Easy",
+  "tags": [
+    "binary search"
+  ],
+  "summary": "Find target's index in a sorted array or return -1.",
+  "approach": "Closed interval [lo, hi]; mid = lo + (hi - lo) / 2 to avoid overflow.",
+  "complexity": "O(log n) time, O(1) space",
+  "body": [
+    "Know the lower-bound variant (first index >= target) with a half-open interval; most binary search problems reduce to it."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func search(_ nums: [Int], _ target: Int) -> Int {\n    var lo = 0, hi = nums.count - 1\n    while lo <= hi {\n        let mid = lo + (hi - lo) / 2\n        if nums[mid] == target { return mid }\n        if nums[mid] < target { lo = mid + 1 } else { hi = mid - 1 }\n    }\n    return -1\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/binary-search/"
+    }
+  ],
+  "category": "binary-search"
+}

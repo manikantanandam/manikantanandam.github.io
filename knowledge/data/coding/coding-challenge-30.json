@@ -1,0 +1,27 @@
+{
+  "id": "find-minimum-in-rotated-sorted-array",
+  "title": "Find Minimum in Rotated Sorted Array",
+  "difficulty": "Medium",
+  "tags": [
+    "binary search"
+  ],
+  "summary": "Find the minimum in a rotated sorted array of distinct values.",
+  "approach": "Compare mid with hi: if nums[mid] > nums[hi], the minimum is to the right; otherwise it is at mid or left.",
+  "complexity": "O(log n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func findMin(_ nums: [Int]) -> Int {\n    var lo = 0, hi = nums.count - 1\n    while lo < hi {\n        let mid = (lo + hi) / 2\n        if nums[mid] > nums[hi] { lo = mid + 1 } else { hi = mid }\n    }\n    return nums[lo]\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/"
+    }
+  ],
+  "category": "binary-search"
+}

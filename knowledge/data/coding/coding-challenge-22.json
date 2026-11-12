@@ -1,0 +1,27 @@
+{
+  "id": "valid-parentheses",
+  "title": "Valid Parentheses",
+  "difficulty": "Easy",
+  "tags": [
+    "stack"
+  ],
+  "summary": "Check that brackets are balanced and correctly nested.",
+  "approach": "Push openers; on a closer, the top must be its matching opener.",
+  "complexity": "O(n) time, O(n) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func isValid(_ s: String) -> Bool {\n    let pairs: [Character: Character] = [\")\": \"(\", \"]\": \"[\", \"}\": \"{\"]\n    var stack: [Character] = []\n    for c in s {\n        if let open = pairs[c] {\n            guard stack.popLast() == open else { return false }\n        } else {\n            stack.append(c)\n        }\n    }\n    return stack.isEmpty\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/valid-parentheses/"
+    }
+  ],
+  "category": "stack"
+}

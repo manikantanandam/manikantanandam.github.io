@@ -1,0 +1,28 @@
+{
+  "id": "validate-binary-search-tree",
+  "title": "Validate Binary Search Tree",
+  "difficulty": "Medium",
+  "tags": [
+    "dfs",
+    "bst"
+  ],
+  "summary": "Check whether a tree is a valid BST.",
+  "approach": "Pass down (low, high) bounds; every node must lie strictly between them. Checking only parent-child is the classic bug.",
+  "complexity": "O(n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc isValidBST(_ root: TreeNode?) -> Bool {\n    func check(_ node: TreeNode?, _ low: Int?, _ high: Int?) -> Bool {\n        guard let node else { return true }\n        if let low, node.val <= low { return false }\n        if let high, node.val >= high { return false }\n        return check(node.left, low, node.val) && check(node.right, node.val, high)\n    }\n    return check(root, nil, nil)\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/validate-binary-search-tree/"
+    }
+  ],
+  "category": "trees"
+}

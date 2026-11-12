@@ -1,0 +1,58 @@
+{
+  "id": "photo-sync",
+  "title": "Photo backup and sync across devices (iCloud Photos style)",
+  "tags": [
+    "sync",
+    "upload",
+    "background",
+    "storage",
+    "apple"
+  ],
+  "summary": "Back up a large photo library reliably in the background, sync edits and deletions across devices, and save device space by keeping thumbnails locally and full resolution in the cloud.",
+  "requirements": [
+    "Upload new photos/videos automatically (Wi-Fi by default), resumable, without draining battery.",
+    "Library of 50k+ items browsable instantly on every device; full-res downloaded on demand.",
+    "Sync favorites, edits (non-destructive), albums and deletes (with 30-day recently deleted).",
+    "Privacy: encryption in transit and at rest; optional end-to-end (Advanced Data Protection)."
+  ],
+  "components": [
+    "PhotoKit change observer (`PHPhotoLibraryChangeObserver`, persistent change tokens) to detect new and changed assets",
+    "Upload queue (persistent) with chunked, resumable uploads via background URLSession",
+    "Content hashing (SHA-256) for dedup: skip upload if the server already has the blob",
+    "Metadata sync engine (cursor-based, like offline-first sync) separate from blob transfer",
+    "Server: metadata DB + object storage + CDN; derivative generation (thumbnails, video transcodes)",
+    "Local cache: thumbnails always, full-res LRU with 'optimize storage' eviction"
+  ],
+  "tradeoffs": [
+    "Separating metadata from blobs lets the library appear instantly while blobs upload slowly.",
+    "Client-side derivative generation saves server CPU and enables E2EE, but costs device battery; server-side is cheaper for the device but needs plaintext.",
+    "Edits stored as adjustment data (recipe) instead of new full images save space and allow revert, but every client must render them.",
+    "Uploading only on Wi-Fi and power protects users' data plans and battery but delays backup; expose the choice."
+  ],
+  "body": [
+    "**Upload pipeline:** detect asset → export original to a file (background task) → hash → `POST /uploads` with hash (server says 'have it' or returns chunk URLs) → upload 8MB chunks with background URLSession → commit (server assembles, creates derivatives) → mark synced.",
+    "**Background execution:** background URLSession continues transfers when suspended; `BGProcessingTask` (requires power) for exporting and hashing large batches; iOS 26 `BGContinuedProcessingTask` for user-initiated bulk exports.",
+    "**Download path:** grid shows thumbnails from local cache; tapping fetches a screen-size rendition first, then full-res if the user zooms or edits.",
+    "**Conflicts:** edits are versioned per asset; concurrent edits on two devices → last-writer-wins on the edit recipe with the other kept as a version, or ask the user.",
+    "**Deletes:** tombstones synced to all devices; hard delete after 30 days.",
+    "**Metrics:** backup completeness (% of library synced), time to first backup after capture, upload failure reasons, bytes over cellular."
+  ],
+  "code": [
+    {
+      "lang": "text",
+      "caption": "Upload state machine",
+      "text": "discovered -> exporting -> hashing -> negotiating\n    negotiating --(server has blob)--> committing\n    negotiating --(needs upload)--> uploading(chunk i/n) -> committing\ncommitting -> synced\nany state --(retryable error)--> waiting(backoff) -> previous state\nany state --(asset deleted locally)--> cancelled"
+    }
+  ],
+  "links": [
+    {
+      "label": "PhotoKit",
+      "url": "https://developer.apple.com/documentation/photokit"
+    },
+    {
+      "label": "CloudKit",
+      "url": "https://developer.apple.com/documentation/cloudkit"
+    }
+  ],
+  "category": "designs"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "permutation-in-string",
+  "title": "Permutation in String",
+  "difficulty": "Medium",
+  "tags": [
+    "sliding window",
+    "counting"
+  ],
+  "summary": "Does s2 contain a permutation of s1 as a substring?",
+  "approach": "Fixed-size window of len(s1) over s2 with character counts; compare counts each step (26 letters) or track a match counter.",
+  "complexity": "O(n * 26) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func checkInclusion(_ s1: String, _ s2: String) -> Bool {\n    let a = Array(s1.utf8), b = Array(s2.utf8)\n    guard a.count <= b.count else { return false }\n    var need = [Int](repeating: 0, count: 26), have = need\n    for c in a { need[Int(c - 97)] += 1 }\n    for i in b.indices {\n        have[Int(b[i] - 97)] += 1\n        if i >= a.count { have[Int(b[i - a.count] - 97)] -= 1 }\n        if have == need { return true }\n    }\n    return false\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/permutation-in-string/"
+    }
+  ],
+  "category": "sliding-window"
+}

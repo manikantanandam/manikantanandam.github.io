@@ -1,0 +1,27 @@
+{
+  "id": "subsets",
+  "title": "Subsets",
+  "difficulty": "Medium",
+  "tags": [
+    "backtracking"
+  ],
+  "summary": "Return all subsets of distinct integers.",
+  "approach": "For each element choose include/exclude; or iteratively double the result list.",
+  "complexity": "O(n * 2^n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func subsets(_ nums: [Int]) -> [[Int]] {\n    var result: [[Int]] = [[]]\n    for n in nums { result += result.map { $0 + [n] } }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/subsets/"
+    }
+  ],
+  "category": "backtracking"
+}

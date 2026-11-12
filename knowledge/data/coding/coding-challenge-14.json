@@ -1,0 +1,28 @@
+{
+  "id": "container-with-most-water",
+  "title": "Container With Most Water",
+  "difficulty": "Medium",
+  "tags": [
+    "two pointers",
+    "greedy"
+  ],
+  "summary": "Pick two lines that hold the most water.",
+  "approach": "Start widest. Area is limited by the shorter line, so moving the taller one can never help; always move the shorter.",
+  "complexity": "O(n) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func maxArea(_ height: [Int]) -> Int {\n    var l = 0, r = height.count - 1, best = 0\n    while l < r {\n        best = max(best, min(height[l], height[r]) * (r - l))\n        if height[l] < height[r] { l += 1 } else { r -= 1 }\n    }\n    return best\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/container-with-most-water/"
+    }
+  ],
+  "category": "two-pointers"
+}

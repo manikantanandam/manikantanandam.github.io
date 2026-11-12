@@ -1,0 +1,44 @@
+{
+  "id": "typeahead-search",
+  "title": "Search with typeahead (autocomplete)",
+  "tags": [
+    "search",
+    "debounce",
+    "caching",
+    "trie"
+  ],
+  "summary": "Suggestions appear as the user types, in under 100ms perceived latency: debounce, cancel stale requests, cache prefixes, blend on-device results (recents, contacts) with server results, and never show out-of-order responses.",
+  "requirements": [
+    "Suggestions for each keystroke after 1-2 characters; results page on submit.",
+    "Recent searches, on-device matches, server suggestions; works partially offline.",
+    "Low data usage; correct ordering of results."
+  ],
+  "components": [
+    "Query pipeline: normalize → debounce (~150-300ms) → cache lookup → network → merge",
+    "Prefix cache (LRU) keyed by normalized query; reuse results of a longer cached prefix for filtering",
+    "On-device index: recents (SQLite FTS) and a trie for contacts/commands",
+    "Server: suggestion service backed by a precomputed prefix → top-k map (trie or sorted keys) with popularity ranking",
+    "Analytics: suggestion shown/selected for ranking feedback"
+  ],
+  "tradeoffs": [
+    "Shorter debounce feels faster but sends more requests; adapt by network speed.",
+    "Server-side personalization improves relevance but needs user context and is less cacheable at the CDN.",
+    "Client-side filtering of a cached broader prefix is instant but may miss server re-ranking."
+  ],
+  "body": [
+    "**Out-of-order responses:** cancel the previous task when a new query starts and tag responses with the query; ignore results whose query is not the current text.",
+    "**Cache:** query 'swi' result can seed 'swif' instantly by filtering, while the network refines.",
+    "**UI:** keep the list stable while typing (avoid flicker); highlight matched prefix; keyboard return submits full search.",
+    "**Server scale:** top-k per prefix precomputed offline and cached at the edge; popular prefixes served from CDN; personalization layered in a second call.",
+    "**Accessibility:** announce result count changes with VoiceOver, support Dynamic Type."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "SwiftUI search with debounce and cancellation",
+      "text": "struct SearchView: View {\n    @State private var query = \"\"\n    @State private var results: [Suggestion] = []\n    let service: SuggestionService\n\n    var body: some View {\n        List(results) { Text($0.text) }\n            .searchable(text: $query)\n            .task(id: query) {                       // cancels the previous run\n                let q = query.trimmingCharacters(in: .whitespaces).lowercased()\n                guard q.count >= 2 else { results = []; return }\n                try? await Task.sleep(for: .milliseconds(250))\n                guard !Task.isCancelled else { return }\n                if let fresh = try? await service.suggestions(for: q), !Task.isCancelled {\n                    results = fresh\n                }\n            }\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "designs"
+}

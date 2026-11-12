@@ -1,0 +1,27 @@
+{
+  "id": "house-robber",
+  "title": "House Robber",
+  "difficulty": "Medium",
+  "tags": [
+    "dp"
+  ],
+  "summary": "Max money robbing non-adjacent houses.",
+  "approach": "best(i) = max(best(i-1), best(i-2) + nums[i]).",
+  "complexity": "O(n) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func rob(_ nums: [Int]) -> Int {\n    var prev = 0, cur = 0\n    for n in nums { (prev, cur) = (cur, max(cur, prev + n)) }\n    return cur\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/house-robber/"
+    }
+  ],
+  "category": "dynamic-programming"
+}

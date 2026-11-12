@@ -1,0 +1,28 @@
+{
+  "id": "median-of-two-sorted-arrays",
+  "title": "Median of Two Sorted Arrays",
+  "difficulty": "Hard",
+  "tags": [
+    "binary search",
+    "partition"
+  ],
+  "summary": "Median of two sorted arrays in O(log(min(m, n))).",
+  "approach": "Binary search a cut in the shorter array so that left halves have (m+n+1)/2 elements and every left element <= every right element.",
+  "complexity": "O(log min(m, n)) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func findMedianSortedArrays(_ nums1: [Int], _ nums2: [Int]) -> Double {\n    let (a, b) = nums1.count <= nums2.count ? (nums1, nums2) : (nums2, nums1)\n    let m = a.count, n = b.count, half = (m + n + 1) / 2\n    var lo = 0, hi = m\n    while lo <= hi {\n        let i = (lo + hi) / 2, j = half - i\n        let aLeft = i == 0 ? Int.min : a[i - 1], aRight = i == m ? Int.max : a[i]\n        let bLeft = j == 0 ? Int.min : b[j - 1], bRight = j == n ? Int.max : b[j]\n        if aLeft <= bRight && bLeft <= aRight {\n            if (m + n) % 2 == 1 { return Double(max(aLeft, bLeft)) }\n            return Double(max(aLeft, bLeft) + min(aRight, bRight)) / 2\n        }\n        if aLeft > bRight { hi = i - 1 } else { lo = i + 1 }\n    }\n    return 0\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/median-of-two-sorted-arrays/"
+    }
+  ],
+  "category": "binary-search"
+}

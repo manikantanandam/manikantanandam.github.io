@@ -1,0 +1,28 @@
+{
+  "id": "valid-palindrome",
+  "title": "Valid Palindrome",
+  "difficulty": "Easy",
+  "tags": [
+    "two pointers",
+    "strings"
+  ],
+  "summary": "After lowercasing and removing non-alphanumerics, is the string a palindrome?",
+  "approach": "Filter to alphanumeric lowercased characters, then compare from both ends.",
+  "complexity": "O(n) time, O(n) space (O(1) if done in place over indices)",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func isPalindrome(_ s: String) -> Bool {\n    let chars = s.lowercased().filter { $0.isLetter || $0.isNumber }.map { $0 }\n    var i = 0, j = chars.count - 1\n    while i < j {\n        if chars[i] != chars[j] { return false }\n        i += 1; j -= 1\n    }\n    return true\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/valid-palindrome/"
+    }
+  ],
+  "category": "two-pointers"
+}

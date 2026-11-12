@@ -1,0 +1,30 @@
+{
+  "id": "course-schedule",
+  "title": "Course Schedule",
+  "difficulty": "Medium",
+  "tags": [
+    "topological sort",
+    "cycle detection"
+  ],
+  "summary": "Can all courses be finished given prerequisite pairs?",
+  "approach": "Kahn's algorithm: repeatedly take nodes with in-degree 0; if all nodes are processed there is no cycle.",
+  "complexity": "O(V + E) time",
+  "body": [
+    "iOS link: module build order, app-launch task dependencies, and detecting dependency cycles in a DI container are all topological sorts."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func canFinish(_ numCourses: Int, _ prerequisites: [[Int]]) -> Bool {\n    var adj = [[Int]](repeating: [], count: numCourses)\n    var indegree = [Int](repeating: 0, count: numCourses)\n    for p in prerequisites { adj[p[1]].append(p[0]); indegree[p[0]] += 1 }\n    var queue = (0..<numCourses).filter { indegree[$0] == 0 }, done = 0\n    while let c = queue.popLast() {\n        done += 1\n        for next in adj[c] {\n            indegree[next] -= 1\n            if indegree[next] == 0 { queue.append(next) }\n        }\n    }\n    return done == numCourses\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/course-schedule/"
+    }
+  ],
+  "category": "graphs"
+}

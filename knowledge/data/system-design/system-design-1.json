@@ -1,20 +1,46 @@
 {
   "id": "caching",
-  "title": "Caching strategies",
+  "title": "Caching strategies (client and server)",
   "tags": [
-    "cache",
-    "performance"
+    "caching",
+    "performance",
+    "consistency"
   ],
-  "summary": "Cache-aside, write-through and write-back trade freshness against latency and complexity.",
-  "body": [
-    "Cache-aside: read from cache, fall back to the database, then populate the cache. Most common default.",
-    "Always pair a cache with an eviction policy such as LRU and a TTL for staleness."
+  "summary": "Cache to cut latency and load, at the cost of staleness. On mobile, layer memory, disk and HTTP caches, and decide per data type how stale is acceptable.",
+  "requirements": [
+    "Know the access pattern (read-heavy? hot keys?) and the acceptable staleness per data type.",
+    "Bound memory and disk usage; survive app restarts where useful."
+  ],
+  "components": [
+    "Memory cache (NSCache / LRU) for decoded objects and images",
+    "Disk cache (files or SQLite) for responses and media, with size and age limits",
+    "HTTP cache (URLCache + ETag / Cache-Control) for server-controlled freshness",
+    "Server side: CDN for static media, Redis/Memcached in front of databases"
   ],
   "tradeoffs": [
-    "Stale reads are possible unless invalidation is handled on writes.",
-    "Cache stampedes can happen when a hot key expires; use request coalescing or jittered TTLs."
+    "Cache-aside is simple and resilient but can serve stale data until TTL or invalidation.",
+    "Write-through keeps cache consistent but adds write latency; write-back is fast but risks data loss.",
+    "Stale-while-revalidate gives instant UI with eventual freshness; needs UI that tolerates updates in place.",
+    "Longer TTLs mean fewer requests and more staleness; push-based invalidation is fresher but more complex."
   ],
-  "code": [],
-  "links": [],
+  "body": [
+    "**Invalidation** is the hard part: TTLs, explicit invalidation on write (e.g. after the user edits their profile, update local cache optimistically), versioned keys, and server push (silent push or socket event) for shared data.",
+    "**Mobile specifics:** cache by user (clear on logout), respect Low Data Mode, purgeable `Caches/` directory can be cleared by the OS, encrypt sensitive cached data with Data Protection.",
+    "**Thundering herd:** coalesce concurrent misses for the same key (single-flight), add jitter to TTLs.",
+    "**Follow-ups:** What is the cache key for a paginated feed? How do you measure hit rate on device? How do you avoid showing another user's data after an account switch?"
+  ],
+  "code": [
+    {
+      "lang": "text",
+      "caption": "Read path (stale-while-revalidate)",
+      "text": "UI requests feed\n  -> memory cache hit?  show immediately\n  -> else disk cache hit? show, mark stale\n  -> fetch network (If-None-Match: etag)\n       304 -> refresh timestamps\n       200 -> write disk + memory, diff into UI"
+    }
+  ],
+  "links": [
+    {
+      "label": "URLCache",
+      "url": "https://developer.apple.com/documentation/foundation/urlcache"
+    }
+  ],
   "category": "fundamentals"
 }

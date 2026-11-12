@@ -1,0 +1,27 @@
+{
+  "id": "course-schedule-ii",
+  "title": "Course Schedule II",
+  "difficulty": "Medium",
+  "tags": [
+    "topological sort"
+  ],
+  "summary": "Return a valid order to take all courses, or empty if impossible.",
+  "approach": "Same as Course Schedule but record the order nodes are dequeued.",
+  "complexity": "O(V + E) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func findOrder(_ n: Int, _ prerequisites: [[Int]]) -> [Int] {\n    var adj = [[Int]](repeating: [], count: n), indegree = [Int](repeating: 0, count: n)\n    for p in prerequisites { adj[p[1]].append(p[0]); indegree[p[0]] += 1 }\n    var queue = (0..<n).filter { indegree[$0] == 0 }, head = 0\n    while head < queue.count {\n        let c = queue[head]; head += 1\n        for next in adj[c] {\n            indegree[next] -= 1\n            if indegree[next] == 0 { queue.append(next) }\n        }\n    }\n    return queue.count == n ? queue : []\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/course-schedule-ii/"
+    }
+  ],
+  "category": "graphs"
+}

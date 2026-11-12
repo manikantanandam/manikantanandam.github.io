@@ -1,0 +1,27 @@
+{
+  "id": "binary-tree-level-order-traversal",
+  "title": "Binary Tree Level Order Traversal",
+  "difficulty": "Medium",
+  "tags": [
+    "bfs"
+  ],
+  "summary": "Return node values level by level.",
+  "approach": "BFS processing one level at a time (current level array -> next level array).",
+  "complexity": "O(n) time, O(width) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc levelOrder(_ root: TreeNode?) -> [[Int]] {\n    var result: [[Int]] = []\n    var level = [root].compactMap { $0 }\n    while !level.isEmpty {\n        result.append(level.map(\\.val))\n        level = level.flatMap { [$0.left, $0.right].compactMap { $0 } }\n    }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/binary-tree-level-order-traversal/"
+    }
+  ],
+  "category": "trees"
+}

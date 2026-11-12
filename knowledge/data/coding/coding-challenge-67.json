@@ -1,0 +1,28 @@
+{
+  "id": "partition-labels",
+  "title": "Partition Labels",
+  "difficulty": "Medium",
+  "tags": [
+    "greedy",
+    "hash map"
+  ],
+  "summary": "Split a string into as many parts as possible so each letter appears in at most one part.",
+  "approach": "Record each letter's last index; extend the current part's end to the max last index seen, cut when i reaches it.",
+  "complexity": "O(n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func partitionLabels(_ s: String) -> [Int] {\n    let a = Array(s)\n    var last: [Character: Int] = [:]\n    for (i, c) in a.enumerated() { last[c] = i }\n    var result: [Int] = [], start = 0, end = 0\n    for (i, c) in a.enumerated() {\n        end = max(end, last[c]!)\n        if i == end { result.append(end - start + 1); start = i + 1 }\n    }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/partition-labels/"
+    }
+  ],
+  "category": "greedy"
+}

@@ -1,0 +1,44 @@
+{
+  "id": "feature-flags-experiments",
+  "title": "Feature flag and experimentation platform (client)",
+  "tags": [
+    "feature flags",
+    "a/b testing",
+    "remote config",
+    "sdk"
+  ],
+  "summary": "Remote flags and experiments that evaluate instantly at launch, stay stable during a session, can kill features in minutes, and produce trustworthy exposure data for A/B analysis.",
+  "requirements": [
+    "Boolean flags, multivariate configs and experiments with targeting (country, app version, cohort, percentage).",
+    "Zero added launch latency; consistent values within a session; offline-safe defaults.",
+    "Accurate exposure logging only when a user actually sees the variant."
+  ],
+  "components": [
+    "Config service returning evaluated flags for the user (server-side evaluation) or rules + seeds (client-side evaluation)",
+    "Local cache on disk; values snapshotted at session start",
+    "Typed flag accessors generated from a registry with owners and expiry dates",
+    "Exposure logger integrated with the analytics SDK",
+    "Debug menu to override flags in internal builds"
+  ],
+  "tradeoffs": [
+    "Server-side evaluation hides targeting rules and keeps logic central; client-side evaluation works offline and updates instantly but ships rules to the device.",
+    "Applying new values mid-session is fresher but can flip UI under the user; usually apply on next launch except kill switches.",
+    "Hashing userID + experiment salt gives stable bucketing without storing assignments."
+  ],
+  "body": [
+    "**Launch:** read cached values synchronously (fast), fetch fresh in the background, apply next session. First-ever launch uses compiled-in defaults.",
+    "**Bucketing:** `bucket = hash(experimentSalt + userID) % 10000`; compare with allocation ranges. Logged-out users use a stable install ID; reconcile on login.",
+    "**Exposure:** log when the code path actually renders the variant, not when the flag is fetched, to avoid diluting results.",
+    "**Kill switch:** a high-priority flag checked on foreground; can disable a crashing feature without a release.",
+    "**Hygiene:** every flag has an owner and expiry; CI warns on expired flags; remove the code path after full rollout."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Stable bucketing",
+      "text": "import CryptoKit\n\nfunc bucket(userID: String, salt: String, buckets: Int = 10_000) -> Int {\n    let digest = SHA256.hash(data: Data((salt + userID).utf8))\n    let value = digest.prefix(8).reduce(UInt64(0)) { $0 << 8 | UInt64($1) }\n    return Int(value % UInt64(buckets))\n}\n\n// variant = bucket < 5_000 ? .control : .treatment"
+    }
+  ],
+  "links": [],
+  "category": "designs"
+}

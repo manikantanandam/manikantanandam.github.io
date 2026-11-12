@@ -22,3 +22,7 @@ seo:
     Open to senior iOS roles in India, remote and abroad.
 whatsappMessage: Hi Manikanta, I found your portfolio and would like to connect.
 emailSubject: Hello from your portfolio
+knowledge:
+  - {title: iOS, desc: "Swift, SwiftUI, concurrency and platform concepts I use day to day.", href: knowledge/ios.html}
+  - {title: System Design, desc: "Caching, storage and worked designs with trade-offs.", href: knowledge/system-design.html}
+  - {title: Coding Challenges, desc: "Problems I have solved, with approach, complexity and solutions.", href: knowledge/coding.html}

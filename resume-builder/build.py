@@ -102,7 +102,9 @@ def build_site():
         "index.html": env.get_template("site.html.j2").render(**d),
         "sitemap.xml": '<?xml version="1.0" encoding="UTF-8"?>\n'
                        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-                       "  <url><loc>%s</loc></url>\n</urlset>\n" % d["site_url"],
+                       + "".join("  <url><loc>%s</loc></url>\n" % u for u in
+                                 [d["site_url"]] + [d["site_url"] + k["href"] for k in d["knowledge"]])
+                       + "</urlset>\n",
         "robots.txt": "User-agent: *\nAllow: /\n\nSitemap: %ssitemap.xml\n" % d["site_url"],
     }
     for name, body in outputs.items():

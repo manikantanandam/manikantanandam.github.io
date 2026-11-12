@@ -1,0 +1,48 @@
+{
+  "id": "crashes",
+  "title": "Crashes: types, symbolication and fixing production crashes",
+  "category": "testing-release",
+  "tags": [
+    "crash",
+    "symbolication",
+    "dsym",
+    "exc_bad_access"
+  ],
+  "summary": "A crash report tells you which thread crashed and where, but only after symbolication (matching addresses to code using dSYM files). Know the common crash types and how to triage by impact.",
+  "body": [
+    "**Symbolication:** release builds contain memory addresses, not function names. The **dSYM** file from that exact build maps addresses back to file and line. Upload dSYMs to your crash tool (Crashlytics, Sentry) on every build, or reports are unreadable.",
+    "**Common crash types:** `EXC_BAD_ACCESS` (SIGSEGV/SIGBUS) - using freed or invalid memory (unowned/unsafe pointers, races). `EXC_BREAKPOINT` (SIGTRAP) - a Swift runtime trap: force unwrap of nil, array index out of range, `fatalError`, integer overflow. `EXC_CRASH (SIGABRT)` - abort, often an uncaught ObjC exception (\"unrecognized selector\", \"invalid number of rows\"). Watchdog `0x8badf00d` - main thread blocked too long at launch/resume. Jetsam/OOM - killed for memory, no crash report.",
+    "**Reading a report:** exception type, crashed thread's stack (start at the top frame from your code), other threads (a race shows the same object used in two threads), app version, OS, device.",
+    "**Triage:** group by signature, prioritize by users affected and trend (new in this release?), check which release/flag introduced it, reproduce, fix with a test.",
+    "**Prevention:** avoid `!`, safe collection access in risky places, Swift 6 data-race checks, sanitizers in CI, phased rollout with crash-rate alerts.",
+    "**Metrics:** crash-free users and crash-free sessions (e.g. target 99.9%+), compared per version."
+  ],
+  "keyPoints": [
+    "Upload dSYMs for every build; without them crashes are unreadable.",
+    "EXC_BAD_ACCESS = bad memory; EXC_BREAKPOINT = Swift trap; SIGABRT = abort/exception; 0x8badf00d = watchdog; OOM = no report.",
+    "Start from the top frame in your code on the crashed thread.",
+    "Prioritize by affected users and whether it is new.",
+    "Phased rollout + alerting catches crash spikes early."
+  ],
+  "code": [
+    {
+      "lang": "text",
+      "caption": "Reading the key lines of a crash report",
+      "text": "Exception Type:  EXC_BREAKPOINT (SIGTRAP)\nTermination Reason: Namespace SIGNAL, Code 5 Trace/BPT trap\n\nThread 0 Crashed:\n0  ShopApp   CartViewModel.total.getter + 120 (CartViewModel.swift:42)   <- start here\n1  ShopApp   CartView.body.getter + 88 (CartView.swift:17)\n2  SwiftUI   ...\n\n// Line 42: let price = prices[item.id]!     -> force unwrap of nil"
+    }
+  ],
+  "mistakes": [
+    "Shipping without uploading dSYMs (e.g. bitcode/CI misconfiguration).",
+    "Fixing the symptom (adding `?`) without understanding why the value was nil."
+  ],
+  "followups": [
+    "**A crash spikes after release at 10% rollout. What do you do?** Pause the phased release, turn off the related feature flag, reproduce and fix, ship a hotfix (request expedited review if needed), write a postmortem.",
+    "**How do you detect OOM crashes?** MetricKit/Organizer termination reasons or infer from \"foreground, no crash, no clean exit\"."
+  ],
+  "links": [
+    {
+      "label": "Diagnosing issues using crash reports",
+      "url": "https://developer.apple.com/documentation/xcode/diagnosing-issues-using-crash-reports-and-device-logs"
+    }
+  ]
+}

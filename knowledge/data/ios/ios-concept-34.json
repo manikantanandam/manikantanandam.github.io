@@ -1,0 +1,52 @@
+{
+  "id": "architecture-patterns",
+  "title": "MVC, MVVM, VIPER, TCA, Clean: choosing an architecture",
+  "category": "architecture",
+  "tags": [
+    "architecture",
+    "mvvm",
+    "mvc",
+    "viper",
+    "tca",
+    "staff"
+  ],
+  "summary": "All these patterns try to answer one question: where does each kind of code live so the app stays easy to change and test? There is no best one; choose by team size, complexity and testability needs.",
+  "body": [
+    "**MVC (Apple's classic):** Model = data, View = UI, Controller = glue. In practice the view controller ends up doing everything (\"Massive View Controller\") and is hard to test.",
+    "**MVVM:** the View shows state from a **ViewModel**; the ViewModel holds screen state and logic, talks to services, and knows nothing about UIKit/SwiftUI views. Easy to unit test. Natural fit for SwiftUI + `@Observable`. Risk: huge view models - move business rules into services/use cases.",
+    "**MVVM-C:** MVVM + **Coordinator** that owns navigation, so view controllers do not push each other.",
+    "**VIPER / Clean Architecture:** strict layers - View, Interactor (business logic), Presenter (formatting), Entity (models), Router (navigation). Very clear boundaries for big UIKit teams, but a lot of files and boilerplate for small features.",
+    "**TCA / unidirectional (Redux-like):** one State, Actions, a Reducer that changes state, and Effects for side effects. Very predictable and testable. Costs: learning curve, third-party dependency, care needed for performance with big state.",
+    "**Real-life analogy:** a restaurant. MVC = one person cooks, serves and bills. MVVM = waiter (view) and kitchen (view model) are separate. VIPER = every job has its own specialist.",
+    "**Staff answer:** do not pick a brand name; standardize a few building blocks - state container, dependency injection, navigation, side-effect layer - write an ADR, provide templates and lint rules, and allow justified exceptions. Migrate gradually (strangler pattern), starting with the most-changed screens."
+  ],
+  "keyPoints": [
+    "MVC is simple but leads to massive view controllers.",
+    "MVVM: testable view models with no UI imports; coordinators/routers for navigation.",
+    "VIPER/Clean: strong boundaries, high boilerplate.",
+    "TCA/unidirectional: single state + reducer, very testable, steeper learning.",
+    "Choose by team size and complexity; consistency across the codebase matters more than the pattern."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "MVVM with an injected dependency",
+      "text": "@Observable @MainActor\nfinal class FeedViewModel {\n    enum State { case idle, loading, loaded([Post]), failed(String) }\n    private(set) var state: State = .idle\n    private let api: FeedAPI                       // protocol, injected\n\n    init(api: FeedAPI) { self.api = api }\n\n    func refresh() async {\n        state = .loading\n        do { state = .loaded(try await api.feed()) }\n        catch { state = .failed(\"Could not load feed\") }\n    }\n}\n\nstruct FeedView: View {\n    @State var model: FeedViewModel\n    var body: some View {\n        switch model.state {\n        case .idle, .loading: ProgressView().task { await model.refresh() }\n        case .loaded(let posts): List(posts) { Text($0.title) }\n        case .failed(let message): Text(message)\n        }\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Choosing VIPER for a 3-person team building a small app.",
+    "View models importing UIKit and holding references to views."
+  ],
+  "followups": [
+    "**Where does business logic live?** In domain/use-case types independent of the UI framework, so it can be tested and reused.",
+    "**How would you migrate an MVC app?** Screen by screen: extract a view model and services from the most-changed controllers first; add tests as you go.",
+    "**Is MVVM needed with SwiftUI?** Not always; small views can keep `@State`. Use a model/view model when there is logic or async work worth testing."
+  ],
+  "links": [
+    {
+      "label": "The Composable Architecture",
+      "url": "https://github.com/pointfreeco/swift-composable-architecture"
+    }
+  ]
+}

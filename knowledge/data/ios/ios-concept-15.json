@@ -1,0 +1,48 @@
+{
+  "id": "swift6-migration",
+  "title": "Migrating a large app to Swift 6",
+  "category": "concurrency",
+  "tags": [
+    "swift 6",
+    "migration",
+    "strict concurrency",
+    "staff"
+  ],
+  "summary": "Turn on strict concurrency module by module, starting with leaf modules, fix warnings, then switch the language mode. Treat it as a planned program, not a flag flip.",
+  "body": [
+    "**In simple words:** Swift 6 mode turns data-race warnings into errors. In a big app that can mean thousands of errors, so you migrate gradually.",
+    "**Step by step:** (1) list modules and their dependencies; (2) in leaf modules (no dependents inside the app) enable complete concurrency checking as warnings; (3) fix them; (4) switch that module to Swift 6 mode; (5) move up the dependency graph; (6) track warning counts on a dashboard and block new warnings in CI.",
+    "**Swift 6.2 helps a lot:** `defaultIsolation(MainActor.self)` makes UI modules main-actor by default, so most code needs no annotations; only background work is marked `@concurrent`.",
+    "**Typical fixes:** mark UI types `@MainActor`; make models `Sendable` structs; turn shared mutable singletons into actors or protect them with `Mutex`; use `@preconcurrency import` for third-party code not yet updated.",
+    "**Risk control:** no behavior changes in the same PR, run tests with Thread Sanitizer, release with phased rollout, and watch crash rates (wrong isolation assumptions can show up as runtime traps).",
+    "**Staff angle:** write a migration guide with real examples from your codebase, provide templates and lint rules, hold office hours, and have a platform team own the hardest shared modules."
+  ],
+  "keyPoints": [
+    "Migrate bottom-up: leaf modules first, warnings before errors.",
+    "Use default MainActor isolation for UI modules (Swift 6.2) to cut noise.",
+    "Common fixes: `@MainActor`, Sendable value types, actors/Mutex for shared state.",
+    "Measure progress (warnings per module) and prevent regressions in CI.",
+    "Roll out with phased release and monitor crashes."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Package.swift per-target settings",
+      "text": ".target(\n    name: \"FeedUI\",\n    swiftSettings: [\n        .swiftLanguageMode(.v6),\n        .defaultIsolation(MainActor.self),\n        .enableUpcomingFeature(\"NonisolatedNonsendingByDefault\")\n    ]\n)"
+    }
+  ],
+  "mistakes": [
+    "Flipping the whole app to Swift 6 in one PR.",
+    "Silencing errors with `@unchecked Sendable` or `nonisolated(unsafe)` without real protection."
+  ],
+  "followups": [
+    "**How do you get 200 engineers to adopt it?** Clear guide, examples, lint rules, office hours, and a dashboard showing each team's progress.",
+    "**What breaks when async functions start running on the caller's actor?** Heavy work that used to run off main may now run on main; profile and mark it `@concurrent`."
+  ],
+  "links": [
+    {
+      "label": "Swift 6 migration guide",
+      "url": "https://www.swift.org/migration/documentation/migrationguide/"
+    }
+  ]
+}

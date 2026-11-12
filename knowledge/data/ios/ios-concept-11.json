@@ -1,0 +1,46 @@
+{
+  "id": "closures-capture",
+  "title": "Closures, escaping and capture lists",
+  "category": "swift-language",
+  "tags": [
+    "closures",
+    "escaping",
+    "capture lists"
+  ],
+  "summary": "A closure is a function you can store and pass around. It remembers the variables it uses. `@escaping` means it may run later, after the function returns.",
+  "body": [
+    "**In simple words:** A closure is a small piece of code you hand to someone to run later, like a callback. It \"captures\" (remembers) the variables it uses from around it.",
+    "**Real-life analogy:** Leaving a note for a colleague: \"when the parcel arrives, call me\". The note (closure) remembers your phone number (captured variable) and is used later.",
+    "**Escaping vs non-escaping:** By default a closure parameter is non-escaping: it must run before the function returns (e.g. `map`, `filter`). Non-escaping closures cannot cause retain cycles and are cheaper. `@escaping` means the function stores it or calls it later (network callbacks, completion handlers). Escaping closures are where `[weak self]` matters.",
+    "**Capture by reference vs value:** Without a capture list, the closure sees the latest value of the variable. With `[x]` it takes a snapshot of `x` at creation time.",
+    "**Swift 6:** closures that cross threads/actors must be `@Sendable`, which means they cannot capture mutable local variables. This prevents data races."
+  ],
+  "keyPoints": [
+    "Closures capture variables by reference by default; a capture list `[x]` copies the value at creation.",
+    "Non-escaping is the default for parameters; `@escaping` closures may be stored and run later.",
+    "Retain cycles only happen with escaping closures stored by the object they capture.",
+    "`@Sendable` closures cannot capture mutable state, which keeps concurrent code safe."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Capture by reference vs value",
+      "text": "var count = 0\nlet byRef   = { print(count) }          // sees later changes\nlet byValue = { [count] in print(count) } // snapshot now\ncount = 5\nbyRef()    // 5\nbyValue()  // 0\n\nfunc load(completion: @escaping (Data) -> Void) {\n    // stored and called later, so it must be @escaping\n    URLSession.shared.dataTask(with: url) { data, _, _ in completion(data ?? Data()) }.resume()\n}"
+    }
+  ],
+  "mistakes": [
+    "`lazy var handler = { self.update() }` - stored on self and captures self, so it leaks.",
+    "Forgetting to call the completion handler on every path (including errors)."
+  ],
+  "followups": [
+    "**Why are escaping closures more expensive?** Their captured context must live on the heap.",
+    "**What is a trailing closure?** Writing the last closure argument outside the parentheses: `items.map { $0.name }`.",
+    "**What is an autoclosure?** A parameter that wraps an expression in a closure so it is evaluated lazily, e.g. `assert(condition())` and `??`."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Closures",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/closures/"
+    }
+  ]
+}

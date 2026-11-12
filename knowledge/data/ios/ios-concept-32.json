@@ -1,0 +1,48 @@
+{
+  "id": "memory-footprint",
+  "title": "Memory footprint, leaks and jetsam",
+  "category": "memory-performance",
+  "tags": [
+    "memory",
+    "jetsam",
+    "instruments",
+    "oom"
+  ],
+  "summary": "iOS has no swap file. When memory runs low, the system kills apps (jetsam) - even the one on screen if it passes its limit. Keep memory low: small decoded images, bounded caches, no leaks.",
+  "body": [
+    "**In simple words:** A Mac can move unused memory to disk. An iPhone cannot, so it simply kills apps that use too much. A killed foreground app looks like a crash to the user but produces **no crash report**.",
+    "**Clean vs dirty memory:** clean memory (app code, memory-mapped files) can be thrown away and reloaded. Dirty memory (objects you allocated, decoded images) cannot. Your \"footprint\" is mostly dirty + compressed memory, and that is what the limit counts.",
+    "**Biggest usual culprit - images:** a decoded image costs width × height × 4 bytes. A 12 MP photo ≈ 48 MB in memory regardless of a 2 MB JPEG file. Downsample to the size you display.",
+    "**Leaks vs growth:** a leak is memory no one can reach (retain cycles). Abandoned memory is still reachable but never used again (a cache that only grows). Both raise the footprint.",
+    "**Tools:** Xcode memory gauge, Memory Graph Debugger (cycles, who holds what), Instruments Allocations (mark generations: open and close a screen, see what remains) and Leaks; in production, MetricKit and Xcode Organizer (memory terminations).",
+    "**Reacting to pressure:** use `NSCache` (evicts automatically), clear custom caches on `didReceiveMemoryWarning`, and do not hold large data you can reload."
+  ],
+  "keyPoints": [
+    "No swap on iOS: over the limit = jetsam kill, no crash log.",
+    "Footprint = dirty + compressed memory; images are usually the biggest part.",
+    "Decoded image = width × height × 4 bytes; always downsample.",
+    "Find leaks with Memory Graph, growth with Allocations generations.",
+    "Use `NSCache` with a cost limit; purge on memory warnings."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Cost-bounded image cache",
+      "text": "let cache = NSCache<NSURL, UIImage>()\ncache.totalCostLimit = 50 * 1024 * 1024        // ~50 MB of decoded pixels\n\nfunc store(_ image: UIImage, for url: URL) {\n    let cost = Int(image.size.width * image.scale * image.size.height * image.scale * 4)\n    cache.setObject(image, forKey: url as NSURL, cost: cost)\n}"
+    }
+  ],
+  "mistakes": [
+    "Using a plain `Dictionary` as an image cache (never evicts).",
+    "Loading a full-resolution photo into a thumbnail-size view."
+  ],
+  "followups": [
+    "**How do you detect out-of-memory crashes in production?** MetricKit/Organizer termination reasons; or infer: app was in foreground, no crash report, no clean exit on next launch.",
+    "**Why does memory keep growing in a feed?** Full-size decode per cell, unbounded caches, leaked cells or view controllers."
+  ],
+  "links": [
+    {
+      "label": "Reducing your app's memory use",
+      "url": "https://developer.apple.com/documentation/xcode/reducing-your-app-s-memory-use"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "auth-token-refresh",
+  "title": "Auth token refresh and retries",
+  "category": "networking",
+  "tags": [
+    "auth",
+    "oauth",
+    "retries",
+    "concurrency"
+  ],
+  "summary": "When the access token expires and many requests fail with 401 at the same time, refresh the token only once and replay them. Retry only safe failures, with growing delays.",
+  "body": [
+    "**In simple words:** An access token is like a short-lived entry pass; a refresh token gets you a new pass. If 10 requests all find the pass expired, you want one trip to the counter, not 10.",
+    "**Single-flight refresh:** put an `actor` in front of the token. The first caller that needs a refresh starts a `Task` and saves it; everyone else awaits the same task. If refresh fails (refresh token revoked), log the user out once.",
+    "**Refresh early:** refresh a little before expiry so users rarely see a 401.",
+    "**Retries:** retry only transient failures (timeouts, connection lost, 5xx, 429) and only for requests that are safe to repeat (GET, or POST with an idempotency key). Never blindly retry a payment. Use exponential backoff with jitter (random delay) and respect `Retry-After`.",
+    "**Storage:** tokens in the Keychain, never in logs or UserDefaults.",
+    "**Login flows:** OAuth with `ASWebAuthenticationSession` + PKCE; passkeys (`ASAuthorization`) for passwordless sign-in; Sign in with Apple."
+  ],
+  "keyPoints": [
+    "Actor + shared in-flight Task = one refresh for many concurrent 401s.",
+    "Proactive refresh before expiry.",
+    "Retry only idempotent requests; backoff with jitter; honour Retry-After.",
+    "Tokens in Keychain; never logged.",
+    "OAuth via ASWebAuthenticationSession + PKCE; passkeys for passwordless."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Single-flight token refresh",
+      "text": "actor TokenProvider {\n    private var token: Token?\n    private var refreshTask: Task<Token, Error>?\n    private let api: AuthAPI\n\n    init(api: AuthAPI) { self.api = api }\n\n    func validToken() async throws -> Token {\n        if let token, !token.isExpiringSoon { return token }\n        return try await refresh()\n    }\n\n    func refresh() async throws -> Token {\n        if let refreshTask { return try await refreshTask.value }   // join\n        let task = Task { try await api.refresh(token?.refreshToken) }\n        refreshTask = task\n        defer { refreshTask = nil }\n        let new = try await task.value\n        token = new\n        return new\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Every failed request triggering its own refresh (race, revoked tokens).",
+    "Retrying POST requests that create orders or payments."
+  ],
+  "followups": [
+    "**How do you test the race?** Fire 10 concurrent requests with an expired token and assert the refresh endpoint was called once.",
+    "**What is jitter and why?** Randomness added to backoff delays so all clients do not retry at the same moment after an outage."
+  ],
+  "links": [
+    {
+      "label": "ASWebAuthenticationSession",
+      "url": "https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession"
+    }
+  ]
+}

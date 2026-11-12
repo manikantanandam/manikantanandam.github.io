@@ -1,20 +1,51 @@
 {
   "id": "async-await",
-  "title": "async / await and actors",
+  "title": "async / await fundamentals",
+  "category": "concurrency",
   "tags": [
-    "concurrency"
+    "concurrency",
+    "async",
+    "await",
+    "continuation"
   ],
-  "summary": "Structured concurrency replaces nested completion handlers. Actors serialize access to mutable state.",
+  "summary": "`async` marks a function that can pause; `await` marks where it may pause. While paused, the thread is free to do other work - nothing is blocked.",
   "body": [
-    "Mark UI-facing types with `@MainActor` so state changes happen on the main thread."
+    "**In simple words:** Before async/await we passed completion handlers, which led to nested \"callback pyramids\" and forgotten calls. Now you write code top to bottom: `let user = try await api.user()`. At `await` the function may pause (suspend) until the result is ready.",
+    "**Real-life analogy:** Ordering at a restaurant. You order (start the call) and the waiter does not stand next to the kitchen waiting (blocking); they serve other tables and come back when your food is ready (resume).",
+    "**What happens at `await`:** the function's state is saved, the thread goes back to the pool to run other work, and later the function continues - possibly on a **different thread**. So never assume things are unchanged after an `await`, and never hold a lock across one.",
+    "**Starting async work from sync code:** `Task { await load() }`. A `Task` inherits the current actor (e.g. main actor) and priority. `Task.detached` inherits nothing - rarely needed.",
+    "**Bridging old callback APIs:** wrap them with `withCheckedThrowingContinuation` and call `resume` exactly once.",
+    "**Running things in parallel:** `async let a = f(); async let b = g(); let (x, y) = try await (a, b)`.",
+    "**Golden rule:** never block inside async code (no semaphores, no `sleep`, no synchronous network). The pool has only a few threads; blocking them can freeze everything."
+  ],
+  "keyPoints": [
+    "`await` = possible suspension point; the thread is released, not blocked.",
+    "Code after `await` may run on a different thread; re-check assumptions.",
+    "Use continuations to wrap callback APIs; resume exactly once.",
+    "`async let` / task groups for parallel work; `Task {}` to start async work from sync code.",
+    "Benefits: readable linear code, automatic error propagation with `throws`, built-in cancellation, compile-time data-race checks."
   ],
   "code": [
     {
       "lang": "swift",
-      "caption": "Loading data off the main actor",
-      "text": "@MainActor\nfinal class FeedViewModel: ObservableObject {\n    @Published private(set) var items: [Item] = []\n\n    func load() async {\n        items = await api.fetchItems()\n    }\n}"
+      "caption": "Before and after, plus bridging",
+      "text": "// Before: callbacks\napi.fetchUser { result in\n    switch result {\n    case .success(let user): api.fetchPosts(user.id) { posts in /* ... */ }\n    case .failure(let error): show(error)\n    }\n}\n\n// After: async/await\nfunc loadProfile() async throws -> (User, [Post]) {\n    let user = try await api.user()\n    async let posts = api.posts(user.id)     // runs in parallel\n    async let avatar = api.avatar(user.id)\n    return (user, try await posts)\n}\n\n// Wrapping a callback API\nfunc currentLocation() async throws -> CLLocation {\n    try await withCheckedThrowingContinuation { cont in\n        locationProvider.requestOnce { result in cont.resume(with: result) }\n    }\n}"
     }
   ],
-  "links": [],
-  "category": "concurrency"
+  "mistakes": [
+    "Resuming a continuation twice (crash) or never (the caller hangs forever).",
+    "Blocking with `DispatchSemaphore` inside async code.",
+    "Assuming code after `await` runs on the same thread."
+  ],
+  "followups": [
+    "**Does `async` mean it runs in the background?** No. `async` means it can suspend. Where it runs depends on its actor; from Swift 6.2 a plain nonisolated async function runs on the caller's actor unless marked `@concurrent`.",
+    "**Task vs Task.detached?** `Task` inherits actor, priority and task-locals; `detached` inherits none.",
+    "**How do you call async code from a button tap?** `Button(\"Load\") { Task { await model.load() } }` or SwiftUI `.task {}` for view lifetime work."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Concurrency",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/"
+    }
+  ]
 }

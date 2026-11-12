@@ -1,0 +1,45 @@
+{
+  "id": "copy-on-write",
+  "title": "Copy-on-write (CoW)",
+  "category": "swift-language",
+  "tags": [
+    "performance",
+    "value types",
+    "collections"
+  ],
+  "summary": "Copying an array is cheap because Swift only really copies the data when one of the copies is changed.",
+  "body": [
+    "**In simple words:** Arrays can be huge. If every `let b = a` copied a million elements, Swift would be slow. So `Array`, `Dictionary`, `Set` and `String` share the same storage after a copy, and only make a real copy at the moment someone **writes** to a shared one.",
+    "**Real-life analogy:** Two students share one textbook. Nobody buys a second book until one of them wants to write notes in it. Then that student gets their own copy.",
+    "**How it works:** the array struct holds a pointer to a heap buffer. Before a mutation it checks \"am I the only owner of this buffer?\" (`isKnownUniquelyReferenced`). If yes, it changes in place. If no, it copies the buffer first, then changes its own copy.",
+    "**Important:** CoW is **not automatic** for your own structs. A plain struct copies all its fields every time. If you build a big custom value type, you can add CoW yourself by keeping storage in a private class and checking uniqueness before writes.",
+    "**Hidden cost:** if you accidentally keep a second reference to an array while mutating it in a loop, every mutation may copy the whole array, turning O(n) work into O(n²)."
+  ],
+  "keyPoints": [
+    "Standard collections share storage on copy and copy only on the first write to a shared buffer.",
+    "Uniqueness is checked with `isKnownUniquelyReferenced(&storage)`.",
+    "Your own structs do not get CoW for free; implement it for large value types.",
+    "Use `dict[key, default: []].append(x)` to mutate in place instead of read-modify-write patterns that create copies."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Adding copy-on-write to a custom type",
+      "text": "struct Matrix {\n    private final class Storage {\n        var values: [Double]\n        init(_ v: [Double]) { values = v }\n    }\n    private var storage: Storage\n\n    init(count: Int) { storage = Storage(Array(repeating: 0, count: count)) }\n\n    subscript(i: Int) -> Double {\n        get { storage.values[i] }\n        set {\n            if !isKnownUniquelyReferenced(&storage) {   // shared? copy first\n                storage = Storage(storage.values)\n            }\n            storage.values[i] = newValue\n        }\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Believing every struct uses CoW automatically.",
+    "Thinking CoW makes sharing a `var` between threads safe - it does not; it is still a data race."
+  ],
+  "followups": [
+    "**Is copying an Array O(1) or O(n)?** O(1) to copy; O(n) when the first write happens on a shared buffer.",
+    "**How would you make a custom struct CoW?** Private final class storage + `isKnownUniquelyReferenced` check in every mutating path."
+  ],
+  "links": [
+    {
+      "label": "isKnownUniquelyReferenced",
+      "url": "https://developer.apple.com/documentation/swift/isknownuniquelyreferenced(_:)"
+    }
+  ]
+}

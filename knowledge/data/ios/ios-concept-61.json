@@ -1,0 +1,51 @@
+{
+  "id": "auto-layout",
+  "title": "Auto Layout essentials",
+  "category": "uikit-runtime",
+  "tags": [
+    "auto layout",
+    "constraints",
+    "uikit",
+    "intrinsic size"
+  ],
+  "summary": "Auto Layout positions views using rules (constraints) like \"20pt from the left\" instead of fixed frames, so the UI adapts to any screen size, rotation and text size.",
+  "body": [
+    "**In simple words:** You describe relationships: \"this label is 16pt below the image and as wide as the screen minus margins\". The layout engine solves these equations and computes every frame.",
+    "**Enough constraints:** each view needs enough rules to know its x, y, width and height. Too few = ambiguous layout (view jumps or is missing). Conflicting = \"Unable to simultaneously satisfy constraints\" in the console and one rule is broken.",
+    "**Intrinsic content size:** labels, buttons and image views know their natural size from content, so you often need only position constraints.",
+    "**Hugging vs compression resistance:** **Content hugging** = \"I do not want to grow bigger than my content\" (high = stays small). **Compression resistance** = \"I do not want to shrink smaller than my content\" (high = text will not be truncated). Used when two labels compete for space in a row.",
+    "**Priorities:** 1000 is required; lower priorities are \"nice to have\" and can break gracefully.",
+    "**Tools:** anchors in code (`label.topAnchor.constraint(equalTo:...)`), `UIStackView` to remove most manual constraints, and `translatesAutoresizingMaskIntoConstraints = false` for views made in code.",
+    "**Self-sizing cells:** constraints from the cell's content top to bottom let table/collection cells size themselves to their content."
+  ],
+  "keyPoints": [
+    "Constraints describe relationships; the engine computes frames.",
+    "Each view needs unambiguous x, y, width, height.",
+    "Hugging = resist growing; compression resistance = resist shrinking.",
+    "Set `translatesAutoresizingMaskIntoConstraints = false` for code-created views.",
+    "UIStackView for most linear layouts; activate constraints in batches with `NSLayoutConstraint.activate`."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Constraints in code",
+      "text": "let title = UILabel()\nlet price = UILabel()\n[title, price].forEach {\n    $0.translatesAutoresizingMaskIntoConstraints = false\n    view.addSubview($0)\n}\n\nNSLayoutConstraint.activate([\n    title.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),\n    title.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),\n    price.leadingAnchor.constraint(greaterThanOrEqualTo: title.trailingAnchor, constant: 8),\n    price.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),\n    price.firstBaselineAnchor.constraint(equalTo: title.firstBaselineAnchor)\n])\n\n// Price must never be truncated; title can shrink\nprice.setContentCompressionResistancePriority(.required, for: .horizontal)\ntitle.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)"
+    }
+  ],
+  "mistakes": [
+    "Forgetting `translatesAutoresizingMaskIntoConstraints = false` (conflicts with autoresizing constraints).",
+    "Adding constraints repeatedly in `viewDidLayoutSubviews` or `updateConstraints` without removing old ones.",
+    "Mixing manual frame setting with Auto Layout on the same view."
+  ],
+  "followups": [
+    "**How do you debug a broken layout?** Read the console log, use the View Debugger, give constraints identifiers, check for ambiguity with `hasAmbiguousLayout`.",
+    "**How do you animate a constraint change?** Change the `constant`, then call `view.layoutIfNeeded()` inside `UIView.animate`.",
+    "**Frames vs Auto Layout performance?** Manual frames can be faster for very complex cells, but Auto Layout is fine for most screens."
+  ],
+  "links": [
+    {
+      "label": "Auto Layout Guide",
+      "url": "https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/AutolayoutPG/"
+    }
+  ]
+}

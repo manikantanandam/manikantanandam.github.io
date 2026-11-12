@@ -81,10 +81,14 @@
       }
     });
 
-    [['Requirements', entry.requirements], ['Components', entry.components], ['Trade-offs', entry.tradeoffs]]
+    [['Requirements', entry.requirements], ['Components', entry.components], ['Trade-offs', entry.tradeoffs],
+      ['Say this in the interview', entry.keyPoints]]
       .forEach(function (pair) { var b = list(pair[0], pair[1]); if (b) body.appendChild(b); });
 
     (entry.code || []).concat(entry.solution || []).forEach(function (sn) { body.appendChild(codeBlock(sn)); });
+
+    [['Common mistakes', entry.mistakes], ['Likely follow-up questions', entry.followups]]
+      .forEach(function (pair) { var b = list(pair[0], pair[1]); if (b) body.appendChild(b); });
 
     if (entry.links && entry.links.length) {
       var links = el('ul', 'kb-links');
@@ -107,7 +111,8 @@
 
   function matches(entry, query) {
     if (!query) return true;
-    var text = [entry.title, entry.summary, entry.approach, (entry.tags || []).join(' '), (entry.body || []).join(' ')].join(' ').toLowerCase();
+    var text = [entry.title, entry.summary, entry.approach, (entry.tags || []).join(' '), (entry.body || []).join(' '),
+      (entry.keyPoints || []).join(' '), (entry.followups || []).join(' ')].join(' ').toLowerCase();
     return text.indexOf(query) !== -1;
   }
 
@@ -213,7 +218,7 @@
   }
 
   function fetchJSON(url) {
-    return fetch(url, { cache: 'default' }).then(function (r) {
+    return fetch(url, { cache: 'no-cache' }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
       return r.json();
     });

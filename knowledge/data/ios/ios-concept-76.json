@@ -1,0 +1,37 @@
+{
+  "id": "staff-leadership",
+  "title": "Staff engineer expectations: scope, influence and technical decisions",
+  "category": "staff",
+  "tags": [
+    "staff",
+    "leadership",
+    "rfc",
+    "behavioral"
+  ],
+  "summary": "A staff iOS engineer is judged on impact beyond their own code: setting technical direction, making good trade-off decisions, raising quality across teams and growing other engineers.",
+  "body": [
+    "**What changes at staff level:** scope moves from \"my feature\" to \"the iOS platform / several teams\". Success is measured by outcomes for the org (velocity, quality, reliability), not lines of code.",
+    "**Typical staff responsibilities in iOS:** architecture and modularization direction; platform health (launch time, crash rate, build time, app size); design-system and shared SDKs; release process; Swift/SwiftUI adoption; cross-team technical reviews; incident leadership; mentoring senior engineers.",
+    "**Making decisions:** write RFCs/ADRs; compare 2-3 options with trade-offs (cost, risk, reversibility, team skills); prefer reversible decisions made quickly and invest more care in irreversible ones; disagree and commit.",
+    "**Influence without authority:** build trust with data and prototypes, listen first, find shared goals with product and design, give credit, make others successful.",
+    "**Raising the bar:** coding guidelines, code review culture, lint and CI checks, golden-path templates, documentation, tech talks.",
+    "**Behavioral question bank to prepare (with numbers):** a hard technical decision and its trade-offs; a time you were wrong; a conflict with another team; an incident you led; a project that failed; how you mentored someone to promotion; how you prioritized tech debt against features.",
+    "**Answer with STAR:** Situation, Task, Action (what **you** did), Result (measurable), Learning."
+  ],
+  "keyPoints": [
+    "Impact beyond your team: direction, platform health, multiplying others.",
+    "Decisions documented in RFCs/ADRs with explicit trade-offs.",
+    "Influence through data, prototypes and trust.",
+    "Own platform metrics: crash-free rate, launch, hangs, build time, size.",
+    "Prepare 6-8 STAR stories with numbers."
+  ],
+  "mistakes": [
+    "Answering behavioral questions with \"we\" only - interviewers need your specific actions.",
+    "Stories without results or metrics.",
+    "Only technical depth, no evidence of cross-team influence."
+  ],
+  "followups": [
+    "**How do you balance tech debt and features?** Tie debt to business impact (incidents, velocity), reserve a steady percentage of capacity, attach cleanup to feature work in the same area.",
+    "**How do you evaluate a new technology (e.g. TCA, SwiftData)?** Prototype on a real feature, define success criteria, assess team skills and lock-in, decide with an ADR, plan an exit path."
+  ]
+}

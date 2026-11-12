@@ -1,0 +1,49 @@
+{
+  "id": "swiftui-basics",
+  "title": "How SwiftUI works (declarative UI)",
+  "category": "swiftui",
+  "tags": [
+    "swiftui",
+    "declarative",
+    "body",
+    "diffing"
+  ],
+  "summary": "In SwiftUI you describe what the screen should look like for the current state. When state changes, SwiftUI calls `body` again, compares the result with the old one and updates only what changed.",
+  "body": [
+    "**In simple words:** In UIKit you give step-by-step orders: \"create a label, set its text, when data changes update the text\". That is **imperative**. In SwiftUI you say: \"the screen is a label showing `name`\". That is **declarative**. When `name` changes, SwiftUI updates the label for you.",
+    "**Formula to remember:** `UI = f(state)`. The `body` is that function.",
+    "**Views are cheap structs:** a SwiftUI `View` is not the actual pixels on screen; it is a lightweight description. SwiftUI creates them often and throws them away. The real, long-lived UI and your `@State` live in SwiftUI's internal storage.",
+    "**The update cycle:** state changes → SwiftUI marks views that depend on it as invalid → calls their `body` → diffs the new description with the old → applies minimal changes to the rendered UI.",
+    "**Modifiers** (`.padding()`, `.foregroundStyle()`) wrap a view in a new view. Order matters: `.padding().background(.red)` colours the padding too; `.background(.red).padding()` does not.",
+    "**Why it matters in interviews:** most SwiftUI questions (state, identity, performance) are really about this cycle: what triggers `body`, how often, and what SwiftUI thinks is \"the same view\"."
+  ],
+  "keyPoints": [
+    "Declarative: describe UI for a state; SwiftUI handles updates. `UI = f(state)`.",
+    "Views are value-type descriptions, recreated often; state lives in SwiftUI storage.",
+    "State change → body re-evaluated → diff → minimal UI update.",
+    "Modifier order matters because each modifier wraps the view.",
+    "Single source of truth: each piece of data has one owner; others read or bind to it."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "A tiny declarative screen",
+      "text": "struct CounterView: View {\n    @State private var count = 0           // source of truth\n\n    var body: some View {                  // UI = f(count)\n        VStack(spacing: 12) {\n            Text(\"Count: \\(count)\")\n                .font(.title)\n            Button(\"Add\") { count += 1 }   // change state, not the label\n        }\n        .padding()\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Doing work in `body` (network calls, sorting big arrays) - it can run many times.",
+    "Thinking a `View` struct is the on-screen object and storing references to it."
+  ],
+  "followups": [
+    "**SwiftUI vs UIKit: when would you choose UIKit?** Very complex collection layouts, fine scroll control, advanced text editing, or when supporting very old iOS versions.",
+    "**Why is `body` called so often and is that bad?** It is cheap by design as long as `body` does no heavy work.",
+    "**What is `some View`?** An opaque return type: one concrete view type the compiler knows, hidden from you."
+  ],
+  "links": [
+    {
+      "label": "SwiftUI tutorials",
+      "url": "https://developer.apple.com/tutorials/swiftui"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "codable",
+  "title": "Codable and JSON parsing",
+  "category": "swift-language",
+  "tags": [
+    "codable",
+    "json",
+    "decoding",
+    "networking"
+  ],
+  "summary": "`Codable` lets Swift convert your types to and from JSON (or plist) automatically. You customize names and formats with `CodingKeys` and decoder strategies.",
+  "body": [
+    "**In simple words:** Mark a struct `Codable` and `JSONDecoder` can turn server JSON into that struct, and `JSONEncoder` can turn it back into JSON. The compiler writes the code for you as long as property names and types match.",
+    "**Customizing:** different key names → `CodingKeys` enum, or `decoder.keyDecodingStrategy = .convertFromSnakeCase` for `user_name` → `userName`. Dates → `dateDecodingStrategy = .iso8601`. Optional fields → make the property optional. Nested JSON you want flat → write `init(from decoder:)` by hand.",
+    "**Robust parsing:** one unexpected value (e.g. a new enum case from the server) fails the whole decode. Defend with optional properties, a fallback `unknown` enum case, or decoding arrays element by element so one bad item does not drop the whole list.",
+    "**Performance:** decoding large JSON is CPU work; do it off the main thread (URLSession callbacks and `@concurrent` functions are already off main).",
+    "**Separate layers:** many teams decode into DTO structs that mirror the API, then map to domain models. Server changes then only touch the mapping."
+  ],
+  "keyPoints": [
+    "`Codable` = `Encodable & Decodable`; the compiler synthesizes the code when keys and types match.",
+    "`CodingKeys` and key/date strategies handle naming and formats.",
+    "Optional properties and unknown enum cases make decoding resilient to API changes.",
+    "Decode off the main thread; keep DTOs separate from domain models in larger apps."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Decoding with keys, dates and a safe enum",
+      "text": "struct Post: Decodable {\n    let id: Int\n    let title: String\n    let createdAt: Date\n    let status: Status\n    let imageURL: URL?             // missing key -> nil\n\n    enum Status: String, Decodable {\n        case draft, published, unknown\n        init(from decoder: Decoder) throws {\n            let raw = try decoder.singleValueContainer().decode(String.self)\n            self = Status(rawValue: raw) ?? .unknown   // new server values do not crash\n        }\n    }\n    enum CodingKeys: String, CodingKey {\n        case id, title, status\n        case createdAt = \"created_at\"\n        case imageURL = \"image_url\"\n    }\n}\n\nlet decoder = JSONDecoder()\ndecoder.dateDecodingStrategy = .iso8601\nlet posts = try decoder.decode([Post].self, from: data)"
+    }
+  ],
+  "mistakes": [
+    "Making every property non-optional, so one missing field breaks the screen.",
+    "Creating a new `JSONDecoder`/`DateFormatter` per item in a loop (they are costly to create)."
+  ],
+  "followups": [
+    "**How do you debug a decoding failure?** Catch `DecodingError` and print its `context.codingPath` and `debugDescription`.",
+    "**How do you decode a field that can be Int or String?** Custom `init(from:)` that tries both.",
+    "**Codable vs manual JSONSerialization?** Codable is type-safe and less code; manual is for truly dynamic JSON."
+  ],
+  "links": [
+    {
+      "label": "Encoding and decoding custom types",
+      "url": "https://developer.apple.com/documentation/foundation/encoding-and-decoding-custom-types"
+    }
+  ]
+}

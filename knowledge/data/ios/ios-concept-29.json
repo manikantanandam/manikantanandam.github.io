@@ -1,0 +1,52 @@
+{
+  "id": "objc-runtime",
+  "title": "Objective-C runtime, KVO and interop",
+  "category": "uikit-runtime",
+  "tags": [
+    "objc",
+    "runtime",
+    "swizzling",
+    "kvo",
+    "kvc"
+  ],
+  "summary": "Objective-C decides which method to call at runtime by sending messages. That flexibility enables KVO, method swizzling and associated objects, and Swift talks to it through `@objc` and bridging headers.",
+  "body": [
+    "**In simple words:** In Objective-C, `[obj doThing]` sends a message \"doThing\" and the runtime looks up the method at that moment. Because the lookup is dynamic, you can even swap implementations at runtime.",
+    "**Message lookup:** method cache → class method list → superclass chain → if not found, forwarding (`resolveInstanceMethod`, `forwardingTargetForSelector`, `forwardInvocation`) → crash \"unrecognized selector sent to instance\".",
+    "**KVC / KVO:** Key-Value Coding reads/writes properties by string key (`value(forKey:)`). Key-Value Observing notifies you when a property changes. In Swift, KVO needs an `NSObject` subclass and `@objc dynamic` properties; use the block-based `observe(\\.property)` API and keep the returned token.",
+    "**Swizzling:** exchanging two method implementations (e.g. to log every `viewDidAppear`). Used by analytics and crash SDKs. Risky: order-dependent, conflicts between SDKs, can break with OS updates. Prefer explicit hooks in your own code.",
+    "**Interop:** Swift sees ObjC through the bridging header (app) or module map (framework). ObjC sees Swift through the generated `ModuleName-Swift.h` for `@objc` members. Nullability annotations (`nullable`, `nonnull`) decide if Swift sees optionals; `NS_SWIFT_NAME` renames APIs; `NS_SWIFT_UI_ACTOR` / `NS_SWIFT_SENDABLE` help Swift 6."
+  ],
+  "keyPoints": [
+    "ObjC uses dynamic message sending (`objc_msgSend`) with a method cache.",
+    "KVO in Swift needs `@objc dynamic` on an NSObject subclass; keep the observation token.",
+    "Swizzling is powerful but risky; prefer explicit hooks.",
+    "Bridging header (ObjC → Swift) and generated `-Swift.h` (Swift → ObjC).",
+    "Add nullability annotations so Swift gets correct optionals."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Block-based KVO",
+      "text": "final class Player: NSObject {\n    @objc dynamic var progress: Double = 0\n}\n\nfinal class ProgressView: UIView {\n    private var token: NSKeyValueObservation?\n    func bind(_ player: Player) {\n        token = player.observe(\\.progress, options: [.new]) { [weak self] _, change in\n            self?.update(change.newValue ?? 0)\n        }\n    }\n    func update(_ value: Double) {}\n}"
+    }
+  ],
+  "mistakes": [
+    "Not keeping the KVO token (observation stops immediately).",
+    "Swizzling in `+initialize` or without `dispatch_once`-style protection, causing double swaps."
+  ],
+  "followups": [
+    "**What is \"unrecognized selector sent to instance\"?** A message was sent to an object that does not implement it and nothing forwarded it.",
+    "**What are associated objects?** A way to attach stored values to objects in ObjC categories / Swift extensions via `objc_setAssociatedObject`."
+  ],
+  "links": [
+    {
+      "label": "Objective-C runtime",
+      "url": "https://developer.apple.com/documentation/objectivec/objective-c-runtime"
+    },
+    {
+      "label": "Using Key-Value Observing in Swift",
+      "url": "https://developer.apple.com/documentation/swift/using-key-value-observing-in-swift"
+    }
+  ]
+}

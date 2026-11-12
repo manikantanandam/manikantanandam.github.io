@@ -1,0 +1,55 @@
+{
+  "id": "optionals-enums",
+  "title": "Optionals, enums and pattern matching",
+  "category": "swift-language",
+  "tags": [
+    "optional",
+    "enum",
+    "switch",
+    "pattern matching"
+  ],
+  "summary": "An optional is a box that either holds a value or holds nothing (`nil`). It is just an enum with two cases, and `switch` lets you safely open any enum.",
+  "body": [
+    "**In simple words:** In many languages any variable can secretly be null and crash you later. Swift makes \"might be missing\" part of the type: `String?` means \"a String, or nothing\". The compiler forces you to check before you use it.",
+    "**Real-life analogy:** A gift box. `String` is a gift you are holding. `String?` is a closed box: it may have a gift inside or be empty. You must open it (`if let`, `guard let`, `??`) before using the gift.",
+    "**How it works:** `Optional` is literally `enum Optional<Wrapped> { case none, some(Wrapped) }`. `nil` is `.none`. Optional chaining (`user?.address?.city`) stops at the first `nil` and returns `nil`.",
+    "**Ways to unwrap, safest first:** `if let` / `guard let` (check and use), `??` (give a default), optional chaining `?.`, `map`/`flatMap` on the optional, and last `!` (force unwrap: crashes if nil, use only when nil is a programmer bug).",
+    "**Enums are more than constants:** each case can carry data (associated values), enums can have methods and computed properties, and `switch` must handle every case. Adding a new case makes the compiler point at every place you forgot to handle. That is why enums are great for screen state: `.loading`, `.loaded([Post])`, `.failed(Error)`.",
+    "**Pattern matching:** `switch` can match ranges, tuples, associated values and conditions (`case .failed(let e) where e is URLError`). `if case` matches one pattern without a full switch."
+  ],
+  "keyPoints": [
+    "Optional is an enum with `.none` and `.some(value)`; the type system forces you to handle \"missing\".",
+    "Prefer `guard let` for early exit, `if let` for a small scope, `??` for defaults; avoid `!` except for real programmer errors.",
+    "Enums with associated values model states that cannot be mixed, e.g. you cannot be `.loading` and `.failed` at the same time.",
+    "Exhaustive `switch` turns \"I forgot a case\" into a compile error. Avoid `default:` on your own enums for this reason.",
+    "`indirect enum` lets an enum contain itself (trees, linked lists)."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Screen state as an enum",
+      "text": "enum LoadState {\n    case loading\n    case loaded([Post])\n    case failed(Error)\n}\n\nfunc render(_ state: LoadState) {\n    switch state {\n    case .loading:               showSpinner()\n    case .loaded(let posts) where posts.isEmpty: showEmpty()\n    case .loaded(let posts):     show(posts)\n    case .failed(let error):     showError(error)\n    }\n}\n\n// Unwrapping\nguard let user = session.user else { return }   // early exit\nlet name = user.nickname ?? user.fullName        // default value\nlet city = user.address?.city                    // String?"
+    }
+  ],
+  "mistakes": [
+    "Force unwrapping (`!`) values that come from the network or user input.",
+    "Using several optionals/booleans (`isLoading`, `error`, `data`) instead of one enum, which allows impossible combinations.",
+    "Adding `default:` to a switch on your own enum, so new cases are silently ignored."
+  ],
+  "followups": [
+    "**What is an implicitly unwrapped optional (`String!`)?** An optional that is force-unwrapped automatically on use. Used for IBOutlets that are set after init. Crashes if nil.",
+    "**Optional chaining vs force unwrap?** `?.` returns nil safely; `!` crashes when nil.",
+    "**How do you add a case to a public enum in a library without breaking clients?** Clients must use `@unknown default`; library enums are non-frozen.",
+    "**`map` vs `flatMap` on Optional?** `map` transforms the value if present; `flatMap` is used when the transform itself returns an optional, to avoid `T??`."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Enumerations",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/enumerations/"
+    },
+    {
+      "label": "Swift book: Optional chaining",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/optionalchaining/"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "solid",
+  "title": "SOLID principles in Swift",
+  "category": "architecture",
+  "tags": [
+    "solid",
+    "clean code",
+    "architecture"
+  ],
+  "summary": "Five guidelines for code that is easy to change: one job per type, extend without editing, subtypes must behave, small protocols, depend on abstractions.",
+  "body": [
+    "**S - Single Responsibility:** a type should have one reason to change. A view controller that downloads, parses, caches and displays has four. Split into service, parser, cache, view.",
+    "**O - Open/Closed:** open for extension, closed for modification. Add a new payment method by adding a new type conforming to `PaymentMethod`, not by adding another `case` to a giant `switch` everywhere.",
+    "**L - Liskov Substitution:** a subtype must work wherever the parent type is expected, without surprises. If `ReadOnlyCache: Cache` crashes on `save`, it breaks the contract.",
+    "**I - Interface Segregation:** many small protocols beat one huge one. A screen that only reads should depend on `UserReading`, not on a 20-method `UserService`.",
+    "**D - Dependency Inversion:** high-level code depends on protocols, not concrete classes. `FeedViewModel` depends on `FeedAPI`, and the app wires in `LiveFeedAPI` or a test fake.",
+    "**Pragmatism:** SOLID is a guide, not a law. Over-applying creates too many tiny protocols and indirection. Apply it where code changes often."
+  ],
+  "keyPoints": [
+    "SRP: one reason to change. OCP: extend via new types, not edits.",
+    "LSP: subtypes honour the contract. ISP: small focused protocols.",
+    "DIP: depend on protocols; inject concrete implementations.",
+    "Give a concrete iOS example for each when asked.",
+    "Balance: avoid abstraction for code that never changes."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Open/closed + dependency inversion",
+      "text": "protocol PaymentMethod { func pay(_ amount: Decimal) async throws }\n\nstruct CardPayment: PaymentMethod { func pay(_ amount: Decimal) async throws { /* ... */ } }\nstruct UPIPayment: PaymentMethod  { func pay(_ amount: Decimal) async throws { /* ... */ } }\n// Adding Apple Pay = add a new type; Checkout does not change.\n\nfinal class Checkout {\n    private let method: PaymentMethod          // depends on abstraction\n    init(method: PaymentMethod) { self.method = method }\n    func complete(total: Decimal) async throws { try await method.pay(total) }\n}"
+    }
+  ],
+  "mistakes": [
+    "Creating a protocol for every class with only one implementation and no tests needing it."
+  ],
+  "followups": [
+    "**Which principle does a massive view controller break?** Single Responsibility first; usually Dependency Inversion too."
+  ]
+}

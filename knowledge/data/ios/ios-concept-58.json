@@ -1,0 +1,49 @@
+{
+  "id": "combine-basics",
+  "title": "Combine basics: publishers, subscribers, operators",
+  "category": "concurrency",
+  "tags": [
+    "combine",
+    "reactive",
+    "publisher"
+  ],
+  "summary": "Combine is Apple's reactive framework: a publisher emits values over time, operators transform them, and a subscriber receives them. Still common in existing codebases.",
+  "body": [
+    "**In simple words:** Think of a pipe. Values flow from a **publisher** (search text changes, network response, timer) through **operators** (debounce, map, filter) to a **subscriber** (`sink`, `assign`) that uses them.",
+    "**Real-life analogy:** A newspaper subscription. The publisher prints issues, you subscribe, and you keep receiving issues until you cancel.",
+    "**Key pieces:** `Just`, `Future`, `URLSession.dataTaskPublisher`, `NotificationCenter.publisher`, `@Published` properties are publishers. `PassthroughSubject` sends values you push manually; `CurrentValueSubject` also remembers the latest value.",
+    "**Cancellation and memory:** `sink` returns an `AnyCancellable`. Store it (usually in `Set<AnyCancellable>`); when it is deallocated the subscription stops. Use `[weak self]` inside `sink` closures.",
+    "**Threading:** `receive(on: DispatchQueue.main)` before updating UI; `subscribe(on:)` controls where upstream work starts.",
+    "**Combine vs async/await today:** new code mostly uses async/await, `AsyncSequence` and Observation. Combine is still great for complex event pipelines (debounce, combineLatest) and is everywhere in apps built 2019-2023. You can bridge with `publisher.values`."
+  ],
+  "keyPoints": [
+    "Publisher → operators → subscriber; each subscription is an `AnyCancellable`.",
+    "Subjects: `PassthroughSubject` (no current value) vs `CurrentValueSubject` (has current value).",
+    "Must store cancellables, or the pipeline stops immediately.",
+    "`receive(on: .main)` before UI updates.",
+    "Typical use: search with `debounce`, `removeDuplicates`, `flatMap`/`switchToLatest` to cancel old requests."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Search-as-you-type pipeline",
+      "text": "final class SearchViewModel: ObservableObject {\n    @Published var query = \"\"\n    @Published private(set) var results: [Item] = []\n    private var cancellables = Set<AnyCancellable>()\n\n    init(api: SearchAPI) {\n        $query\n            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)\n            .removeDuplicates()\n            .filter { $0.count >= 2 }\n            .map { api.search($0).replaceError(with: []) }  // AnyPublisher<[Item], Never>\n            .switchToLatest()                               // drop stale requests\n            .receive(on: DispatchQueue.main)\n            .sink { [weak self] in self?.results = $0 }\n            .store(in: &cancellables)\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Not storing the `AnyCancellable` - nothing happens.",
+    "Strongly capturing `self` in `sink` stored on `self` - retain cycle.",
+    "Updating UI without `receive(on: .main)`."
+  ],
+  "followups": [
+    "**`map` vs `flatMap` in Combine?** `map` transforms values; `flatMap` turns each value into a new publisher (e.g. a network call) and merges results.",
+    "**What is backpressure?** A subscriber controlling how many values it wants (`Demand`); Combine supports it, `sink` requests unlimited.",
+    "**`combineLatest` vs `zip`?** combineLatest emits whenever any input changes (using latest of each); zip pairs values one-to-one."
+  ],
+  "links": [
+    {
+      "label": "Combine",
+      "url": "https://developer.apple.com/documentation/combine"
+    }
+  ]
+}

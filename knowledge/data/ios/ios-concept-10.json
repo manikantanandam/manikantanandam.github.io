@@ -1,0 +1,40 @@
+{
+  "id": "ownership-noncopyable",
+  "title": "Ownership, ~Copyable and Span",
+  "category": "swift-language",
+  "tags": [
+    "ownership",
+    "noncopyable",
+    "performance"
+  ],
+  "summary": "`~Copyable` types cannot be copied - only moved - so the compiler guarantees one owner. `Span` and `InlineArray` give fast, safe access to memory without heap allocation.",
+  "body": [
+    "**In simple words:** Normally Swift copies values freely. Some things should never be copied: a file handle, a one-time payment token, a lock. Marking a type `~Copyable` (\"not copyable\") makes the compiler enforce one owner at a time.",
+    "**Real-life analogy:** A concert ticket that can be handed over but not photocopied. Once you give it away (consume it), you no longer have it.",
+    "**Parameter keywords:** `borrowing` = \"let me look at it, I will give it back\" (no copy). `consuming` = \"give it to me, it is mine now\".",
+    "**Span and InlineArray (Swift 6.2):** `Span` is a safe view over a block of memory (a modern, checked replacement for many unsafe pointers). `InlineArray<4, Int>` is a fixed-size array stored inline, with no heap allocation.",
+    "**Who needs this?** Performance-critical code (parsers, image/audio processing) and SDK authors. Most app code does not, but staff candidates should know what these features are for."
+  ],
+  "keyPoints": [
+    "`~Copyable` = unique ownership, enforced by the compiler; structs can have `deinit`.",
+    "`borrowing` reads without copying; `consuming` takes ownership.",
+    "`Span` = safe view over contiguous memory; `InlineArray` = fixed-size, no heap.",
+    "`Mutex` is noncopyable because a lock must have one stable address."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "A single-use token",
+      "text": "struct UploadToken: ~Copyable {\n    let id: String\n    consuming func redeem() -> String { id }   // ends the token\n    deinit { print(\"token \\(id) dropped\") }\n}\n\nlet t = UploadToken(id: \"abc\")\nlet id = t.redeem()\n// t.redeem()   // compile error: 't' used after consume"
+    }
+  ],
+  "followups": [
+    "**Why would you use `~Copyable` in an app?** To model resources that must be used exactly once, e.g. a transaction that must be committed or rolled back."
+  ],
+  "links": [
+    {
+      "label": "Swift Evolution: Noncopyable structs and enums (SE-0390)",
+      "url": "https://github.com/swiftlang/swift-evolution/blob/main/proposals/0390-noncopyable-structs-and-enums.md"
+    }
+  ]
+}

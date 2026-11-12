@@ -1,0 +1,48 @@
+{
+  "id": "swiftui-identity",
+  "title": "SwiftUI view identity and lifetime",
+  "category": "swiftui",
+  "tags": [
+    "swiftui",
+    "identity",
+    "diffing",
+    "foreach"
+  ],
+  "summary": "SwiftUI must know if a view is \"the same one\" as before. Same identity = update it and keep its state. New identity = destroy the old one (state lost) and create a new one.",
+  "body": [
+    "**In simple words:** Because views are recreated all the time, SwiftUI uses **identity** to connect a new view value to the old on-screen view and its `@State`.",
+    "**Two kinds of identity:** **Structural** - the view's position in the code (first child of this VStack, the `if` branch vs the `else` branch). **Explicit** - an id you give: `ForEach(items, id: \\.id)` or `.id(value)`.",
+    "**Why it matters:** an `if/else` that shows the same kind of view in both branches actually creates two different views. Switching branches resets state and plays a transition. If you just want to change how it looks, use a modifier with a condition instead.",
+    "**Lists:** `ForEach` needs stable, unique ids. Using array indices or `\\.self` on duplicate values causes wrong rows to animate, keep wrong state, or flicker.",
+    "**`.id(value)`:** changing it forces a brand-new view - handy to reset a form or scroll position, harmful in lists (rebuilds everything).",
+    "**`AnyView`** hides the type, so SwiftUI loses structural information and diffs less efficiently. Avoid it in lists."
+  ],
+  "keyPoints": [
+    "Identity links view values to on-screen views and their state.",
+    "Structural identity = position/branch; explicit = `id` / `ForEach` ids.",
+    "Changing identity resets `@State` and triggers transitions.",
+    "Use stable unique ids (model ids, not indices).",
+    "Prefer conditional modifiers over `if/else` to keep identity."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Keep identity with a modifier",
+      "text": "// Two identities: TextField state resets when toggled\nif isEditing { EditorView() } else { EditorView().disabled(true) }\n\n// One identity: state kept\nEditorView().disabled(!isEditing)\n\n// Stable ids in lists\nForEach(messages, id: \\.id) { MessageRow(message: $0) }"
+    }
+  ],
+  "mistakes": [
+    "Using `ForEach(0..<items.count)` with a changing array.",
+    "Adding `.id(UUID())` - a new identity every render, so state is always lost."
+  ],
+  "followups": [
+    "**View lifetime vs state lifetime vs body calls?** `body` can run many times; the view (identity) lives while on screen; `@State` lives as long as the identity.",
+    "**Why did my animation not run?** Possibly the identity changed, so SwiftUI inserted a new view instead of animating the old one."
+  ],
+  "links": [
+    {
+      "label": "WWDC21: Demystify SwiftUI",
+      "url": "https://developer.apple.com/videos/play/wwdc2021/10022/"
+    }
+  ]
+}

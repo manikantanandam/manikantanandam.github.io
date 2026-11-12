@@ -1,15 +1,51 @@
 {
   "id": "value-vs-reference",
-  "title": "Value types vs reference types",
+  "title": "Value types vs reference types (struct vs class)",
+  "category": "swift-language",
   "tags": [
-    "swift",
-    "design"
+    "struct",
+    "class",
+    "stack",
+    "heap"
   ],
-  "summary": "Structs and enums are copied on assignment; classes share one instance.",
+  "summary": "A struct is copied when you pass it around; a class is shared. Default to structs, use a class when many places must see the same object.",
   "body": [
-    "Prefer structs for models and state snapshots. Use classes when identity or shared mutable state is required."
+    "**In simple words:** `struct` and `enum` are **value types**: assigning makes a copy, so changing your copy never affects anyone else. `class` is a **reference type**: assigning copies the address, so everyone points at the same object and sees each other's changes.",
+    "**Real-life analogy:** A struct is like a photocopy of a document: write on your copy and the original is unchanged. A class is like a shared Google Doc link: everyone with the link edits the same document.",
+    "**Why Swift prefers structs:** no surprise changes from far away code, easier to reason about, naturally safe to send between threads, and no reference counting cost for simple structs.",
+    "**When to use a class:** you need **identity** (this exact object, compared with `===`), shared mutable state that many screens observe (a view model, a cache, a network client), inheritance, `deinit`, or Objective-C interop. If the shared state is touched from many threads, consider an `actor` instead.",
+    "**Stack vs heap (simplified):** small values with a clear lifetime can live on the fast stack. Class instances always live on the heap and are reference counted (ARC). A struct is not always on the stack: if it is stored inside a class, captured by an escaping closure, or boxed in `any Protocol`, it ends up on the heap too.",
+    "**Watch out:** a struct that contains a class property is only a \"shallow\" value type. Copying the struct copies the reference, so both copies share the class instance."
   ],
-  "code": [],
-  "links": [],
-  "category": "swift-language"
+  "keyPoints": [
+    "Value types copy on assignment, reference types share one instance.",
+    "Default to structs; pick a class for identity, shared state, inheritance or ObjC interop; pick an actor for shared state across threads.",
+    "`mutating` methods are needed to change a struct from inside; `let` structs are fully immutable.",
+    "Swift collections (Array, Dictionary, String) are structs that use copy-on-write, so copies are cheap until you mutate.",
+    "SwiftUI views are structs because they are cheap descriptions that SwiftUI creates and throws away often."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Copy vs share",
+      "text": "struct Point { var x = 0 }\nfinal class Box { var x = 0 }\n\nvar a = Point()\nvar b = a        // copy\nb.x = 1          // a.x is still 0\n\nlet c = Box()\nlet d = c        // same object\nd.x = 1          // c.x is now 1"
+    }
+  ],
+  "mistakes": [
+    "Saying \"structs are always on the stack\" - not true when captured, boxed or stored in a class.",
+    "Making everything a class \"for performance\" - classes add ARC and heap allocation.",
+    "Putting a mutable class inside a struct and expecting value semantics."
+  ],
+  "followups": [
+    "**What does `mutating` do?** It lets a method change `self`; under the hood `self` is passed as `inout`.",
+    "**Why can a `let` class instance still change its properties?** `let` fixes the reference, not the object it points to.",
+    "**Struct or class for a model from JSON?** Struct: it is data, and copies avoid accidental shared mutation.",
+    "**How is `===` different from `==`?** `===` checks same instance (identity); `==` checks equal values via `Equatable`."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Structures and Classes",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/classesandstructures/"
+    }
+  ]
 }

@@ -1,0 +1,45 @@
+{
+  "id": "whats-new-swift",
+  "title": "What's new in Swift 6.2 to 6.4",
+  "category": "whats-new",
+  "tags": [
+    "swift 6.2",
+    "swift 6.3",
+    "swift 6.4",
+    "2026"
+  ],
+  "summary": "Swift 6.2 made concurrency easier (main actor by default, async functions run where they are called, `@concurrent` to go to the background) and added `InlineArray`, `Span` and `Observations`. 6.3/6.4 continue with ergonomics and diagnostics.",
+  "body": [
+    "**Swift 6.2 (Sept 2025) in simple words:** before, Swift 6 strict concurrency produced lots of errors in UI code. 6.2 lets a module say \"everything is on the main actor unless I say otherwise\" (`defaultIsolation(MainActor.self)`). Plain async functions now run on the caller's actor (no surprise thread hop); mark CPU-heavy ones `@concurrent` to run in the background.",
+    "**Other 6.2 items:** isolated conformances (`extension Model: @MainActor Equatable`), `Task.immediate`, task names visible in Instruments, `weak let`, `InlineArray` and `Span`, `Observations` async sequence for `@Observable` models, Swift Testing exit tests and attachments, opt-in strict memory safety mode.",
+    "**Swift 6.1:** `nonisolated` on types/extensions, trailing commas in more places, package traits.",
+    "**Swift 6.3/6.4 (2026, WWDC26):** reported changes include async calls inside `defer`, warnings when a task silently drops a thrown error, an `anyAppleOS` availability shorthand, and more ownership and diagnostics work. Verify details against the official release notes before quoting them.",
+    "**How to talk about it:** interviewers care about impact - why default main-actor isolation reduces migration noise, when `@concurrent` is needed, and what behavior changes when upcoming feature flags are turned on."
+  ],
+  "keyPoints": [
+    "6.2: default MainActor isolation per module; caller-isolated async functions; `@concurrent` to offload.",
+    "6.2: `InlineArray`, `Span`, `Observations`, task names, `Task.immediate`.",
+    "Turning on `NonisolatedNonsendingByDefault` can move work onto main - profile and add `@concurrent`.",
+    "Talk about adoption impact, not just feature lists."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Swift 6.2 isolation in practice",
+      "text": "// Module built with defaultIsolation(MainActor.self)\nfinal class EditorModel {                    // implicitly @MainActor\n    var document = Document()\n\n    func export() async throws -> Data {\n        try await Renderer.render(document)  // goes to background because of @concurrent\n    }\n}\n\nenum Renderer {\n    @concurrent\n    static func render(_ doc: Document) async throws -> Data { /* CPU heavy */ Data() }\n}"
+    }
+  ],
+  "followups": [
+    "**What breaks when enabling `NonisolatedNonsendingByDefault`?** Async functions that relied on leaving the main actor now run on it; heavy work may cause hangs until marked `@concurrent`."
+  ],
+  "links": [
+    {
+      "label": "Swift blog",
+      "url": "https://www.swift.org/blog/"
+    },
+    {
+      "label": "Swift Evolution proposals",
+      "url": "https://www.swift.org/swift-evolution/"
+    }
+  ]
+}

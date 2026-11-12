@@ -1,0 +1,49 @@
+{
+  "id": "whats-new-ios",
+  "title": "What's new in iOS 26 and iOS 27",
+  "category": "whats-new",
+  "tags": [
+    "ios 26",
+    "ios 27",
+    "liquid glass",
+    "foundation models",
+    "2026"
+  ],
+  "summary": "iOS 26 introduced the Liquid Glass design and the on-device Foundation Models (LLM) framework. iOS 27 (WWDC26) makes Liquid Glass mandatory and expands the AI frameworks.",
+  "body": [
+    "**iOS 26 (2025):** **Liquid Glass** - a new translucent design language across system UI (`glassEffect`, `GlassEffectContainer`, updated tab bars and toolbars). **Foundation Models framework** - use Apple's on-device language model from Swift: `LanguageModelSession`, structured output with `@Generable`/`@Guide`, streaming and tool calling, private and offline. Also: SwiftUI `WebView`, rich text editing with `AttributedString`, `@Animatable` macro, `BGContinuedProcessingTask`, Declared Age Range API.",
+    "**iOS 27 (WWDC26, as reported):** apps can no longer opt out of Liquid Glass (audit custom components); Foundation Models becomes provider-agnostic (Apple's models or cloud models through one protocol) with image input; Core AI for running custom models on device; an Evaluations framework to test AI features; SwiftUI list and layout performance improvements; agentic coding tools in Xcode 27. Confirm details against Apple's WWDC26 sessions.",
+    "**Staff angle:** talk about adoption plans, not lists. Example: the design-system team ships Liquid Glass-ready components and a checklist; an AI feature has a privacy review, a fallback when the model is not available, evaluation datasets and latency budgets."
+  ],
+  "keyPoints": [
+    "iOS 26: Liquid Glass + on-device Foundation Models.",
+    "Guided generation (`@Generable`) gives typed, reliable model output.",
+    "Always check model availability and keep a non-AI fallback.",
+    "iOS 27: Liquid Glass mandatory; broader AI frameworks (verify specifics).",
+    "Frame answers as adoption strategy and risk management."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Guided generation with Foundation Models (iOS 26)",
+      "text": "import FoundationModels\n\n@Generable\nstruct TripPlan {\n    @Guide(description: \"Short title\") var title: String\n    @Guide(description: \"Three activities\", .count(3)) var activities: [String]\n}\n\nfunc plan(for city: String) async throws -> TripPlan? {\n    guard case .available = SystemLanguageModel.default.availability else { return nil }\n    let session = LanguageModelSession(instructions: \"You plan short city trips.\")\n    return try await session.respond(to: \"Plan a day in \\(city)\", generating: TripPlan.self).content\n}"
+    }
+  ],
+  "followups": [
+    "**How do you ship an on-device LLM feature safely?** Check availability, feature-flag it, constrain output with guided generation, evaluate quality with test sets, keep a non-AI fallback, respect privacy."
+  ],
+  "links": [
+    {
+      "label": "Foundation Models",
+      "url": "https://developer.apple.com/documentation/foundationmodels"
+    },
+    {
+      "label": "WWDC26 iOS guide",
+      "url": "https://developer.apple.com/wwdc26/guides/ios/"
+    },
+    {
+      "label": "HIG: Materials",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/materials"
+    }
+  ]
+}

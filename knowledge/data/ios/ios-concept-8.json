@@ -1,0 +1,44 @@
+{
+  "id": "macros-result-builders",
+  "title": "Macros and result builders",
+  "category": "swift-language",
+  "tags": [
+    "metaprogramming",
+    "macros",
+    "dsl"
+  ],
+  "summary": "Result builders turn a list of statements into one value (that is how SwiftUI `body` works). Macros generate Swift code at compile time (`@Observable`, `#Preview`).",
+  "body": [
+    "**In simple words:** Both features remove boilerplate. A **result builder** lets you write a list of things in a closure and the compiler combines them; in SwiftUI, writing `Text(\"a\"); Text(\"b\")` inside a `VStack` becomes one combined view. A **macro** is a code generator: you write `@Observable` and the compiler writes the tracking code for you.",
+    "**Result builders:** a type marked `@resultBuilder` with static methods like `buildBlock`, `buildOptional` (for `if`), `buildEither` (for `if/else`), `buildArray` (for `for`). `@ViewBuilder` is one.",
+    "**Macros (Swift 5.9+):** two kinds - **freestanding** start with `#` (`#Preview`, `#expect`) and **attached** start with `@` (`@Observable`, `@Model`). They can only add code, not secretly change yours, and Xcode can \"Expand Macro\" to show what they generate.",
+    "**Staff-level view:** macros cost build time and can be hard to debug. Use them to remove error-prone boilerplate, not to hide business logic."
+  ],
+  "keyPoints": [
+    "Result builder = closure statements combined into one value (SwiftUI `@ViewBuilder`).",
+    "Macros = compile-time code generation; `#freestanding` or `@attached`.",
+    "`@Observable` expands into property tracking code using an `ObservationRegistrar`.",
+    "Use \"Expand Macro\" in Xcode to see generated code; watch build-time impact."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "A tiny result builder",
+      "text": "@resultBuilder\nenum PathBuilder {\n    static func buildBlock(_ parts: String...) -> String { parts.joined(separator: \"/\") }\n}\nfunc path(@PathBuilder _ make: () -> String) -> String { make() }\n\nlet p = path { \"api\"; \"v2\"; \"users\" }   // \"api/v2/users\""
+    }
+  ],
+  "followups": [
+    "**How does `if` work inside a SwiftUI body?** The builder's `buildEither` produces `_ConditionalContent` holding one of two branches.",
+    "**Can a macro access other files or the network?** No, macros run sandboxed and only see the syntax they are attached to."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Macros",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/macros/"
+    },
+    {
+      "label": "Swift book: Result builders",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/attributes/#resultBuilder"
+    }
+  ]
+}

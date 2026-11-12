@@ -1,0 +1,51 @@
+{
+  "id": "collection-view-modern",
+  "title": "Lists in UIKit: cell reuse, diffable data sources, compositional layout",
+  "category": "uikit-runtime",
+  "tags": [
+    "uitableview",
+    "uicollectionview",
+    "diffable",
+    "cell reuse",
+    "prefetching"
+  ],
+  "summary": "Table and collection views reuse a few cells while scrolling instead of creating one per row. Diffable data sources update the list from snapshots of ids, and compositional layout builds complex grids and feeds.",
+  "body": [
+    "**Cell reuse in simple words:** A list of 10,000 rows only shows ~10 at a time. iOS creates about that many cells and, when one scrolls off the top, reuses it for the row appearing at the bottom. That is why you `dequeueReusableCell`.",
+    "**Real-life analogy:** A restaurant with 10 plates and 1,000 customers. Plates are washed and reused, not thrown away. So before serving, clear the old food: reset the cell in `prepareForReuse` (cancel image loads, clear text).",
+    "**Diffable data source:** instead of calling `insertRows`/`deleteRows` with index paths (easy to get out of sync and crash), you build a **snapshot** (\"these sections, these item ids\") and `apply` it. UIKit computes the differences and animates them.",
+    "**Use ids as items:** put the model id in the snapshot, not the whole model. When content changes but identity does not (like count changed), call `reconfigureItems` - cheaper than reloading.",
+    "**Compositional layout:** describe layout as item → group → section (e.g. a horizontal carousel section above a 2-column grid section). Replaces most custom `UICollectionViewLayout` subclasses.",
+    "**Smooth scrolling:** prefetch data/images (`prefetchDataSource`), downsample images off main, avoid heavy work in `cellForItemAt`, use self-sizing cells carefully, and cancel work for cells that scroll away."
+  ],
+  "keyPoints": [
+    "Cells are reused; reset them in `prepareForReuse` and cancel async work.",
+    "Diffable snapshots of stable ids remove index-path crashes.",
+    "`reconfigureItems` for content updates; `reloadItems` only when the cell type changes.",
+    "Compositional layout: item → group → section; different layout per section.",
+    "Prefetching + background image decoding keep scrolling at 60/120 fps."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Cell registration and snapshot",
+      "text": "let registration = UICollectionView.CellRegistration<UICollectionViewListCell, Post.ID> { cell, _, id in\n    let post = store.post(id)\n    var content = cell.defaultContentConfiguration()\n    content.text = post.title\n    content.secondaryText = post.author\n    cell.contentConfiguration = content\n}\nlet dataSource = UICollectionViewDiffableDataSource<Section, Post.ID>(collectionView: collectionView) {\n    cv, indexPath, id in cv.dequeueConfiguredReusableCell(using: registration, for: indexPath, item: id)\n}\n\nvar snapshot = NSDiffableDataSourceSnapshot<Section, Post.ID>()\nsnapshot.appendSections([.main])\nsnapshot.appendItems(posts.map(\\.id))\ndataSource.apply(snapshot, animatingDifferences: true)\n\n// Later: a post's like count changed\nvar s = dataSource.snapshot()\ns.reconfigureItems([post.id])\ndataSource.apply(s)"
+    }
+  ],
+  "mistakes": [
+    "Image of a previous row flashing in a reused cell - not cancelling/resetting in `prepareForReuse`.",
+    "Updating the data array without updating the table (the classic \"invalid number of rows\" crash).",
+    "Duplicate ids in a diffable snapshot (crash)."
+  ],
+  "followups": [
+    "**UITableView vs UICollectionView?** Table = single column list; collection = any layout. Collection view list configuration now covers most table use cases.",
+    "**How do you implement infinite scroll?** Prefetch or detect the last few rows, request the next page, append ids to the snapshot.",
+    "**Why do cells show wrong images?** Async image load finishes after the cell was reused; check the cell still shows the same id before setting the image."
+  ],
+  "links": [
+    {
+      "label": "UICollectionViewDiffableDataSource",
+      "url": "https://developer.apple.com/documentation/uikit/uicollectionviewdiffabledatasource"
+    }
+  ]
+}

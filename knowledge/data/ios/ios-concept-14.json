@@ -1,0 +1,48 @@
+{
+  "id": "structured-concurrency",
+  "title": "Structured concurrency, task groups and cancellation",
+  "category": "concurrency",
+  "tags": [
+    "task group",
+    "async let",
+    "cancellation"
+  ],
+  "summary": "Child tasks (`async let`, task groups) belong to their parent: the parent waits for them, errors flow up and cancellation flows down. Cancelling only sets a flag - your code must check it.",
+  "body": [
+    "**In simple words:** \"Structured\" means tasks form a tree like function calls. A parent cannot finish before its children. If the parent is cancelled, all children are cancelled. If a child throws, the others are cancelled and the error goes up. Nothing leaks in the background.",
+    "**Real-life analogy:** A manager splits a project among team members. The project is done only when everyone finishes. If the project is cancelled, everyone stops.",
+    "**`async let`** for a fixed number of parallel calls (load profile + posts + friends). **`withTaskGroup` / `withThrowingTaskGroup`** for a dynamic number (download 50 images).",
+    "**Cancellation is cooperative:** cancelling sets `Task.isCancelled = true`; it does not kill the code. Long loops should check `try Task.checkCancellation()`. `URLSession` and `Task.sleep` already stop when cancelled.",
+    "**Limit parallelism:** to download 500 images 6 at a time, start 6 tasks, and each time one finishes add the next (sliding window).",
+    "**Unstructured `Task { }`** is not part of the tree; it lives on until it finishes, so keep a handle to cancel it."
+  ],
+  "keyPoints": [
+    "Child tasks cannot outlive their scope; parent waits for all children.",
+    "Errors propagate up; cancellation propagates down.",
+    "`async let` for fixed count, task groups for dynamic count.",
+    "Cancellation is cooperative: check `Task.isCancelled` / `checkCancellation()`.",
+    "Bound concurrency in groups with a sliding window."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Download many URLs, at most 6 at a time",
+      "text": "func downloadAll(_ urls: [URL], maxConcurrent: Int = 6) async throws -> [URL: Data] {\n    try await withThrowingTaskGroup(of: (URL, Data).self) { group in\n        var results: [URL: Data] = [:]\n        var iterator = urls.makeIterator()\n\n        for _ in 0..<maxConcurrent {                 // start the first 6\n            guard let url = iterator.next() else { break }\n            group.addTask { (url, try await fetch(url)) }\n        }\n        while let (url, data) = try await group.next() {\n            results[url] = data\n            if let next = iterator.next() {          // one finished, add one\n                group.addTask { (next, try await fetch(next)) }\n            }\n        }\n        return results\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Expecting `task.cancel()` to stop CPU work immediately without checks in the loop.",
+    "Adding 1,000 tasks to a group at once and overloading network or memory."
+  ],
+  "followups": [
+    "**What does `Task.yield()` do?** Gives other tasks a chance to run during long CPU loops.",
+    "**`async let` vs `TaskGroup`?** Fixed number of differently typed results vs dynamic number of same-typed results.",
+    "**What happens if you don't await an `async let`?** It is implicitly cancelled and awaited when the scope ends."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Tasks and task groups",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/#Tasks-and-Task-Groups"
+    }
+  ]
+}

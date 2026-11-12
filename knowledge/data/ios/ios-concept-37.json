@@ -1,0 +1,44 @@
+{
+  "id": "sdk-api-design",
+  "title": "Designing internal SDKs and public APIs",
+  "category": "architecture",
+  "tags": [
+    "api design",
+    "sdk",
+    "versioning",
+    "staff"
+  ],
+  "summary": "A good API is small, clear at the call site, hard to misuse, explicit about threading, and has a plan for changes and deprecation.",
+  "body": [
+    "**In simple words:** Write the code your users (other teams) will write first, then design the API that makes that code read clearly.",
+    "**Make misuse hard:** use types instead of strings (enums for options, structs for configuration), state threading in the signature (`async`, `@MainActor`, `Sendable`), avoid callbacks on unknown queues.",
+    "**Small surface:** everything `internal` by default; `public` is a promise you must keep. Use `package` for cross-module internals. Do not expose third-party types in your signatures.",
+    "**Evolution:** semantic versioning; `@available(*, deprecated, renamed:)` with a migration period; library evolution mode if you ship binary XCFrameworks.",
+    "**Being a good guest in the host app:** never crash the host, log through an injectable logger, offer a remote kill switch, and document cost (launch time, memory, binary size).",
+    "**Naming:** follow the Swift API Design Guidelines - clarity at the point of use, no needless words, methods read like phrases (`list.insert(x, at: 0)`)."
+  ],
+  "keyPoints": [
+    "Design from call sites; follow Swift API Design Guidelines.",
+    "Strong types, explicit isolation, async APIs.",
+    "Minimal public surface; hide dependencies.",
+    "Versioning and deprecation plan; kill switch; never crash the host.",
+    "Measure and publish the SDK's cost."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Hard-to-misuse configuration",
+      "text": "public struct AnalyticsConfiguration: Sendable {\n    public enum Environment: Sendable { case production, staging }\n    public var environment: Environment\n    public var flushInterval: Duration = .seconds(30)\n    public var maxQueueSize = 1_000\n    public init(environment: Environment) { self.environment = environment }\n}\n\npublic actor Analytics {\n    public init(_ config: AnalyticsConfiguration) { /* ... */ }\n    public func track(_ event: Event) { /* ... */ }\n\n    @available(*, deprecated, renamed: \"track(_:)\")\n    public func log(_ name: String) { track(Event(name: name)) }\n}"
+    }
+  ],
+  "followups": [
+    "**How do you roll out a breaking change to 30 consuming teams?** Add the new API alongside the old, deprecate with fix-its, provide a codemod/guide, track adoption, remove after a set date.",
+    "**Delegate vs closure vs AsyncSequence for SDK events?** AsyncSequence for streams in modern Swift; delegate for many related callbacks; closure for one-off."
+  ],
+  "links": [
+    {
+      "label": "Swift API Design Guidelines",
+      "url": "https://www.swift.org/documentation/api-design-guidelines/"
+    }
+  ]
+}

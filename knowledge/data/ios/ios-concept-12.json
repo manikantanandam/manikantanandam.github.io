@@ -1,0 +1,48 @@
+{
+  "id": "actors-reentrancy",
+  "title": "Actors and reentrancy",
+  "category": "concurrency",
+  "tags": [
+    "actors",
+    "isolation",
+    "reentrancy"
+  ],
+  "summary": "An actor is like a class that lets only one caller touch its data at a time, so there are no data races. But while it waits at an `await`, other callers can get in - re-check state after every `await`.",
+  "body": [
+    "**In simple words:** An actor protects its own variables. From outside you must `await` to call it, and the actor runs one request at a time, like a single bank teller serving a queue of customers.",
+    "**Real-life analogy:** One bank teller. Customers line up; the teller handles one at a time, so the cash drawer is never messed up by two people at once.",
+    "**Reentrancy (the tricky part):** if the teller says \"wait, I need to call head office\" (an `await`), they serve the next customer meanwhile. When they come back, the drawer may have changed. In code: a method checks state, awaits, then writes - and another call may have run in between.",
+    "**Classic bug:** an image cache actor checks `cache[url]`, does not find it, awaits a download, then stores. Two callers asking for the same URL both download. Fix: store the in-flight `Task` in the dictionary before awaiting, so the second caller awaits the same task.",
+    "**Actor vs lock:** actors are for async code. For a tiny synchronous critical section (a counter, a dictionary read) called from non-async code, a `Mutex` is simpler and does not force `await` on every caller.",
+    "**Cost:** each call into an actor from outside can switch threads (\"actor hop\"). Batch work into one call instead of many tiny calls in a loop."
+  ],
+  "keyPoints": [
+    "Actors serialize access to their state: no data races, compiler-enforced.",
+    "Actors are reentrant: other calls can run while one is suspended at `await`.",
+    "Re-check invariants after every `await`; store in-flight tasks to dedupe work.",
+    "`@MainActor` is a global actor tied to the main thread.",
+    "Use `Mutex` for small synchronous critical sections; actors for async shared state."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Deduplicating in-flight downloads",
+      "text": "actor ImageCache {\n    private enum Entry { case ready(UIImage), loading(Task<UIImage, Error>) }\n    private var entries: [URL: Entry] = [:]\n\n    func image(for url: URL) async throws -> UIImage {\n        if let entry = entries[url] {\n            switch entry {\n            case .ready(let image): return image\n            case .loading(let task): return try await task.value   // join existing work\n            }\n        }\n        let task = Task { try await download(url) }\n        entries[url] = .loading(task)          // mark BEFORE awaiting\n        do {\n            let image = try await task.value\n            entries[url] = .ready(image)\n            return image\n        } catch {\n            entries[url] = nil\n            throw error\n        }\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Assuming an actor method runs start to finish without interruption.",
+    "Making everything an actor, forcing `await` everywhere and adding hops."
+  ],
+  "followups": [
+    "**Why are actors reentrant instead of blocking?** Non-reentrant actors could deadlock when two actors await each other.",
+    "**Is an actor Sendable?** Yes, always - it protects its own state.",
+    "**Can an actor run on a specific queue?** Yes, with a custom executor, e.g. to wrap a non-thread-safe C library."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Actors",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/#Actors"
+    }
+  ]
+}

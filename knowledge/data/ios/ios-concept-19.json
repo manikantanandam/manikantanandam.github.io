@@ -1,0 +1,47 @@
+{
+  "id": "observation",
+  "title": "Observation framework (@Observable)",
+  "category": "swiftui",
+  "tags": [
+    "observation",
+    "swiftui",
+    "performance"
+  ],
+  "summary": "`@Observable` (iOS 17+) makes a class trackable property by property. A view only refreshes when a property it actually read changes - fewer useless redraws than `ObservableObject`.",
+  "body": [
+    "**In simple words:** Put `@Observable` on a class. While SwiftUI runs a view's `body`, it notes which properties you read. Later, if one of those properties changes, only that view refreshes. Changing a property nobody displayed does nothing.",
+    "**Compared to `ObservableObject`:** there, any `@Published` change told every observing view \"something changed\", even if that view did not use the property. With many views on one model, this caused a lot of wasted work.",
+    "**How it works under the hood:** the macro turns each stored property into a computed one that reports reads (\"access\") and writes (\"withMutation\") to an `ObservationRegistrar`. `withObservationTracking` records reads and calls back on the first change.",
+    "**Useful details:** `@ObservationIgnored` for properties that should not trigger updates (caches, task handles). Works with optionals, arrays of models and nested models. Mutate UI models on the main actor.",
+    "**Outside SwiftUI (Swift 6.2):** `Observations { model.value }` gives an async sequence of changes."
+  ],
+  "keyPoints": [
+    "Tracking is per property and per view, based on what `body` actually read.",
+    "Replaces `ObservableObject` + `@Published` with less boilerplate and fewer redraws.",
+    "Use `@State` to own, plain property to read, `@Bindable` for bindings, `.environment` to inject.",
+    "`@ObservationIgnored` for non-UI properties."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Only the view that reads `progress` redraws",
+      "text": "@Observable final class Player {\n    var title = \"\"\n    var progress = 0.0                 // changes 60 times per second\n    @ObservationIgnored var task: Task<Void, Never>?\n}\n\nstruct TitleView: View {\n    let player: Player\n    var body: some View { Text(player.title) }          // not affected by progress\n}\n\nstruct ProgressBar: View {\n    let player: Player\n    var body: some View { ProgressView(value: player.progress) }\n}"
+    }
+  ],
+  "mistakes": [
+    "Reading a fast-changing property in a large parent view, causing the whole screen to redraw - move it to a small child."
+  ],
+  "followups": [
+    "**How do you migrate from ObservableObject?** Replace with `@Observable`, remove `@Published`, `@StateObject` → `@State`, `@ObservedObject` → plain property/`@Bindable`, `@EnvironmentObject` → `@Environment(Type.self)`."
+  ],
+  "links": [
+    {
+      "label": "Observation",
+      "url": "https://developer.apple.com/documentation/observation"
+    },
+    {
+      "label": "Migrating to @Observable",
+      "url": "https://developer.apple.com/documentation/swiftui/migrating-from-the-observable-object-protocol-to-the-observable-macro"
+    }
+  ]
+}

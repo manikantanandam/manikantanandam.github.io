@@ -1,0 +1,45 @@
+{
+  "id": "run-loop",
+  "title": "Run loop and the main thread",
+  "category": "uikit-runtime",
+  "tags": [
+    "run loop",
+    "main thread",
+    "events",
+    "timer"
+  ],
+  "summary": "The main thread runs a loop: wait for events (touches, timers), handle them, then draw the UI changes, then sleep. If your code on main is slow, the next frame is late and the app stutters.",
+  "body": [
+    "**In simple words:** The main run loop is an endless loop: \"Is there a touch? A timer? A block on the main queue? Handle it. Now update the screen. Nothing to do? Sleep until something happens.\"",
+    "**Real-life analogy:** A receptionist with one desk. They take calls, visitors and letters one at a time. If one visitor takes 5 minutes, everyone else waits - that is a frozen UI.",
+    "**Frame budget:** at 60 Hz the screen refreshes every 16.7 ms; at 120 Hz (ProMotion) every ~8 ms. Your main-thread work per frame must fit in that, or the frame is dropped (a hitch).",
+    "**Modes:** while you scroll, the run loop switches to `.tracking` mode. A `Timer` added in `.default` mode pauses while scrolling. Add it to `.common` modes to keep it firing.",
+    "**Where your code runs:** `@MainActor` code, `DispatchQueue.main.async` blocks and UIKit callbacks all run on this loop. UI changes are collected and committed to the render server at the end of the loop iteration (Core Animation transaction)."
+  ],
+  "keyPoints": [
+    "Main run loop = event loop: input sources, timers, main-queue work, then UI commit.",
+    "Frame budget ~16 ms (60 Hz) or ~8 ms (120 Hz); slow main work = hitches.",
+    "Timer in `.common` mode keeps firing during scroll.",
+    "A hang = main thread blocked ≥ 250 ms; watchdog kills apps blocked too long at launch."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Timer that keeps firing during scroll",
+      "text": "let timer = Timer(timeInterval: 1, repeats: true) { _ in updateCountdown() }\nRunLoop.main.add(timer, forMode: .common)"
+    }
+  ],
+  "mistakes": [
+    "Doing JSON parsing, image decoding or disk I/O on main."
+  ],
+  "followups": [
+    "**Do background threads have run loops?** Each thread has one, but it only runs if you start it; GCD threads normally do not need it.",
+    "**Why does my timer stop during scrolling?** It is scheduled in `.default` mode."
+  ],
+  "links": [
+    {
+      "label": "RunLoop",
+      "url": "https://developer.apple.com/documentation/foundation/runloop"
+    }
+  ]
+}

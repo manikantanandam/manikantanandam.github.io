@@ -1,0 +1,52 @@
+{
+  "id": "network-security-privacy",
+  "title": "Network security, app integrity and privacy",
+  "category": "security-privacy",
+  "tags": [
+    "ats",
+    "pinning",
+    "app attest",
+    "privacy manifest",
+    "att"
+  ],
+  "summary": "App Transport Security forces HTTPS. Certificate pinning adds extra protection against fake certificates but can lock users out if done badly. App Attest proves requests come from your real app. Privacy manifests and permission prompts explain what data you use.",
+  "body": [
+    "**ATS (App Transport Security):** by default iOS blocks plain `http` and weak TLS. Exceptions need justification in Info.plist.",
+    "**Certificate / public-key pinning:** the app only trusts specific keys for your server, so a man-in-the-middle with a fake but \"valid\" certificate fails. Risk: if you rotate the server key and forget the app, every installed app stops working. Pin the public key (not the certificate), ship backup pins, have a remote kill switch. iOS 14+ supports declarative pinning via `NSPinnedDomains` in Info.plist.",
+    "**App Attest (DeviceCheck):** the app creates a key in the Secure Enclave, Apple attests it, and the app signs requests. Your server verifies them - useful against bots and modified apps for sensitive endpoints (promos, sign-up, payments).",
+    "**Privacy:** request permissions only when needed, with a clear purpose string (`NSCameraUsageDescription`). Privacy manifest (`PrivacyInfo.xcprivacy`) declares collected data, tracking domains and reasons for \"required reason\" APIs (UserDefaults, file timestamps...). Third-party SDKs need their own manifests. App Tracking Transparency (ATT) prompt before tracking across apps (IDFA).",
+    "**OWASP-style basics:** no secrets in logs, validate deep link and web inputs, encrypt sensitive local data, protect screens with sensitive info from screenshots/app switcher."
+  ],
+  "keyPoints": [
+    "ATS enforces HTTPS/TLS by default.",
+    "Pin public keys with backups and a kill switch; pinning failures are outages.",
+    "App Attest proves the request comes from a genuine app instance.",
+    "Ask permissions in context; privacy manifest for data use and required-reason APIs.",
+    "ATT required before cross-app tracking."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Public-key pinning in a URLSession delegate",
+      "text": "func urlSession(_ s: URLSession, didReceive challenge: URLAuthenticationChallenge) async\n    -> (URLSession.AuthChallengeDisposition, URLCredential?) {\n    guard let trust = challenge.protectionSpace.serverTrust,\n          SecTrustEvaluateWithError(trust, nil),                     // normal validation first\n          let chain = SecTrustCopyCertificateChain(trust) as? [SecCertificate],\n          chain.contains(where: { pinnedHashes.contains(spkiSHA256($0)) })\n    else { return (.cancelAuthenticationChallenge, nil) }\n    return (.useCredential, URLCredential(trust: trust))\n}"
+    }
+  ],
+  "mistakes": [
+    "Pinning a leaf certificate with no backup pin.",
+    "Disabling ATS globally (`NSAllowsArbitraryLoads`) to make one endpoint work."
+  ],
+  "followups": [
+    "**Threat model for a banking app?** Device theft (biometrics, Keychain, data protection), network attacks (TLS, pinning), tampered apps (App Attest, server checks), data leaks (logs, screenshots, backups).",
+    "**How do you handle a GDPR delete request on device?** Delete server data, clear local caches, databases, Keychain items and files on logout/account deletion."
+  ],
+  "links": [
+    {
+      "label": "App Attest",
+      "url": "https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity"
+    },
+    {
+      "label": "Privacy manifest files",
+      "url": "https://developer.apple.com/documentation/bundleresources/privacy-manifest-files"
+    }
+  ]
+}

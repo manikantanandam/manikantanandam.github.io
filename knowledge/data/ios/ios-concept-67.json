@@ -1,0 +1,53 @@
+{
+  "id": "debugging-tools",
+  "title": "Debugging toolkit: LLDB, breakpoints, Instruments, sanitizers",
+  "category": "testing-release",
+  "tags": [
+    "debugging",
+    "lldb",
+    "instruments",
+    "sanitizers"
+  ],
+  "summary": "Know your tools: breakpoints and LLDB to inspect state, the View and Memory Graph debuggers for UI and leaks, Instruments to measure performance, and sanitizers to catch memory and threading bugs.",
+  "body": [
+    "**Breakpoints:** conditional breakpoints (stop only when `id == 42`), breakpoints that log and continue (no code changes), **exception breakpoint** (stop where an ObjC exception is thrown), **Swift error breakpoint**, symbolic breakpoints (e.g. `UIViewAlertForUnsatisfiableConstraints` for Auto Layout problems).",
+    "**LLDB commands:** `po obj` (print description), `p` / `v` (print values; `v` is fast and does not run code), `expr` (run code, change values), `bt` (backtrace), `thread list`, `frame variable`.",
+    "**Visual debuggers:** View Debugger (3D view hierarchy, constraints, clipped views), Memory Graph Debugger (who holds an object, cycles marked with purple \"!\").",
+    "**Instruments:** Time Profiler (where CPU time goes), Allocations and Leaks (memory), Hangs and Animation Hitches, SwiftUI (body updates), Network, Energy Log, App Launch.",
+    "**Diagnostics in the scheme:** Address Sanitizer (memory corruption, use-after-free), Thread Sanitizer (data races), Undefined Behavior Sanitizer, Main Thread Checker (UI off main), Zombie Objects (messages to freed objects).",
+    "**Logging:** `Logger` (OSLog) with subsystems and categories, privacy markers (`\\(email, privacy: .private)`), viewable in Console.app and Instruments.",
+    "**Process:** reproduce → isolate (binary search with git bisect or feature flags) → find root cause → fix → add a test."
+  ],
+  "keyPoints": [
+    "Conditional, logging, exception and symbolic breakpoints save time.",
+    "LLDB: `po`, `v`, `expr`, `bt`.",
+    "Memory Graph for leaks; View Debugger for layout.",
+    "Instruments: Time Profiler, Allocations, Leaks, Hangs, SwiftUI.",
+    "Sanitizers: ASan, TSan, Main Thread Checker, Zombies."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Structured logging with privacy",
+      "text": "import OSLog\n\nextension Logger {\n    static let network = Logger(subsystem: \"com.shop.app\", category: \"network\")\n}\n\nLogger.network.info(\"Request \\(endpoint.path, privacy: .public) took \\(ms) ms\")\nLogger.network.error(\"Login failed for \\(email, privacy: .private)\")   // redacted in logs"
+    }
+  ],
+  "mistakes": [
+    "Using `print` everywhere and leaving it in release builds.",
+    "Profiling debug builds (optimizations off, numbers misleading)."
+  ],
+  "followups": [
+    "**How do you debug a bug you cannot reproduce?** Add targeted logging/metrics, check crash and hang reports, compare device/OS/app version, use feature flags to narrow down.",
+    "**What is a zombie object?** A deallocated object still being messaged; enabling Zombies turns the crash into a clear message."
+  ],
+  "links": [
+    {
+      "label": "Xcode debugging",
+      "url": "https://developer.apple.com/documentation/xcode/debugging"
+    },
+    {
+      "label": "Instruments",
+      "url": "https://developer.apple.com/documentation/xcode/improving-your-app-s-performance"
+    }
+  ]
+}

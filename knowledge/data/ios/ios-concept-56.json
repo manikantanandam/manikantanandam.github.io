@@ -1,0 +1,50 @@
+{
+  "id": "tasks-mainactor",
+  "title": "Tasks, @MainActor and \"which thread am I on?\"",
+  "category": "concurrency",
+  "tags": [
+    "mainactor",
+    "task",
+    "priority",
+    "isolation"
+  ],
+  "summary": "`@MainActor` means \"this code always runs on the main thread\". A `Task` is a unit of async work. Together they replace most `DispatchQueue.main.async` calls.",
+  "body": [
+    "**In simple words:** UI must be touched only on the main thread. Marking a class or function `@MainActor` makes the compiler guarantee that. If you call it from somewhere else, you must `await`, and Swift hops to the main thread for you.",
+    "**Typical setup:** view models and UI classes are `@MainActor`. Heavy work (parsing, image processing) runs in a function marked `@concurrent` (Swift 6.2) or `nonisolated`, or inside an actor, and the result comes back to the main actor.",
+    "**Task basics:** `Task { }` starts async work. It keeps running until it finishes even if you drop the handle - so keep the handle and call `cancel()` when the screen goes away. SwiftUI `.task { }` cancels automatically when the view disappears.",
+    "**Priorities:** `.high/.userInitiated`, `.medium`, `.low/.utility`, `.background`. If a high-priority task awaits a low-priority one, Swift raises the low one's priority (priority escalation).",
+    "**Swift 6.2 default isolation:** a module can choose `MainActor` as the default, so most UI code needs no annotations; you only mark the exceptions that should run in the background.",
+    "**`MainActor.assumeIsolated { }`** tells the compiler \"I know this callback is already on main\" (e.g. some UIKit delegate). It crashes if you are wrong, so use it carefully."
+  ],
+  "keyPoints": [
+    "`@MainActor` = compile-time guarantee that code runs on the main thread.",
+    "Calling main-actor code from elsewhere needs `await`; Swift does the hop.",
+    "Unstructured `Task {}` is not cancelled automatically; store and cancel it, or use SwiftUI `.task`.",
+    "Offload CPU-heavy work with `@concurrent` (6.2) or an actor, then return to the main actor to update state.",
+    "Task priority escalates automatically when a higher-priority task awaits a lower one."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Main-actor view model with background work",
+      "text": "@MainActor\n@Observable\nfinal class GalleryViewModel {\n    var thumbnails: [UIImage] = []\n    private var loadTask: Task<Void, Never>?\n\n    func load(_ urls: [URL]) {\n        loadTask?.cancel()\n        loadTask = Task {                       // inherits @MainActor\n            let images = await Thumbnailer.make(urls)   // runs off main\n            guard !Task.isCancelled else { return }\n            thumbnails = images                 // back on main\n        }\n    }\n    func stop() { loadTask?.cancel() }\n}\n\nenum Thumbnailer {\n    @concurrent\n    static func make(_ urls: [URL]) async -> [UIImage] { /* CPU heavy */ [] }\n}"
+    }
+  ],
+  "mistakes": [
+    "Wrapping everything in `DispatchQueue.main.async` inside async code instead of using `@MainActor`.",
+    "Using `Task.detached` to \"go to background\" by habit - it loses priority and cancellation context.",
+    "Forgetting to cancel long-running tasks when a screen closes."
+  ],
+  "followups": [
+    "**How do you check you are on main?** `MainActor.assertIsolated()` or `dispatchPrecondition(condition: .onQueue(.main))` in debug.",
+    "**What is a global actor?** An actor that can isolate code anywhere via an attribute, like `@MainActor`; you can define your own (e.g. `@DatabaseActor`).",
+    "**What does `nonisolated` mean?** The member does not belong to the actor, so it can be called without `await` but cannot touch the actor's mutable state."
+  ],
+  "links": [
+    {
+      "label": "MainActor",
+      "url": "https://developer.apple.com/documentation/swift/mainactor"
+    }
+  ]
+}

@@ -1,22 +1,53 @@
 {
   "id": "arc",
-  "title": "ARC and retain cycles",
+  "title": "ARC, memory management and retain cycles",
+  "category": "swift-language",
   "tags": [
     "memory",
-    "swift"
+    "arc",
+    "weak",
+    "unowned",
+    "leaks"
   ],
-  "summary": "Automatic Reference Counting frees objects when strong references drop to zero. Closures and delegates are the usual cycle sources.",
+  "summary": "ARC frees a class object when nobody holds a strong reference to it. Two objects holding each other strongly never get freed - that is a retain cycle (memory leak).",
   "body": [
-    "Use `weak` for back-references such as a delegate, and `[weak self]` in escaping closures that capture self.",
-    "`unowned` is safe only when the referenced object is guaranteed to outlive the reference."
+    "**In simple words:** Every class object has a counter of how many \"strong\" owners it has. Assign it to a variable: +1. That variable goes away: -1. When the count reaches 0, Swift runs `deinit` and frees the memory. The compiler inserts these +1/-1 calls for you, which is why it is called **Automatic** Reference Counting.",
+    "**Real-life analogy:** A balloon held by strings. Each strong reference is a string. When the last string is cut, the balloon floats away (freed). A retain cycle is two balloons tied to each other with nobody else holding them: they can never float away and nobody can reach them.",
+    "**How a cycle happens:** object A holds B strongly, and B holds A strongly. Even when the screen closes, each keeps the other's count at 1. Typical cases: a closure stored on `self` that uses `self`; a delegate declared strong; a `Timer` that targets `self`; parent and child pointing at each other.",
+    "**How to break it:** make the \"back\" reference `weak` or `unowned`. `weak` does not increase the count and automatically becomes `nil` when the object dies, so it is always optional. `unowned` also does not increase the count but is not optional; if you use it after the object is gone, the app crashes. Use `unowned` only when the other object is guaranteed to live longer.",
+    "**Rule of thumb:** parent owns child strongly; child refers back to parent weakly. Delegates are almost always `weak var delegate`.",
+    "**Closures:** a closure \"captures\" what it uses. If `self` stores the closure and the closure uses `self`, that is a cycle. Write `[weak self]` in the closure. For a `Task { }` that finishes quickly a strong `self` is fine; it only leaks if the task runs forever (e.g. an endless `for await` loop).",
+    "**ARC vs garbage collection:** ARC is predictable (objects die immediately when the count hits zero, no pause), but it cannot detect cycles - you must avoid them yourself."
+  ],
+  "keyPoints": [
+    "ARC counts strong references to class instances and frees the object at zero, deterministically, with no GC pauses.",
+    "A retain cycle is two or more objects holding each other strongly; ARC can never free them.",
+    "`weak` = optional and auto-nil; `unowned` = non-optional, crashes if used after deinit.",
+    "Common sources: closures capturing `self`, strong delegates, timers, NotificationCenter block observers.",
+    "Find leaks with Xcode Memory Graph Debugger, Instruments Leaks/Allocations and a `deinit` log in debug builds."
   ],
   "code": [
     {
       "lang": "swift",
       "caption": "Breaking a closure cycle",
-      "text": "viewModel.onUpdate = { [weak self] value in\n    self?.render(value)\n}"
+      "text": "final class PlayerController {\n    private var timer: Timer?\n\n    func start() {\n        // Timer holds the closure, self holds the timer.\n        // [weak self] stops the closure from holding self.\n        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in\n            guard let self else { return }\n            self.tick()\n        }\n    }\n    func tick() {}\n    deinit { timer?.invalidate() }\n}\n\nprotocol CartDelegate: AnyObject { func cartChanged() }\nfinal class CartView {\n    weak var delegate: CartDelegate?   // weak: the delegate usually owns us\n}"
     }
   ],
-  "links": [],
-  "category": "swift-language"
+  "mistakes": [
+    "Declaring a delegate as a strong `var delegate`.",
+    "Using `unowned` \"to avoid optionals\" when the lifetimes are not guaranteed - leads to crashes.",
+    "Adding `[weak self]` everywhere blindly, even in non-escaping closures like `map` where no cycle is possible."
+  ],
+  "followups": [
+    "**Does ARC work for structs?** No, only for class instances (and closures). Structs are copied, not counted.",
+    "**What does `[weak self] ... guard let self` do?** It keeps self alive only while that one closure call runs, then releases it.",
+    "**How do you prove a screen leaks?** Push and pop it, check that `deinit` runs; use the Memory Graph to see who still holds it.",
+    "**When is `unowned` correct?** When the referenced object always outlives the referrer, e.g. a child that cannot exist without its parent."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Automatic Reference Counting",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/automaticreferencecounting/"
+    }
+  ]
 }

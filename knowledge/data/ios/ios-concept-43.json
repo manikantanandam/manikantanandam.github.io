@@ -1,0 +1,54 @@
+{
+  "id": "push-notifications",
+  "title": "Push notifications",
+  "category": "app-platform",
+  "tags": [
+    "apns",
+    "notifications",
+    "extensions"
+  ],
+  "summary": "Your server sends a message to Apple's Push Notification service (APNs) with the device token; APNs delivers it to the device. Delivery is best-effort, so the app must still sync when opened.",
+  "body": [
+    "**Flow in simple words:** (1) App asks the user for permission. (2) App registers with APNs and gets a **device token** (an address for this app on this device). (3) App sends the token to your backend. (4) Backend sends a JSON payload + token to APNs over HTTP/2, authenticated with a key (JWT). (5) APNs delivers to the device; iOS shows it.",
+    "**Payload basics:** `aps.alert` (title/body), `badge`, `sound`, `thread-id` (grouping), `category` (action buttons), custom keys for deep links. Headers: `apns-push-type` (alert, background, liveactivity...), `apns-priority`, `apns-collapse-id` (replace older notification), `apns-expiration`.",
+    "**Silent (background) push:** `content-available: 1`, no alert; wakes the app briefly to fetch data. Throttled by the system - not guaranteed.",
+    "**Notification Service Extension:** with `mutable-content: 1`, a small extension gets ~30 seconds to change the notification before display: download an image, decrypt end-to-end encrypted text. **Content Extension:** custom UI when the notification is expanded.",
+    "**Tokens change** (reinstall, restore, sometimes randomly): send the token to the server on every launch; server removes tokens APNs reports as unregistered (410).",
+    "**Handling taps:** `UNUserNotificationCenterDelegate.didReceive` → read custom data → deep link to the right screen. `willPresent` decides whether to show it while the app is in foreground.",
+    "**Other:** provisional authorization (quiet notifications without asking first), interruption levels (passive, active, time-sensitive, critical), Live Activities updated by push."
+  ],
+  "keyPoints": [
+    "App → permission → device token → backend → APNs → device.",
+    "Best-effort delivery: always sync on app open.",
+    "Service extension modifies content (images, decryption) within ~30 s.",
+    "Silent pushes are throttled and not guaranteed.",
+    "Upload the token every launch; prune invalid tokens on the server."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Register and handle taps",
+      "text": "@MainActor\nfinal class PushManager: NSObject, UNUserNotificationCenterDelegate {\n    func register() async throws {\n        let center = UNUserNotificationCenter.current()\n        center.delegate = self\n        if try await center.requestAuthorization(options: [.alert, .badge, .sound]) {\n            UIApplication.shared.registerForRemoteNotifications()\n        }\n    }\n\n    // Foreground: still show the banner\n    func userNotificationCenter(_ c: UNUserNotificationCenter, willPresent n: UNNotification) async\n        -> UNNotificationPresentationOptions { [.banner, .sound] }\n\n    // User tapped\n    func userNotificationCenter(_ c: UNUserNotificationCenter, didReceive r: UNNotificationResponse) async {\n        if let link = r.notification.request.content.userInfo[\"deeplink\"] as? String,\n           let url = URL(string: link) { Router.shared.handle(url) }\n    }\n}\n\n// AppDelegate\nfunc application(_ app: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken token: Data) {\n    let hex = token.map { String(format: \"%02x\", $0) }.joined()\n    Task { try await api.uploadPushToken(hex) }\n}"
+    }
+  ],
+  "mistakes": [
+    "Caching the device token and never re-uploading it.",
+    "Relying on push to deliver data reliably (e.g. chat messages) without syncing on open.",
+    "Asking for permission at first launch with no context (low opt-in)."
+  ],
+  "followups": [
+    "**How do you send rich media?** `mutable-content: 1` + Notification Service Extension downloads the media and attaches it.",
+    "**How do you measure delivery?** Include a message id; the service extension or app reports receipt; compare with sends.",
+    "**Sandbox vs production APNs?** Debug builds use the sandbox environment; TestFlight/App Store use production."
+  ],
+  "links": [
+    {
+      "label": "User Notifications",
+      "url": "https://developer.apple.com/documentation/usernotifications"
+    },
+    {
+      "label": "Sending notification requests to APNs",
+      "url": "https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns"
+    }
+  ]
+}

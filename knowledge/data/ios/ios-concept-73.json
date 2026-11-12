@@ -1,0 +1,48 @@
+{
+  "id": "universal-links",
+  "title": "Deep links: universal links and URL schemes",
+  "category": "app-platform",
+  "tags": [
+    "deep links",
+    "universal links",
+    "url scheme",
+    "aasa"
+  ],
+  "summary": "Deep links open a specific screen in your app from a URL. Universal links use normal https URLs verified by your website; custom URL schemes (`myapp://`) are simpler but anyone can claim them.",
+  "body": [
+    "**In simple words:** A link like `https://shop.com/product/42` should open the product screen in the app if installed, and the website if not. That is a **universal link**.",
+    "**How universal links work:** (1) Add the Associated Domains capability `applinks:shop.com`. (2) Host an `apple-app-site-association` (AASA) JSON file at `https://shop.com/.well-known/apple-app-site-association` listing your app ID and which paths open the app. (3) iOS downloads it (via Apple's CDN) on install. (4) Tapping a matching link opens the app with an `NSUserActivity`.",
+    "**Custom URL schemes** (`shop://product/42`): declared in Info.plist; no verification, so another app could register the same scheme; and nothing happens if the app is not installed. Still used for app-to-app callbacks (e.g. OAuth redirects).",
+    "**Handling in the app:** SwiftUI `.onOpenURL` (schemes and universal links) or `onContinueUserActivity`; UIKit `scene(_:continue:)` and `scene(_:openURLContexts:)`. Parse the URL into a route and pass it to your router. If login is needed, store the route and continue after login.",
+    "**Deferred deep links:** link clicked before install → after install, open the right screen. Not built in; needs a server or attribution service to match.",
+    "**Testing:** links typed in Safari's address bar do not open the app; test from Notes/Messages. Validate the AASA file is served over https without redirects."
+  ],
+  "keyPoints": [
+    "Universal links = https + AASA file + Associated Domains; secure and fall back to web.",
+    "URL schemes = easy but unverified and fail if app not installed.",
+    "Handle with `onOpenURL` / scene delegate; parse into routes; router navigates.",
+    "Queue the route if authentication is required.",
+    "Validate input from links - they come from outside."
+  ],
+  "code": [
+    {
+      "lang": "json",
+      "caption": "apple-app-site-association (served at /.well-known/)",
+      "text": "{\n  \"applinks\": {\n    \"details\": [\n      {\n        \"appIDs\": [\"ABCDE12345.com.shop.app\"],\n        \"components\": [\n          { \"/\": \"/product/*\" },\n          { \"/\": \"/cart\" },\n          { \"/\": \"/admin/*\", \"exclude\": true }\n        ]\n      }\n    ]\n  }\n}"
+    }
+  ],
+  "mistakes": [
+    "Trusting parameters from a deep link without validation (e.g. performing actions directly).",
+    "Serving the AASA file with redirects or the wrong content type."
+  ],
+  "followups": [
+    "**Why might a universal link open Safari instead of the app?** AASA not reachable/cached, path not matched, user previously chose to open in Safari, or link opened from the same domain in Safari.",
+    "**How do you support marketing links that must work before install?** Deferred deep linking via a link service."
+  ],
+  "links": [
+    {
+      "label": "Supporting universal links",
+      "url": "https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app"
+    }
+  ]
+}

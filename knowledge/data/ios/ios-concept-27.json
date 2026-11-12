@@ -1,0 +1,52 @@
+{
+  "id": "rendering-pipeline",
+  "title": "Rendering pipeline and Core Animation",
+  "category": "uikit-runtime",
+  "tags": [
+    "core animation",
+    "rendering",
+    "hitches",
+    "offscreen"
+  ],
+  "summary": "Your app builds a tree of layers and sends it to a system render server, which draws it with the GPU. Stutters come either from slow work in your app (commit) or from expensive layer effects (render).",
+  "body": [
+    "**In simple words:** Every `UIView` has a `CALayer` underneath. When something changes, your app (on the main thread) does layout, drawing and image decoding, then \"commits\" the layer tree. A separate process (the render server) turns that into pixels with the GPU.",
+    "**Steps per frame:** Event (touch) → Commit in your app (layout, display/`draw(_:)`, prepare such as image decoding, send) → Render server prepares and renders → Display.",
+    "**Commit hitch (your code is slow):** heavy layout, big Auto Layout changes, decoding large images on main, `draw(_:)` doing a lot.",
+    "**Render hitch (layers are expensive):** offscreen passes caused by shadows without `shadowPath`, `cornerRadius` + `masksToBounds` on complex content, group opacity, blurs. Fix with `shadowPath`, simpler masks, pre-rendered images.",
+    "**Image decoding:** `UIImage(named:)` and `UIImage(data:)` decode lazily, on first draw, on main. Decode/downsample in the background (`preparingForDisplay()`, `byPreparingThumbnail(ofSize:)`, ImageIO). A 4000×3000 photo uses ~48 MB when decoded, even if the file is 2 MB.",
+    "**Animations** run in the render server, so they stay smooth even if main is briefly busy."
+  ],
+  "keyPoints": [
+    "UIView is backed by CALayer; the render server draws the committed layer tree on the GPU.",
+    "Commit hitches = app main-thread work; render hitches = expensive layer effects.",
+    "Avoid offscreen rendering: set `shadowPath`, avoid masks on complex content.",
+    "Decode and downsample images off main; decoded size = width × height × 4 bytes.",
+    "Measure with Instruments Animation Hitches and Organizer hitch metrics."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Downsample a big image with ImageIO",
+      "text": "func downsample(_ url: URL, to pointSize: CGSize, scale: CGFloat) -> UIImage? {\n    let opts = [kCGImageSourceShouldCache: false] as CFDictionary\n    guard let src = CGImageSourceCreateWithURL(url as CFURL, opts) else { return nil }\n    let maxPixels = max(pointSize.width, pointSize.height) * scale\n    let thumbOpts = [\n        kCGImageSourceCreateThumbnailFromImageAlways: true,\n        kCGImageSourceShouldCacheImmediately: true,      // decode now (off main)\n        kCGImageSourceCreateThumbnailWithTransform: true,\n        kCGImageSourceThumbnailMaxPixelSize: maxPixels\n    ] as CFDictionary\n    guard let cg = CGImageSourceCreateThumbnailAtIndex(src, 0, thumbOpts) else { return nil }\n    return UIImage(cgImage: cg)\n}\n\n// Cheap shadow\ncard.layer.shadowPath = UIBezierPath(roundedRect: card.bounds, cornerRadius: 12).cgPath"
+    }
+  ],
+  "mistakes": [
+    "Setting large images directly into small image views.",
+    "Shadows without `shadowPath` on many cells."
+  ],
+  "followups": [
+    "**What is offscreen rendering?** The GPU must render into a separate buffer first (for masks, shadows) and then composite - extra passes per frame.",
+    "**UIView vs CALayer?** CALayer handles drawing and animation; UIView adds touch handling, layout and the responder chain."
+  ],
+  "links": [
+    {
+      "label": "Improving app responsiveness",
+      "url": "https://developer.apple.com/documentation/xcode/improving-app-responsiveness"
+    },
+    {
+      "label": "WWDC18: Image and graphics best practices",
+      "url": "https://developer.apple.com/videos/play/wwdc2018/219/"
+    }
+  ]
+}

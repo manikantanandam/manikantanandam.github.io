@@ -1,0 +1,44 @@
+{
+  "id": "method-dispatch",
+  "title": "Method dispatch (static, dynamic, message)",
+  "category": "swift-language",
+  "tags": [
+    "performance",
+    "dispatch",
+    "objc"
+  ],
+  "summary": "Dispatch is how Swift finds which function to call. Static dispatch is decided at compile time (fastest); dynamic dispatch looks it up at runtime (needed for overriding and protocols).",
+  "body": [
+    "**In simple words:** When you write `object.doThing()`, Swift must decide which `doThing` to run. If it knows at compile time, it calls it directly (static). If a subclass might override it, it looks it up in a table at runtime (dynamic).",
+    "**Three kinds:** (1) **Static/direct**: structs, enums, `final` classes, `private` methods, extension methods. Fastest, can be inlined. (2) **Table**: overridable class methods use a vtable; protocol requirements use a witness table. One extra lookup. (3) **Message**: `@objc dynamic` goes through the Objective-C runtime (`objc_msgSend`); slowest but allows swizzling and KVO.",
+    "**Classic interview gotcha:** a method declared only in a protocol extension (not listed in the protocol) is statically dispatched. If you call it through the protocol type, you get the extension version even if the concrete type has its own.",
+    "**Practical tip:** mark classes `final` unless you design them for subclassing. It is clearer and lets the compiler use static dispatch. Whole Module Optimization also infers this for internal classes."
+  ],
+  "keyPoints": [
+    "Static dispatch: value types, `final`, `private`, extensions - fastest.",
+    "Table dispatch: class vtables and protocol witness tables - for overriding and protocols.",
+    "Message dispatch: `@objc dynamic` - needed for KVO and swizzling.",
+    "Protocol extension methods that are not requirements cannot be \"overridden\" via the protocol.",
+    "Measure with Instruments before micro-optimizing dispatch."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "The protocol extension gotcha",
+      "text": "protocol Greeter { func hello() -> String }\nextension Greeter {\n    func hello() -> String { \"default\" }\n    func bye() -> String { \"bye default\" }      // NOT a requirement\n}\nstruct Custom: Greeter {\n    func hello() -> String { \"custom\" }\n    func bye() -> String { \"bye custom\" }\n}\nlet g: any Greeter = Custom()\ng.hello()   // \"custom\"       witness table\ng.bye()     // \"bye default\"  static dispatch"
+    }
+  ],
+  "mistakes": [
+    "Adding a method to a protocol extension and expecting conforming types to override it."
+  ],
+  "followups": [
+    "**Why is `final` faster?** No subclass can override, so the call is direct and inlinable.",
+    "**Why does KVO need `dynamic`?** KVO swaps implementations at runtime, which only works with message dispatch."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Protocols",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols/"
+    }
+  ]
+}

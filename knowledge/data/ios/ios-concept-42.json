@@ -1,0 +1,52 @@
+{
+  "id": "lifecycle-background",
+  "title": "App lifecycle and background execution",
+  "category": "app-platform",
+  "tags": [
+    "lifecycle",
+    "scenes",
+    "backgroundtasks",
+    "states"
+  ],
+  "summary": "An app moves between Not running, Inactive, Active, Background and Suspended. In the background you only get time through specific APIs; the system can kill a suspended app any time.",
+  "body": [
+    "**States in simple words:** **Not running** - not started or killed. **Inactive** - on screen but not receiving events (incoming call, Control Center pulled down). **Active** - on screen, receiving touches. **Background** - not visible, still running code for a short while. **Suspended** - in memory but frozen; can be killed without notice to free memory.",
+    "**Where you hear about it:** with scenes, UI events go to `UISceneDelegate` (`sceneDidBecomeActive`, `sceneDidEnterBackground`) or SwiftUI `scenePhase`. Process events (launch, push token) stay in `UIApplicationDelegate`. iPad can have multiple scenes (windows) of one app.",
+    "**What to do on background:** save user data and state, pause timers and media (unless background audio), release big resources.",
+    "**Getting background time:** `beginBackgroundTask` (~30 seconds to finish something; always end it). `BGAppRefreshTask` (short refresh, system decides when). `BGProcessingTask` (minutes, e.g. while charging). `BGContinuedProcessingTask` (iOS 26, user-started work like exports, with system progress UI). Background `URLSession` for transfers. Silent push (`content-available`) for a brief wake-up. Special modes: audio, location, VoIP, Bluetooth.",
+    "**The system decides:** background tasks depend on battery, Low Power Mode, how often the user opens the app, and the Background App Refresh setting. Never rely on them for critical work."
+  ],
+  "keyPoints": [
+    "States: not running, inactive, active, background, suspended.",
+    "Scene delegate/scenePhase for UI lifecycle; app delegate for process-level events.",
+    "Save state when entering background; suspended apps can be killed silently.",
+    "Background time only via specific APIs: background tasks, BGTaskScheduler, background URLSession, push, special modes.",
+    "Background execution is opportunistic, not guaranteed."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Scheduling an app refresh",
+      "text": "// At launch\nBGTaskScheduler.shared.register(forTaskWithIdentifier: \"com.app.refresh\", using: nil) { task in\n    let work = Task { await FeedSync.shared.sync() }\n    task.expirationHandler = { work.cancel() }\n    Task {\n        _ = await work.result\n        task.setTaskCompleted(success: !work.isCancelled)\n        scheduleRefresh()                  // schedule the next one\n    }\n}\n\nfunc scheduleRefresh() {\n    let request = BGAppRefreshTaskRequest(identifier: \"com.app.refresh\")\n    request.earliestBeginDate = .now.addingTimeInterval(30 * 60)\n    try? BGTaskScheduler.shared.submit(request)\n}"
+    }
+  ],
+  "mistakes": [
+    "Not ending a `beginBackgroundTask` (the app is killed).",
+    "Expecting `applicationWillTerminate` to be called - it usually is not for suspended apps."
+  ],
+  "followups": [
+    "**How do you test background tasks?** Pause in the debugger and run `e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@\"com.app.refresh\"]`.",
+    "**Why didn't my background task run?** Low Power Mode, rarely used app, Background App Refresh disabled, or not registered before launch finished.",
+    "**What happens when a user force-quits the app?** Background refresh and silent pushes stop until the user opens the app again."
+  ],
+  "links": [
+    {
+      "label": "Managing your app's life cycle",
+      "url": "https://developer.apple.com/documentation/uikit/managing-your-app-s-life-cycle"
+    },
+    {
+      "label": "BackgroundTasks",
+      "url": "https://developer.apple.com/documentation/backgroundtasks"
+    }
+  ]
+}

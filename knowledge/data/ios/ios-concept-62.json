@@ -1,0 +1,51 @@
+{
+  "id": "animations",
+  "title": "Animations in UIKit and SwiftUI",
+  "category": "uikit-runtime",
+  "tags": [
+    "animation",
+    "uiview",
+    "core animation",
+    "swiftui"
+  ],
+  "summary": "UIKit animates by changing view properties inside `UIView.animate`; SwiftUI animates when state changes inside `withAnimation` or with `.animation(_:value:)`. Both hand the work to Core Animation.",
+  "body": [
+    "**In simple words:** You give the start and end values (position, alpha, size), and the system draws the in-between frames smoothly.",
+    "**UIKit:** `UIView.animate(withDuration:) { view.alpha = 0 }` for simple cases; spring animations for natural motion; `UIViewPropertyAnimator` when you need to pause, reverse or drive it with a gesture (interactive). Animate constraint changes by updating constraints and calling `layoutIfNeeded()` inside the block.",
+    "**Core Animation:** `CABasicAnimation`/`CAKeyframeAnimation` on layers for things UIView cannot animate (e.g. shape paths, gradients). Note: the layer's model value does not change automatically - set the final value yourself.",
+    "**SwiftUI:** `withAnimation(.spring) { isExpanded.toggle() }` animates every view affected by that state change. `.animation(.easeInOut, value: x)` animates when `x` changes. `.transition(.slide)` for views being inserted/removed. `matchedGeometryEffect` for hero animations between views.",
+    "**Performance:** animate `transform` and `opacity` (cheap for the GPU) rather than frames that trigger layout; avoid offscreen-rendered effects during animation.",
+    "**Accessibility:** respect Reduce Motion (`UIAccessibility.isReduceMotionEnabled`, `@Environment(\\.accessibilityReduceMotion)`)."
+  ],
+  "keyPoints": [
+    "UIKit: `UIView.animate`, springs, `UIViewPropertyAnimator` for interactive/interruptible.",
+    "Constraint animations: change constants, then `layoutIfNeeded()` in the animation block.",
+    "SwiftUI: `withAnimation`, `.animation(_:value:)`, transitions, `matchedGeometryEffect`.",
+    "Prefer transform/opacity animations; respect Reduce Motion."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "UIKit and SwiftUI side by side",
+      "text": "// UIKit: animate a constraint\nheightConstraint.constant = isExpanded ? 240 : 80\nUIView.animate(withDuration: 0.35, delay: 0,\n               usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {\n    self.view.layoutIfNeeded()\n}\n\n// SwiftUI\nstruct Card: View {\n    @State private var expanded = false\n    var body: some View {\n        VStack {\n            Text(\"Details\")\n            if expanded { Text(\"More info\").transition(.opacity.combined(with: .move(edge: .top))) }\n        }\n        .onTapGesture { withAnimation(.spring) { expanded.toggle() } }\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Using the deprecated `.animation(_:)` modifier without a `value`, which animates unexpected changes.",
+    "Animating with a `Timer` and setting frames manually every tick."
+  ],
+  "followups": [
+    "**How do you make an interactive dismiss animation?** `UIViewPropertyAnimator` driven by a pan gesture's progress, or a custom `UIViewControllerInteractiveTransitioning`.",
+    "**Why does my CABasicAnimation jump back at the end?** The layer's model value was not updated to the final value."
+  ],
+  "links": [
+    {
+      "label": "UIViewPropertyAnimator",
+      "url": "https://developer.apple.com/documentation/uikit/uiviewpropertyanimator"
+    },
+    {
+      "label": "SwiftUI animations",
+      "url": "https://developer.apple.com/documentation/swiftui/animations"
+    }
+  ]
+}

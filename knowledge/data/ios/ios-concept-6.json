@@ -1,0 +1,52 @@
+{
+  "id": "protocols-generics",
+  "title": "Generics, `some` and `any`",
+  "category": "swift-language",
+  "tags": [
+    "generics",
+    "existentials",
+    "opaque types"
+  ],
+  "summary": "Generics let you write one function for many types. `some Protocol` means \"one specific hidden type\". `any Protocol` means \"a box that can hold any conforming type\".",
+  "body": [
+    "**In simple words:** Generics are like a template: `func largest<T: Comparable>(_ items: [T])` works for Int, String, Date... The compiler knows the real type at each call.",
+    "**`some P` (opaque type):** \"I return one specific type that conforms to P, but I will not tell you its name\". The compiler still knows it, so it is fast. SwiftUI's `some View` is the famous example: the real type is a long nested type you never want to write.",
+    "**`any P` (existential):** \"a box that can hold any type conforming to P, and it can change\". Needed when you mix different types in one array (`[any Shape]` holding circles and squares). Costs more: the value may be heap-allocated and calls are looked up at runtime.",
+    "**Real-life analogy:** `some Drink` = \"today's special\" - one fixed drink, the chef knows which. `any Drink` = a cup that could hold any drink; you must check what is inside each time.",
+    "**Rule of thumb:** start with generics or `some`; use `any` only when you really need different types together.",
+    "**Primary associated types** let you write `some Collection<Int>` or `any AsyncSequence<Data, Error>` instead of long `where` clauses."
+  ],
+  "keyPoints": [
+    "Generics = compile-time templates, fast because the compiler can specialize them.",
+    "`some P` = one fixed concrete type hidden from the caller (static dispatch).",
+    "`any P` = runtime box for any conforming type (dynamic dispatch, possible allocation).",
+    "Prefer `some`/generics; use `any` for heterogeneous collections.",
+    "Type erasure (`AnyPublisher`, `AnyView`) is the manual, older way of doing `any`."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Generic vs some vs any",
+      "text": "protocol Shape { func area() -> Double }\n\nfunc largest<S: Shape>(_ shapes: [S]) -> S? {        // all the same type\n    shapes.max { $0.area() < $1.area() }\n}\n\nfunc makeShape() -> some Shape { Circle(r: 2) }      // hidden but fixed type\n\nfunc totalArea(_ shapes: [any Shape]) -> Double {    // mixed types\n    shapes.reduce(0) { $0 + $1.area() }\n}"
+    }
+  ],
+  "mistakes": [
+    "Returning `some View` from two branches that produce different types - wrap in `Group`, use `@ViewBuilder`, or `AnyView` as last resort.",
+    "Using `any` everywhere out of habit, paying runtime cost for nothing."
+  ],
+  "followups": [
+    "**Why can't you compare two `any Equatable` values with `==`?** `==` needs both sides to be the same concrete type, which `any` cannot guarantee.",
+    "**What is type erasure?** Wrapping a value in a type like `AnyPublisher` to hide its concrete type; `any` with primary associated types often replaces it now.",
+    "**What is generic specialization?** The optimizer makes a copy of generic code for a concrete type, removing dynamic dispatch."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Generics",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/generics/"
+    },
+    {
+      "label": "Swift book: Opaque and boxed types",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/opaquetypes/"
+    }
+  ]
+}

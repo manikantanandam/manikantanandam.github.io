@@ -1,0 +1,49 @@
+{
+  "id": "swiftui-uikit-interop",
+  "title": "SwiftUI and UIKit together",
+  "category": "swiftui",
+  "tags": [
+    "uikit",
+    "swiftui",
+    "interop",
+    "migration"
+  ],
+  "summary": "Show SwiftUI inside UIKit with `UIHostingController`. Show UIKit inside SwiftUI with `UIViewRepresentable` / `UIViewControllerRepresentable` plus a `Coordinator` for delegates.",
+  "body": [
+    "**In simple words:** Most real apps are mixed. New screens are often SwiftUI, old ones UIKit. Apple gives bridges in both directions.",
+    "**SwiftUI in UIKit:** `let vc = UIHostingController(rootView: ProfileView())` and push it like any view controller. Inside collection view cells, use `cell.contentConfiguration = UIHostingConfiguration { RowView() }`.",
+    "**UIKit in SwiftUI:** conform to `UIViewRepresentable`. `makeUIView` creates the view once. `updateUIView` copies SwiftUI state into the UIKit view (runs often, must be cheap). `makeCoordinator` creates an object that acts as the delegate and sends changes back through a `Binding`.",
+    "**Migration strategy:** new screens in SwiftUI, shared design-system components available in both, rewrite old screens only when you are already changing them a lot. Keep one owner of navigation (often UIKit coordinators hosting SwiftUI screens).",
+    "**Common issues:** hosting controller sizing (`sizingOptions = .intrinsicContentSize`), safe area doubled, keyboard avoidance, and SwiftUI environment values not crossing into UIKit automatically."
+  ],
+  "keyPoints": [
+    "`UIHostingController` / `UIHostingConfiguration` for SwiftUI inside UIKit.",
+    "`UIViewRepresentable`: make, update (cheap and idempotent), coordinator for delegates.",
+    "Migrate screen by screen; keep navigation ownership in one place.",
+    "Keep UIKit where SwiftUI is still weak (complex lists, text editing, fine scroll control)."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Wrapping a UIKit view",
+      "text": "struct SearchBar: UIViewRepresentable {\n    @Binding var text: String\n\n    func makeUIView(context: Context) -> UISearchBar {\n        let bar = UISearchBar()\n        bar.delegate = context.coordinator\n        return bar\n    }\n    func updateUIView(_ bar: UISearchBar, context: Context) {\n        if bar.text != text { bar.text = text }   // SwiftUI -> UIKit\n    }\n    func makeCoordinator() -> Coordinator { Coordinator(text: $text) }\n\n    final class Coordinator: NSObject, UISearchBarDelegate {\n        var text: Binding<String>\n        init(text: Binding<String>) { self.text = text }\n        func searchBar(_ bar: UISearchBar, textDidChange t: String) {\n            text.wrappedValue = t                  // UIKit -> SwiftUI\n        }\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Creating the UIKit view inside `updateUIView` (recreated every update).",
+    "Setting values in `updateUIView` unconditionally, causing loops or cursor jumps."
+  ],
+  "followups": [
+    "**How do you decide when to rewrite a UIKit screen in SwiftUI?** When it needs big changes anyway, SwiftUI supports what it needs on your minimum iOS, and performance is measured to be fine."
+  ],
+  "links": [
+    {
+      "label": "UIViewRepresentable",
+      "url": "https://developer.apple.com/documentation/swiftui/uiviewrepresentable"
+    },
+    {
+      "label": "UIHostingController",
+      "url": "https://developer.apple.com/documentation/swiftui/uihostingcontroller"
+    }
+  ]
+}

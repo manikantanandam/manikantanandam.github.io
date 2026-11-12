@@ -1,0 +1,51 @@
+{
+  "id": "async-sequence",
+  "title": "AsyncSequence and AsyncStream",
+  "category": "concurrency",
+  "tags": [
+    "asyncsequence",
+    "asyncstream",
+    "streams"
+  ],
+  "summary": "An `AsyncSequence` is a list of values that arrive over time, read with `for await`. `AsyncStream` turns callback- or delegate-based sources into one.",
+  "body": [
+    "**In simple words:** A normal array has all values now. An async sequence gives values one by one as they arrive: lines of a file, WebSocket messages, location updates. You read them with `for await value in sequence { }`.",
+    "**AsyncStream:** the easy way to make your own. You get a `continuation`; call `yield(value)` when something arrives and `finish()` when done. Set `onTermination` to clean up (stop location updates, close sockets).",
+    "**Buffering:** if values arrive faster than you read them, they buffer. Choose a policy: `.bufferingNewest(1)` for \"only latest matters\" (location), `.unbounded` only when you are sure the producer is slow.",
+    "**One reader:** an `AsyncStream` should have one consumer. For many listeners, create one stream per listener (a broadcaster) or use Combine.",
+    "**Ending:** the loop ends when the stream finishes or the task is cancelled. Cancel the task (or let SwiftUI `.task` do it) to avoid endless loops holding `self`.",
+    "**Extras:** swift-async-algorithms adds `debounce`, `merge`, `combineLatest`, `chunked` for async sequences. `Observations` (Swift 6.2) turns `@Observable` changes into an async sequence."
+  ],
+  "keyPoints": [
+    "Pull-based stream consumed with `for await`; works with cancellation.",
+    "`AsyncStream` bridges delegates/callbacks: `yield`, `finish`, `onTermination`.",
+    "Pick a buffering policy to avoid memory growth.",
+    "One consumer per `AsyncStream`.",
+    "Prefer async sequences for new code; Combine still fine for rich operator pipelines."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Wrapping location updates",
+      "text": "func locationUpdates(manager: CLLocationManager) -> AsyncStream<CLLocation> {\n    AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in\n        let delegate = LocationDelegate { continuation.yield($0) }\n        manager.delegate = delegate\n        manager.startUpdatingLocation()\n        continuation.onTermination = { _ in\n            manager.stopUpdatingLocation()\n            _ = delegate                      // keep alive until the end\n        }\n    }\n}\n\n// SwiftUI: cancelled automatically when the view disappears\n.task {\n    for await location in locationUpdates(manager: manager) {\n        model.update(location)\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Using `.unbounded` with a fast producer and growing memory.",
+    "Starting `for await` in an unstructured `Task` that is never cancelled."
+  ],
+  "followups": [
+    "**AsyncSequence vs Combine publisher?** Pull vs push; async sequences integrate with async/await and cancellation; Combine has more operators.",
+    "**How do you convert a Combine publisher?** `publisher.values` gives an async sequence."
+  ],
+  "links": [
+    {
+      "label": "AsyncStream",
+      "url": "https://developer.apple.com/documentation/swift/asyncstream"
+    },
+    {
+      "label": "swift-async-algorithms",
+      "url": "https://github.com/apple/swift-async-algorithms"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "ttl-cache-actor",
+  "title": "Thread-safe TTL cache (actor)",
+  "difficulty": "Medium",
+  "tags": [
+    "actor",
+    "cache",
+    "concurrency"
+  ],
+  "summary": "Build a generic in-memory cache with per-entry expiry and a size limit, safe to use from many tasks.",
+  "approach": "Actor-isolated dictionary of (value, expiry); evict expired entries on read; evict the oldest insertion when over capacity. Inject a clock for tests.",
+  "complexity": "O(1) average get/set; O(n) occasional eviction",
+  "body": [
+    "Discuss: actor vs `Mutex` (sync callers?), memory pressure (NSCache), LRU vs FIFO eviction, testing time with an injected `Clock`."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "actor TTLCache<Key: Hashable & Sendable, Value: Sendable> {\n    private struct Entry { let value: Value; let expires: ContinuousClock.Instant }\n    private var storage: [Key: Entry] = [:]\n    private var order: [Key] = []\n    private let ttl: Duration, capacity: Int\n    private let clock = ContinuousClock()\n\n    init(ttl: Duration, capacity: Int) { self.ttl = ttl; self.capacity = capacity }\n\n    func value(for key: Key) -> Value? {\n        guard let e = storage[key] else { return nil }\n        if e.expires <= clock.now { remove(key); return nil }\n        return e.value\n    }\n\n    func set(_ value: Value, for key: Key) {\n        if storage[key] == nil { order.append(key) }\n        storage[key] = Entry(value: value, expires: clock.now.advanced(by: ttl))\n        while storage.count > capacity, let oldest = order.first { remove(oldest) }\n    }\n\n    private func remove(_ key: Key) {\n        storage[key] = nil\n        order.removeAll { $0 == key }\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "ios-practical"
+}

@@ -81,10 +81,14 @@
       }
     });
 
-    [['Requirements', entry.requirements], ['Components', entry.components], ['Trade-offs', entry.tradeoffs]]
+    [['Requirements', entry.requirements], ['Components', entry.components], ['Trade-offs', entry.tradeoffs],
+      ['Say this in the interview', entry.keyPoints]]
       .forEach(function (pair) { var b = list(pair[0], pair[1]); if (b) body.appendChild(b); });
 
     (entry.code || []).concat(entry.solution || []).forEach(function (sn) { body.appendChild(codeBlock(sn)); });
+
+    [['Common mistakes', entry.mistakes], ['Likely follow-up questions', entry.followups]]
+      .forEach(function (pair) { var b = list(pair[0], pair[1]); if (b) body.appendChild(b); });
 
     if (entry.links && entry.links.length) {
       var links = el('ul', 'kb-links');
@@ -107,7 +111,8 @@
 
   function matches(entry, query) {
     if (!query) return true;
-    var text = [entry.title, entry.summary, entry.approach, (entry.tags || []).join(' '), (entry.body || []).join(' ')].join(' ').toLowerCase();
+    var text = [entry.title, entry.summary, entry.approach, (entry.tags || []).join(' '), (entry.body || []).join(' '),
+      (entry.keyPoints || []).join(' '), (entry.followups || []).join(' ')].join(' ').toLowerCase();
     return text.indexOf(query) !== -1;
   }
 
@@ -201,14 +206,53 @@
 
   function fail(err) {
     main.textContent = '';
-    main.appendChild(el('p', 'kb-error', 'Could not load this page’s content. Check the JSON file for syntax errors.'));
+    main.appendChild(el('p', 'kb-error', 'Could not load this page’s content. Check the manifest file for syntax errors.'));
     console.error(err);
+  }
+
+  function showSkeleton() {
+    main.textContent = '';
+    var box = el('div', 'kb-skeleton-wrap');
+    for (var i = 0; i < 3; i++) box.appendChild(el('div', 'kb-skeleton kb-entry'));
+    main.appendChild(box);
+  }
+
+  function fetchJSON(url) {
+    return fetch(url, { cache: 'no-cache' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
+      return r.json();
+    });
+  }
+
+  // Manifest lists each entry's own small file; fetched in parallel, not one by one,
+  // and a single bad/missing entry file doesn't blank the rest of the page.
+  function loadTopic(manifestUrl) {
+    return fetchJSON(manifestUrl).then(function (manifest) {
+      var base = new URL(manifestUrl, location.href);
+      var byId = {};
+      manifest.categories.forEach(function (c) { byId[c.id] = { id: c.id, title: c.title, entries: [] }; });
+      var unfiled = { id: 'uncategorized', title: 'Uncategorized', entries: [] };
+
+      return Promise.allSettled(manifest.entries.map(function (name) {
+        return fetchJSON(new URL(name, base));
+      })).then(function (results) {
+        results.forEach(function (res, i) {
+          if (res.status !== 'fulfilled') { console.error('Skipping ' + manifest.entries[i], res.reason); return; }
+          var entry = res.value;
+          var bucket = byId[entry.category] || unfiled;
+          bucket.entries.push(entry);
+        });
+        var categories = manifest.categories.map(function (c) { return byId[c.id]; });
+        if (unfiled.entries.length) categories.push(unfiled);
+        return { title: manifest.title, intro: manifest.intro, categories: categories };
+      });
+    });
   }
 
   window.addEventListener('hashchange', openFromHash);
   loadHighlight();
-  fetch(main.getAttribute('data-src'), { cache: 'no-cache' })
-    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function (json) { state.data = json; render(); })
+  showSkeleton();
+  loadTopic(main.getAttribute('data-src'))
+    .then(function (data) { state.data = data; render(); })
     .catch(fail);
 })();

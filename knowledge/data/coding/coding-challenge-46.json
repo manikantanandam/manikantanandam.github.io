@@ -1,0 +1,27 @@
+{
+  "id": "binary-tree-right-side-view",
+  "title": "Binary Tree Right Side View",
+  "difficulty": "Medium",
+  "tags": [
+    "bfs"
+  ],
+  "summary": "Values visible from the right side, top to bottom.",
+  "approach": "Level-order traversal; take the last node of each level.",
+  "complexity": "O(n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc rightSideView(_ root: TreeNode?) -> [Int] {\n    var result: [Int] = []\n    var level = [root].compactMap { $0 }\n    while let last = level.last {\n        result.append(last.val)\n        level = level.flatMap { [$0.left, $0.right].compactMap { $0 } }\n    }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/binary-tree-right-side-view/"
+    }
+  ],
+  "category": "trees"
+}

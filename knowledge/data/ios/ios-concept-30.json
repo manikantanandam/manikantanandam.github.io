@@ -1,0 +1,47 @@
+{
+  "id": "app-launch",
+  "title": "App launch time",
+  "category": "memory-performance",
+  "tags": [
+    "launch",
+    "performance",
+    "dyld"
+  ],
+  "summary": "Launch = the system loading your app, your setup code, and the first frame. Make it fast by doing only what the first screen needs and deferring the rest.",
+  "body": [
+    "**In simple words:** Users judge your app in the first second. Launch time is everything from tapping the icon to the first usable screen.",
+    "**Types:** **Cold** launch - app not in memory (after reboot or long time). **Warm** - parts still cached. **Resume** - app was in background; not a real launch.",
+    "**Phases:** (1) Pre-main: the system loads your binary and dynamic frameworks (dyld), fixes up pointers, runs static initializers. (2) `main` → `UIApplicationMain` → app delegate `didFinishLaunching`. (3) First frame rendered.",
+    "**Making it faster:** fewer dynamic frameworks (prefer static linking or mergeable libraries); no heavy `+load` or static initializers; in `didFinishLaunching` do only what the first screen needs; delay analytics/ads SDK setup; no synchronous network, big disk reads or Keychain reads on main; show cached content immediately instead of a spinner.",
+    "**Measure:** Instruments App Launch template, `XCTApplicationLaunchMetric` in performance tests, Xcode Organizer launch time (real users, p50/p90), MetricKit.",
+    "**Staff angle:** set a launch budget, add a CI performance test that fails on regressions, attribute startup cost per module/SDK, and make teams own their part."
+  ],
+  "keyPoints": [
+    "Cold vs warm vs resume; Apple recommends first frame within ~400 ms.",
+    "Pre-main cost: dynamic frameworks and static initializers.",
+    "Post-main: do the minimum in `didFinishLaunching`; defer SDKs; lazy-load features.",
+    "Show cached content first.",
+    "Measure in lab (Instruments, XCTest) and field (Organizer, MetricKit) and guard in CI."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Launch performance test",
+      "text": "func testLaunchPerformance() {\n    measure(metrics: [XCTApplicationLaunchMetric(waitUntilResponsive: true)]) {\n        XCUIApplication().launch()\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Initializing every SDK synchronously in `didFinishLaunching`.",
+    "Measuring only on a new iPhone in debug mode; measure release builds on older devices."
+  ],
+  "followups": [
+    "**What is the watchdog (`0x8badf00d`)?** The system kills apps that block the main thread too long during launch or resume.",
+    "**What is prewarming?** iOS may start your process before the user taps; do not assume `didFinishLaunching` time equals user-visible time."
+  ],
+  "links": [
+    {
+      "label": "Reducing your app's launch time",
+      "url": "https://developer.apple.com/documentation/xcode/reducing-your-app-s-launch-time"
+    }
+  ]
+}

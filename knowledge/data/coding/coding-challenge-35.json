@@ -1,0 +1,28 @@
+{
+  "id": "merge-two-sorted-lists",
+  "title": "Merge Two Sorted Lists",
+  "difficulty": "Easy",
+  "tags": [
+    "linked list",
+    "merge"
+  ],
+  "summary": "Merge two sorted lists into one sorted list.",
+  "approach": "Dummy head and a tail pointer; attach the smaller node each step, then the remainder.",
+  "complexity": "O(m + n) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class ListNode { var val: Int; var next: ListNode?; init(_ v: Int, _ n: ListNode? = nil) { val = v; next = n } }\nfunc mergeTwoLists(_ a: ListNode?, _ b: ListNode?) -> ListNode? {\n    let dummy = ListNode(0)\n    var tail = dummy, l1 = a, l2 = b\n    while let x = l1, let y = l2 {\n        if x.val <= y.val { tail.next = x; l1 = x.next } else { tail.next = y; l2 = y.next }\n        tail = tail.next!\n    }\n    tail.next = l1 ?? l2\n    return dummy.next\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/merge-two-sorted-lists/"
+    }
+  ],
+  "category": "linked-list"
+}

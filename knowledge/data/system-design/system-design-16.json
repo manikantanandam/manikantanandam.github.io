@@ -1,0 +1,53 @@
+{
+  "id": "ride-hailing",
+  "title": "Ride-hailing app (Uber / Lyft style) client",
+  "tags": [
+    "location",
+    "maps",
+    "real-time",
+    "state machine"
+  ],
+  "summary": "Real-time driver tracking on a map, a robust trip state machine that survives app termination, and location updates that balance accuracy with battery.",
+  "requirements": [
+    "Rider: set pickup/dropoff, see nearby cars, request, track driver in real time, pay, rate.",
+    "Driver: go online, stream location every few seconds, accept trips, navigate.",
+    "Trip state must be correct after app restarts or network loss."
+  ],
+  "components": [
+    "Location service (CLLocationManager / `CLLocationUpdate.liveUpdates`) with accuracy tuned per state",
+    "Real-time channel (WebSocket) for driver positions and trip events; push for background state changes",
+    "Trip state machine on the server; client mirrors it and re-syncs on launch",
+    "Map layer with smooth marker interpolation between updates",
+    "Live Activity for trip status on Lock Screen and Dynamic Island"
+  ],
+  "tradeoffs": [
+    "Frequent high-accuracy GPS gives smooth tracking but drains battery; reduce frequency when idle and use significant-change monitoring.",
+    "Client-side interpolation smooths movement but can show slightly wrong positions.",
+    "Server-authoritative state is consistent; client predictions make UI feel faster but must reconcile."
+  ],
+  "body": [
+    "**Trip states:** requesting → matched → driverArriving → onTrip → completed / cancelled. Every transition comes from the server with a version; the client renders the latest version and ignores older events.",
+    "**Driver location stream:** driver app sends location every 4s while online (batched if offline); server indexes by geohash/H3 cell for nearby searches; rider subscribes to their driver's channel only.",
+    "**Smooth marker:** animate between consecutive points over the update interval; snap to road if available; rotate by bearing.",
+    "**Background:** drivers need the location background mode and 'Always' permission with clear justification; riders do not.",
+    "**Failure modes:** socket drops (fall back to polling every 5s), GPS drift in tunnels, duplicate requests (idempotency key on 'request ride'), payment failure after trip."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Live location updates (iOS 17+)",
+      "text": "func streamLocations(to channel: TripChannel) async throws {\n    for try await update in CLLocationUpdate.liveUpdates(.automotiveNavigation) {\n        guard let loc = update.location else { continue }\n        try await channel.send(.location(lat: loc.coordinate.latitude,\n                                          lng: loc.coordinate.longitude,\n                                          bearing: loc.course, at: loc.timestamp))\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "Core Location",
+      "url": "https://developer.apple.com/documentation/corelocation"
+    },
+    {
+      "label": "ActivityKit",
+      "url": "https://developer.apple.com/documentation/activitykit"
+    }
+  ],
+  "category": "designs"
+}

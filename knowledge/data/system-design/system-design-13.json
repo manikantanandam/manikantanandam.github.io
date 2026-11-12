@@ -1,0 +1,49 @@
+{
+  "id": "image-loading-library",
+  "title": "Image loading library (Kingfisher / Nuke style)",
+  "tags": [
+    "images",
+    "caching",
+    "performance",
+    "sdk"
+  ],
+  "summary": "A reusable SDK that loads, decodes, resizes and caches images for lists with zero hitches: request dedup, prioritization, cancellation, memory and disk caches, and progressive decoding.",
+  "requirements": [
+    "Simple API for UIKit and SwiftUI; cancel on cell reuse.",
+    "No main-thread decoding; bounded memory; disk cache survives relaunch.",
+    "Prefetching, priority (visible first), placeholders, transitions, processors (resize, round corners)."
+  ],
+  "components": [
+    "Pipeline: request → memory cache (decoded, keyed by URL + processors + size) → disk cache (encoded data) → network",
+    "Task coalescing: one network fetch per URL, multiple subscribers",
+    "Decoding and downsampling on a background queue (ImageIO thumbnails at target pixel size)",
+    "Priority queue with limits (e.g. 6 concurrent downloads), priority updates when cells scroll",
+    "Disk cache with LRU by size and age, written atomically"
+  ],
+  "tradeoffs": [
+    "Caching decoded images is fast to display but memory-heavy; caching encoded data is compact but needs decoding again.",
+    "Separate cache entries per processed size avoid repeated work but multiply storage.",
+    "Using URLCache for disk is simple but less control over eviction and keys than a custom store."
+  ],
+  "body": [
+    "**API:** `imageView.load(url, size:, placeholder:)` and a SwiftUI `LazyImage`; returns a cancellable task. Tasks are cancelled when the last subscriber cancels.",
+    "**Memory key:** URL + target pixel size + processor identifiers; avoids showing a tiny thumbnail when a large version is needed.",
+    "**Formats:** HEIC/AVIF/WebP support depends on OS; progressive JPEG rendering for slow networks; animated images decoded lazily frame by frame.",
+    "**Memory pressure:** NSCache auto-evicts; also purge on memory warning and when backgrounded.",
+    "**Staff angle:** SDK quality bars: thread safety documented, no global singletons forced on clients (allow custom pipelines), metrics hooks (cache hit rate, decode time), and binary size budget."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Pipeline sketch",
+      "text": "public struct ImageRequest: Hashable, Sendable {\n    public let url: URL\n    public var targetSize: CGSize?          // in pixels\n    public var processors: [String] = []    // identifiers\n    public var priority: Priority = .normal\n}\n\npublic actor ImagePipeline {\n    public func image(for request: ImageRequest) async throws -> UIImage {\n        if let img = memory[request] { return img }\n        let data = try await diskData(request.url) ?? coalescedDownload(request.url)\n        let img = try await decode(data, to: request.targetSize)   // off-main, ImageIO\n        memory[request] = img\n        return img\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "Nuke",
+      "url": "https://github.com/kean/Nuke"
+    }
+  ],
+  "category": "designs"
+}

@@ -1,0 +1,47 @@
+{
+  "id": "design-patterns",
+  "title": "Design patterns used in iOS",
+  "category": "architecture",
+  "tags": [
+    "design patterns",
+    "singleton",
+    "coordinator",
+    "factory",
+    "observer"
+  ],
+  "summary": "A design pattern is a well-known solution to a common problem. iOS uses many: Singleton, Delegate, Observer, Coordinator, Factory, Builder, Adapter, Strategy and Facade.",
+  "body": [
+    "**Singleton:** one shared instance (`URLSession.shared`, `UserDefaults.standard`). Easy, but it is global state that hides dependencies and makes tests hard. If you use one, hide it behind a protocol and inject it.",
+    "**Delegate:** one object acts on behalf of another (`UITableViewDelegate`).",
+    "**Observer:** many listeners get notified of changes (NotificationCenter, KVO, Combine, `@Observable`).",
+    "**Coordinator / Router:** an object that owns navigation, so screens do not know about each other. Makes flows reusable and deep links easy.",
+    "**Factory:** one place that creates objects, often with their dependencies (`makeProfileViewController(userID:)`).",
+    "**Builder:** build a complex object step by step (`URLComponents`, request builders).",
+    "**Adapter:** wrap a third-party API behind your own protocol so you can swap it (analytics, image loading SDKs).",
+    "**Strategy:** swap algorithms behind one interface (different pricing rules, different caching policies).",
+    "**Facade:** a simple front for a complicated subsystem (one `PaymentService` over several payment SDKs).",
+    "**Dependency Injection:** give an object what it needs instead of letting it create or find it (see the DI entry)."
+  ],
+  "keyPoints": [
+    "Know at least: Singleton, Delegate, Observer, Coordinator, Factory, Adapter, Strategy.",
+    "Singletons are fine for stateless global services but should be injectable.",
+    "Coordinator removes navigation from view controllers.",
+    "Adapter around third-party SDKs keeps them replaceable and testable.",
+    "Always explain the problem a pattern solves, not just its name."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Coordinator + factory (UIKit)",
+      "text": "protocol Coordinator: AnyObject { func start() }\n\nfinal class CheckoutCoordinator: Coordinator {\n    private let nav: UINavigationController\n    private let factory: ScreenFactory\n    var onFinish: (() -> Void)?\n\n    init(nav: UINavigationController, factory: ScreenFactory) {\n        self.nav = nav; self.factory = factory\n    }\n\n    func start() {\n        let cart = factory.makeCart()\n        cart.onCheckout = { [weak self] in self?.showPayment() }\n        nav.pushViewController(cart, animated: true)\n    }\n    private func showPayment() {\n        let payment = factory.makePayment()\n        payment.onPaid = { [weak self] in self?.onFinish?() }\n        nav.pushViewController(payment, animated: true)\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Making many singletons with mutable state accessed from everywhere.",
+    "Forgetting to keep the child coordinator alive (it gets deallocated immediately)."
+  ],
+  "followups": [
+    "**How do you test code that uses a singleton?** Wrap it in a protocol, inject it, and pass a fake in tests.",
+    "**Coordinator in SwiftUI?** A router object owning `NavigationStack` path plays the same role."
+  ]
+}

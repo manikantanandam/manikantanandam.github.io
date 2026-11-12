@@ -1,0 +1,28 @@
+{
+  "id": "longest-increasing-subsequence",
+  "title": "Longest Increasing Subsequence",
+  "difficulty": "Medium",
+  "tags": [
+    "dp",
+    "binary search"
+  ],
+  "summary": "Length of the longest strictly increasing subsequence.",
+  "approach": "Patience sorting: `tails[k]` is the smallest tail of an increasing subsequence of length k+1; binary search each number's position.",
+  "complexity": "O(n log n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func lengthOfLIS(_ nums: [Int]) -> Int {\n    var tails: [Int] = []\n    for n in nums {\n        var lo = 0, hi = tails.count\n        while lo < hi {\n            let mid = (lo + hi) / 2\n            if tails[mid] < n { lo = mid + 1 } else { hi = mid }\n        }\n        if lo == tails.count { tails.append(n) } else { tails[lo] = n }\n    }\n    return tails.count\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/longest-increasing-subsequence/"
+    }
+  ],
+  "category": "dynamic-programming"
+}

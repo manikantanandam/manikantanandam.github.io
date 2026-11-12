@@ -1,0 +1,30 @@
+{
+  "id": "kth-largest-element-in-a-stream",
+  "title": "Kth Largest Element in a Stream",
+  "difficulty": "Easy",
+  "tags": [
+    "heap",
+    "design"
+  ],
+  "summary": "Return the k-th largest after each insertion.",
+  "approach": "Keep a min-heap of size k; its top is the answer. Swift's standard library has no heap, so know how to write one (or cite swift-collections `Heap`).",
+  "complexity": "O(log k) per add",
+  "body": [
+    "The `Heap` here is reused by the other heap problems on this page."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "struct Heap<T> {\n    private var a: [T] = []\n    private let less: (T, T) -> Bool          // less => higher priority\n    init(_ less: @escaping (T, T) -> Bool) { self.less = less }\n    var count: Int { a.count }\n    var top: T? { a.first }\n\n    mutating func push(_ x: T) {\n        a.append(x)\n        var i = a.count - 1\n        while i > 0, less(a[i], a[(i - 1) / 2]) { a.swapAt(i, (i - 1) / 2); i = (i - 1) / 2 }\n    }\n    @discardableResult mutating func pop() -> T? {\n        guard !a.isEmpty else { return nil }\n        a.swapAt(0, a.count - 1)\n        let x = a.removeLast()\n        var i = 0\n        while true {\n            let l = 2 * i + 1, r = l + 1\n            var m = i\n            if l < a.count, less(a[l], a[m]) { m = l }\n            if r < a.count, less(a[r], a[m]) { m = r }\n            if m == i { break }\n            a.swapAt(i, m); i = m\n        }\n        return x\n    }\n}\n\nstruct KthLargest {\n    private var heap = Heap<Int>(<)\n    private let k: Int\n    init(_ k: Int, _ nums: [Int]) { self.k = k; nums.forEach { _ = add($0) } }\n    mutating func add(_ val: Int) -> Int {\n        heap.push(val)\n        if heap.count > k { heap.pop() }\n        return heap.top!\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/kth-largest-element-in-a-stream/"
+    }
+  ],
+  "category": "heap"
+}

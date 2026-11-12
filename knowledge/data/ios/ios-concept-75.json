@@ -1,0 +1,40 @@
+{
+  "id": "staff-migrations",
+  "title": "Leading a large migration (UIKit→SwiftUI, ObjC→Swift, monolith→modules)",
+  "category": "staff",
+  "tags": [
+    "staff",
+    "migration",
+    "leadership",
+    "strangler"
+  ],
+  "summary": "Big migrations succeed when they are incremental, measurable and safe to pause: define why, migrate in small slices behind clear rules, track progress on a dashboard, and make the new way the easy way.",
+  "body": [
+    "**Why interviewers ask:** staff engineers are expected to lead multi-quarter changes across many teams. They want to hear how you reduce risk and bring people along, not just the technology.",
+    "**1. Start with the why and the metric:** \"UIKit screens take 2× longer to build\" or \"build time is 12 minutes\". Without a measurable goal the migration never finishes.",
+    "**2. Write a plan (RFC/ADR):** options considered, chosen approach, risks, rollout, how to measure success, what we are **not** doing. Get feedback from affected teams early.",
+    "**3. Strangler pattern:** new code in the new way; old code migrated when touched or by priority (most-changed screens first). Both worlds coexist through bridges (`UIHostingController`, bridging headers, interface modules).",
+    "**4. Make it easy:** templates, code generators, lint rules that block new old-style code, a migration guide with examples from your codebase, office hours, pairing.",
+    "**5. De-risk:** feature flags per migrated screen, A/B comparison of performance and crash rate, phased rollout.",
+    "**6. Track and communicate:** dashboard (% screens migrated, % Swift, build time), regular updates to leadership, celebrate milestones.",
+    "**7. Finish:** plan the long tail (the last 10% is the hardest); delete the old path, otherwise you maintain two systems forever.",
+    "**Answer structure (STAR):** Situation, Task, Action (the steps above), Result (numbers!), and what you would do differently."
+  ],
+  "keyPoints": [
+    "Clear why + measurable goal before starting.",
+    "RFC/ADR with options, risks and non-goals; involve affected teams early.",
+    "Incremental strangler approach with bridges between old and new.",
+    "Lint rules + templates make the new way the default.",
+    "Flags and phased rollout; dashboard; plan and finish the long tail."
+  ],
+  "mistakes": [
+    "A \"big bang\" rewrite that freezes feature work.",
+    "Starting without metrics, so success cannot be shown.",
+    "Leaving the migration at 80% and maintaining both worlds."
+  ],
+  "followups": [
+    "**How did you convince leadership?** Cost of not migrating in engineer-hours and incidents, plus a plan that keeps shipping features.",
+    "**How do you handle a team that refuses to migrate?** Understand their constraints, offer help/pairing, adjust timeline, escalate only with data.",
+    "**What would you migrate first?** High-change, low-risk areas that prove the approach and build confidence."
+  ]
+}

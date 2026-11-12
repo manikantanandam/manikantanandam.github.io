@@ -1,0 +1,28 @@
+{
+  "id": "product-of-array-except-self",
+  "title": "Product of Array Except Self",
+  "difficulty": "Medium",
+  "tags": [
+    "prefix",
+    "suffix"
+  ],
+  "summary": "Return an array where each element is the product of all others, without division.",
+  "approach": "First pass writes prefix products; second pass multiplies by a running suffix product from the right.",
+  "complexity": "O(n) time, O(1) extra space (output excluded)",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func productExceptSelf(_ nums: [Int]) -> [Int] {\n    var out = [Int](repeating: 1, count: nums.count)\n    var prefix = 1\n    for i in nums.indices { out[i] = prefix; prefix *= nums[i] }\n    var suffix = 1\n    for i in nums.indices.reversed() { out[i] *= suffix; suffix *= nums[i] }\n    return out\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/product-of-array-except-self/"
+    }
+  ],
+  "category": "arrays-hashing"
+}

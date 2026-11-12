@@ -1,0 +1,46 @@
+{
+  "id": "swiftui-performance",
+  "title": "SwiftUI performance",
+  "category": "swiftui",
+  "tags": [
+    "swiftui",
+    "performance",
+    "instruments"
+  ],
+  "summary": "Keep `body` cheap and make each view depend on as little data as possible. Measure with the SwiftUI instrument, fix the worst view, measure again.",
+  "body": [
+    "**In simple words:** SwiftUI is fast when `body` is light and few views refresh per change. It gets slow when a big view depends on fast-changing data or when `body` does heavy work.",
+    "**Workflow:** reproduce the slow screen → profile with Instruments (SwiftUI template: body updates and why they happened; Hitches; Time Profiler) → fix the top offender → measure again.",
+    "**Main rules:** (1) No heavy work in `body` (no sorting, date formatting of big lists, I/O) - precompute in the model. (2) Split big views into small ones so a change refreshes only a small part. (3) Pass only the data a child needs, not the whole model. (4) Use `List`/`LazyVStack` for long lists with stable ids. (5) Avoid `AnyView` and per-row `GeometryReader`.",
+    "**Images:** downsample big images to display size off the main thread and cache them. `AsyncImage` has no disk cache, so feeds usually need a custom loader.",
+    "**Debug trick:** `let _ = Self._printChanges()` inside `body` prints why it re-ran."
+  ],
+  "keyPoints": [
+    "Measure first (SwiftUI instrument, Time Profiler, Hitches).",
+    "Cheap `body`, narrow dependencies, small views.",
+    "Lazy containers with stable ids for long lists.",
+    "Downsample and cache images off main.",
+    "`Self._printChanges()` to see what triggered a body update."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Narrow dependencies",
+      "text": "// Bad: the row depends on the whole model; any change redraws every row\nForEach(model.posts) { PostRow(model: model, post: $0) }\n\n// Good: the row gets only what it shows\nForEach(model.posts) { post in\n    PostRow(title: post.title, subtitle: post.formattedDate)\n}\n\nstruct PostRow: View {\n    let title: String\n    let subtitle: String\n    var body: some View {\n        let _ = Self._printChanges()          // debug only\n        VStack(alignment: .leading) { Text(title); Text(subtitle).font(.caption) }\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Creating `DateFormatter`/`NumberFormatter` inside `body`.",
+    "Storing scroll offset or timer values in the environment or a root model, redrawing everything."
+  ],
+  "followups": [
+    "**Why might a list scroll badly?** Heavy rows, full-size image decoding on main, unstable ids, GeometryReader per row.",
+    "**What does `.drawingGroup()` do?** Renders complex vector content into one Metal-backed image."
+  ],
+  "links": [
+    {
+      "label": "Understanding and improving SwiftUI performance",
+      "url": "https://developer.apple.com/documentation/xcode/understanding-and-improving-swiftui-performance"
+    }
+  ]
+}

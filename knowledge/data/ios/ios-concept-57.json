@@ -1,0 +1,47 @@
+{
+  "id": "concurrency-bugs",
+  "title": "Race conditions, deadlocks and priority inversion",
+  "category": "concurrency",
+  "tags": [
+    "race condition",
+    "deadlock",
+    "priority inversion",
+    "thread sanitizer"
+  ],
+  "summary": "The three classic concurrency bugs: two threads changing the same data (race), two threads waiting on each other forever (deadlock), and important work stuck behind unimportant work (priority inversion).",
+  "body": [
+    "**Race condition:** the result depends on timing. Example: two threads do `count += 1` at once; both read 5, both write 6 - one increment is lost. Fix: protect shared state with an actor, a serial queue or a `Mutex`, or avoid shared mutable state with value types.",
+    "**Deadlock:** A waits for B while B waits for A, so both wait forever. iOS examples: `DispatchQueue.main.sync` from the main thread; two locks taken in opposite order by two threads; a semaphore waiting for work that needs the same blocked thread. Fix: never `sync` onto your own queue, always take locks in the same order, avoid blocking waits in async code.",
+    "**Priority inversion:** a high-priority task (UI) waits for a lock held by a low-priority task, which barely gets CPU time, so the UI hangs. Fix: use locks that support priority donation (`Mutex`, `os_unfair_lock`), avoid semaphores between QoS levels, and do not make the main thread wait on background work.",
+    "**Livelock / starvation:** threads keep reacting to each other without progress, or a task never gets a turn. Rare on iOS but good to name.",
+    "**Tools:** Thread Sanitizer (TSan) catches data races at runtime; Main Thread Checker catches UI calls off main; Swift 6 strict concurrency catches many races at compile time; Instruments shows blocked threads."
+  ],
+  "keyPoints": [
+    "Race: unsynchronized shared mutable state - fix with actors, serial queues, `Mutex` or value types.",
+    "Deadlock: circular waiting - classic is `main.sync` on main.",
+    "Priority inversion: high priority blocked by low priority holding a resource.",
+    "Swift 6 catches data races at compile time; TSan catches them at runtime.",
+    "Actors remove data races but not logical race conditions (reentrancy)."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Lost update and the fix",
+      "text": "// Bug: data race\nvar count = 0\nDispatchQueue.concurrentPerform(iterations: 1000) { _ in count += 1 }  // often < 1000\n\n// Fix with an actor\nactor Counter {\n    private(set) var value = 0\n    func increment() { value += 1 }\n}\n\n// Classic deadlock\nDispatchQueue.main.async {\n    DispatchQueue.main.sync { }   // main waits for main: frozen forever\n}"
+    }
+  ],
+  "mistakes": [
+    "Saying \"it worked when I tested it\" - races depend on timing and appear in production.",
+    "Using a semaphore to make async code synchronous."
+  ],
+  "followups": [
+    "**How would you debug a crash that happens 1 in 1,000 runs?** Enable TSan, run tests repeatedly, look for shared mutable state, check crash logs for multiple threads in the same code.",
+    "**Are actors enough to avoid all concurrency bugs?** No - they prevent data races but you can still have ordering bugs across `await`."
+  ],
+  "links": [
+    {
+      "label": "Diagnosing memory, thread and crash issues early",
+      "url": "https://developer.apple.com/documentation/xcode/diagnosing-memory-thread-and-crash-issues-early"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "swiftui-lifecycle",
+  "title": "SwiftUI app and view lifecycle (App, Scene, onAppear, .task)",
+  "category": "swiftui",
+  "tags": [
+    "swiftui",
+    "lifecycle",
+    "scenephase",
+    "task"
+  ],
+  "summary": "A SwiftUI app starts from an `App` struct with one or more `Scene`s. Views get `onAppear`/`onDisappear` and `.task` (async work that is cancelled automatically when the view goes away).",
+  "body": [
+    "**In simple words:** `@main struct MyApp: App` replaces the old AppDelegate as the entry point. Its `body` returns scenes like `WindowGroup`. Each window shows a root view.",
+    "**App state:** read `@Environment(\\.scenePhase)` to know if the app is `.active`, `.inactive` or `.background` - save data when going to background. You can still plug in an AppDelegate with `@UIApplicationDelegateAdaptor` for push tokens or SDK setup.",
+    "**View events:** `onAppear` / `onDisappear` run when a view enters or leaves the screen. `.task { }` starts async work when the view appears and **cancels it when the view disappears** - the best place to load data. `.task(id: value)` restarts the work when `value` changes (e.g. a search query). `onChange(of:)` reacts to a value change.",
+    "**Important difference:** a view's `init` and `body` can run many times; `onAppear` runs when it appears, not when it is created. Do not start network calls in `init`.",
+    "**Lists:** in a `List`/`LazyVStack`, rows appear and disappear while scrolling, so `onAppear` can fire many times - good for pagination (\"load more when the last row appears\")."
+  ],
+  "keyPoints": [
+    "`App` → `Scene` (`WindowGroup`) → root `View`; AppDelegate via `@UIApplicationDelegateAdaptor` if needed.",
+    "`scenePhase` tells active / inactive / background.",
+    "`.task` = async work tied to view lifetime, auto-cancelled; `.task(id:)` restarts on change.",
+    "`init`/`body` run often; never put side effects there.",
+    "`onAppear` on the last row is a simple pagination trigger."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "App entry and data loading",
+      "text": "@main\nstruct ShopApp: App {\n    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate\n    @Environment(\\.scenePhase) private var phase\n\n    var body: some Scene {\n        WindowGroup { ProductListView() }\n            .onChange(of: phase) { _, newPhase in\n                if newPhase == .background { Store.shared.save() }\n            }\n    }\n}\n\nstruct ProductListView: View {\n    @State private var model = ProductListModel()\n    @State private var query = \"\"\n\n    var body: some View {\n        List(model.products) { ProductRow(product: $0) }\n            .searchable(text: $query)\n            .task(id: query) {                 // cancels the old search automatically\n                try? await Task.sleep(for: .milliseconds(300))   // simple debounce\n                await model.search(query)\n            }\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Starting work in a view `init` (runs on every parent redraw).",
+    "Using `onAppear { Task { ... } }` and never cancelling - prefer `.task`."
+  ],
+  "followups": [
+    "**Where do you handle push notification registration in SwiftUI?** In an AppDelegate connected with `@UIApplicationDelegateAdaptor`.",
+    "**When is `onAppear` called more than once?** When the view leaves and comes back, e.g. tabs, navigation pop, lazy list scrolling."
+  ],
+  "links": [
+    {
+      "label": "App structure",
+      "url": "https://developer.apple.com/documentation/swiftui/app-organization"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "counting-bits",
+  "title": "Counting Bits",
+  "difficulty": "Easy",
+  "tags": [
+    "dp",
+    "bits"
+  ],
+  "summary": "For every i in 0...n, count the 1 bits.",
+  "approach": "bits[i] = bits[i >> 1] + (i & 1).",
+  "complexity": "O(n) time",
+  "body": [
+    "Swift also has `i.nonzeroBitCount`, which compiles to a popcount instruction."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func countBits(_ n: Int) -> [Int] {\n    var bits = [Int](repeating: 0, count: n + 1)\n    if n > 0 { for i in 1...n { bits[i] = bits[i >> 1] + (i & 1) } }\n    return bits\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/counting-bits/"
+    }
+  ],
+  "category": "bit-math"
+}

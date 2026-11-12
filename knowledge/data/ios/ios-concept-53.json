@@ -1,0 +1,51 @@
+{
+  "id": "protocols-pop",
+  "title": "Protocols and protocol-oriented programming",
+  "category": "swift-language",
+  "tags": [
+    "protocols",
+    "pop",
+    "extensions",
+    "associatedtype"
+  ],
+  "summary": "A protocol is a contract: \"anything that conforms can do these things\". Swift prefers small protocols plus extensions over deep class inheritance.",
+  "body": [
+    "**In simple words:** A protocol lists requirements (methods, properties). Any struct, class or enum can promise to meet them. Code that works with the protocol does not care which concrete type it gets.",
+    "**Real-life analogy:** A power socket. Any device with the right plug (conformance) works, whether it is a lamp or a laptop.",
+    "**Protocol extensions** give default implementations, so many types share behavior without a common base class. That is the core of protocol-oriented programming (POP): compose behavior from small protocols (`Identifiable & Codable & Hashable`) instead of building a deep inheritance tree.",
+    "**Why POP over inheritance:** works with structs and enums (inheritance only works with classes), a type can conform to many protocols but inherit from only one class, and you avoid the \"fragile base class\" problem.",
+    "**Associated types** make a protocol generic: `Collection` has an `Element`. Such protocols are used with generics (`some Collection<Int>`) or `any`.",
+    "**Testing:** depend on a protocol (`protocol FeedAPI`) instead of a concrete class; tests pass a fake that conforms.",
+    "**Common standard protocols:** `Equatable` (==), `Hashable` (usable in Set/Dictionary keys), `Comparable` (<, sorting), `Identifiable` (stable `id`, used by SwiftUI lists), `Codable` (JSON), `Sendable` (safe across threads), `CustomStringConvertible`."
+  ],
+  "keyPoints": [
+    "Protocols define capabilities; extensions add default behavior; types compose many small protocols.",
+    "POP works for value types and avoids single-inheritance limits.",
+    "Depending on protocols makes code testable through dependency injection.",
+    "Gotcha: methods defined only in an extension (not in the protocol body) are statically dispatched and cannot be overridden through the protocol.",
+    "Mark delegate protocols `AnyObject` so the delegate can be held `weak`."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Default implementation and composition",
+      "text": "protocol Shareable {\n    var shareText: String { get }\n}\nextension Shareable {\n    func share() { UIPasteboard.general.string = shareText }   // free for every conformer\n}\n\nstruct Article: Shareable, Identifiable, Codable {\n    let id: UUID\n    let title: String\n    var shareText: String { \"Read: \\(title)\" }\n}\n\nprotocol FeedAPI { func fetch() async throws -> [Article] }    // test seam\nstruct FakeFeedAPI: FeedAPI { func fetch() async throws -> [Article] { [] } }"
+    }
+  ],
+  "mistakes": [
+    "Huge \"god protocols\" with many requirements; split them.",
+    "Expecting an extension-only method to be overridden when called through the protocol type.",
+    "Creating a protocol for every single class \"just in case\" - add one when you need a second implementation or a test seam."
+  ],
+  "followups": [
+    "**Protocol vs abstract class?** Swift has no abstract classes; protocols + extensions cover the same need and work for structs.",
+    "**What is `Self` in a protocol?** The conforming type. Protocols using `Self` (like `Equatable`) need generics or `any` with care.",
+    "**Why `AnyObject` on delegate protocols?** Only classes can be `weak`."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Protocols",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols/"
+    }
+  ]
+}

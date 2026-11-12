@@ -1,0 +1,30 @@
+{
+  "id": "edit-distance",
+  "title": "Edit Distance",
+  "difficulty": "Hard",
+  "tags": [
+    "2d dp",
+    "strings"
+  ],
+  "summary": "Minimum inserts, deletes and replaces to turn word1 into word2.",
+  "approach": "dp[i][j] = dp[i-1][j-1] if chars equal, else 1 + min(insert dp[i][j-1], delete dp[i-1][j], replace dp[i-1][j-1]).",
+  "complexity": "O(m * n) time, O(n) space",
+  "body": [
+    "iOS link: fuzzy search and typo-tolerant matching in a local search feature."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func minDistance(_ word1: String, _ word2: String) -> Int {\n    let a = Array(word1), b = Array(word2)\n    var prev = Array(0...b.count)\n    for i in stride(from: 1, through: a.count, by: 1) {\n        var cur = [i] + [Int](repeating: 0, count: b.count)\n        for j in stride(from: 1, through: b.count, by: 1) {\n            cur[j] = a[i - 1] == b[j - 1] ? prev[j - 1] : 1 + min(prev[j], cur[j - 1], prev[j - 1])\n        }\n        prev = cur\n    }\n    return prev[b.count]\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/edit-distance/"
+    }
+  ],
+  "category": "dynamic-programming"
+}

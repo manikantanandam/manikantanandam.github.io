@@ -1,0 +1,41 @@
+{
+  "id": "mobile-design-framework",
+  "title": "How to run a mobile system design interview",
+  "tags": [
+    "framework",
+    "interview",
+    "staff"
+  ],
+  "summary": "A repeatable 45-60 minute structure: clarify, scope, API contract, client architecture, data and storage, offline and sync, performance, then the staff layer: rollout, observability, team boundaries.",
+  "requirements": [
+    "Spend the first 5-8 minutes on requirements: functional, non-functional (latency, offline, battery, data usage), scale (DAU, items per user), platforms.",
+    "State assumptions and what is out of scope."
+  ],
+  "components": [
+    "Client-server API contract (endpoints or GraphQL schema, pagination, real-time channel)",
+    "Client layers: UI → view models/state → repositories → data sources (network, DB, cache)",
+    "Persistence and sync engine",
+    "Background work (BGTaskScheduler, background URLSession, push)",
+    "Cross-cutting: auth, analytics, logging, feature flags, accessibility, localization"
+  ],
+  "tradeoffs": [
+    "Always present two options and pick one with a reason; interviewers grade the reasoning, not the choice.",
+    "Go deep on 2-3 areas the interviewer cares about instead of shallow coverage of everything."
+  ],
+  "body": [
+    "**Minute plan (60 min):** 0-8 requirements; 8-15 high-level diagram and API; 15-35 client architecture and data flow deep dive; 35-50 offline, edge cases, performance; 50-60 observability, rollout, trade-offs, questions.",
+    "**Clarifying questions worth asking:** Is offline support required? How fresh must data be? Expected list sizes? Media heavy? Multiple devices per user? Which iOS versions? Team size and existing architecture?",
+    "**Mobile constraints to raise unprompted:** flaky networks and retries, app suspension and termination, memory and battery, app-store release latency (old app versions live for months, so APIs must stay backward compatible), privacy and permissions.",
+    "**Staff signals:** you drive the conversation, quantify (payload sizes, request counts), name failure modes and mitigations, discuss how multiple teams build on your design, how it rolls out safely (flags, phased release), and how you'd measure success.",
+    "**Apple-style rounds** often ask about API design taste, sync across devices (iCloud), authentication and privacy as first-class sections."
+  ],
+  "code": [
+    {
+      "lang": "text",
+      "caption": "Client architecture template",
+      "text": "View (SwiftUI/UIKit)\n  -> ViewModel / Store (@MainActor, state + intents)\n    -> Repository (single source of truth, merges sources)\n        -> Local store (SwiftData / SQLite)  <- observed by UI\n        -> Remote API client (URLSession, auth, retry)\n        -> Sync engine (outbox, cursor, conflict policy)\nCross-cutting: Analytics, Logger, FeatureFlags, ImageLoader, Router"
+    }
+  ],
+  "links": [],
+  "category": "fundamentals"
+}

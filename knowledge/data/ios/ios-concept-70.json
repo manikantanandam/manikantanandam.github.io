@@ -1,0 +1,49 @@
+{
+  "id": "build-system",
+  "title": "Xcode builds: configurations, schemes and faster build times",
+  "category": "testing-release",
+  "tags": [
+    "xcode",
+    "build settings",
+    "xcconfig",
+    "build time",
+    "spm"
+  ],
+  "summary": "Targets build products, configurations (Debug/Release/Staging) change settings, schemes choose what to build, run and test. Build time is a team-wide productivity cost worth measuring and fixing.",
+  "body": [
+    "**Vocabulary:** **Project** contains **targets** (app, extensions, tests, frameworks). **Build configuration** = a set of build settings (Debug: no optimization, Release: optimized). **Scheme** = which targets to build and which configuration to use for Run/Test/Archive. **xcconfig** files hold build settings as text (reviewable in PRs, fewer merge conflicts).",
+    "**Environments:** Staging vs Production via configurations or schemes with different bundle IDs, API URLs and app icons; read values from Info.plist set by xcconfig. Keep secrets out of the repo.",
+    "**Dependencies:** Swift Package Manager is the standard now; CocoaPods is in maintenance mode; Carthage is rare. Pin versions and review updates.",
+    "**Faster builds:** modularize so changes rebuild less; avoid huge files and complex type inference (add explicit types in long expressions); use `-warn-long-function-bodies` and Build Timeline to find slow code; prefer static linking; cache builds on CI; avoid unnecessary Run Script phases (or mark their inputs/outputs).",
+    "**Explicit modules / build caching:** newer Xcode versions build modules explicitly and can cache compilation, improving incremental and CI builds.",
+    "**Staff angle:** track clean and incremental build time and CI duration as team metrics; one slow build × 100 engineers × 20 builds a day is a lot of lost time."
+  ],
+  "keyPoints": [
+    "Target = product; configuration = settings set; scheme = what/how to build-run-test.",
+    "Use xcconfig files for reviewable settings and environment separation.",
+    "SPM is the default dependency manager.",
+    "Speed up builds: modularize, explicit types in heavy expressions, Build Timeline, CI caching.",
+    "Measure build time as a productivity metric."
+  ],
+  "code": [
+    {
+      "lang": "text",
+      "caption": "xcconfig for environments",
+      "text": "// Staging.xcconfig\n#include \"Base.xcconfig\"\nPRODUCT_BUNDLE_IDENTIFIER = com.shop.app.staging\nAPI_BASE_URL = https:/$()/staging-api.shop.com\nAPP_DISPLAY_NAME = Shop β\n\n// Info.plist:  APIBaseURL = $(API_BASE_URL)\n// Swift:       Bundle.main.object(forInfoDictionaryKey: \"APIBaseURL\") as? String"
+    }
+  ],
+  "mistakes": [
+    "Using `#if DEBUG` everywhere for environment switching instead of configurations.",
+    "Run scripts without declared inputs/outputs that run on every build."
+  ],
+  "followups": [
+    "**Why is my incremental build slow?** A widely imported module changed, a script phase runs every time, or heavy type-checking; check the Build Timeline.",
+    "**Why `$()` in the URL?** `//` starts a comment in xcconfig files; `$()` breaks it up."
+  ],
+  "links": [
+    {
+      "label": "Improving the speed of incremental builds",
+      "url": "https://developer.apple.com/documentation/xcode/improving-the-speed-of-incremental-builds"
+    }
+  ]
+}

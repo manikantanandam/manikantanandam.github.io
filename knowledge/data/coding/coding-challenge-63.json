@@ -1,0 +1,30 @@
+{
+  "id": "meeting-rooms-ii",
+  "title": "Meeting Rooms II",
+  "difficulty": "Medium",
+  "tags": [
+    "sweep line",
+    "intervals"
+  ],
+  "summary": "Minimum number of rooms for a set of meetings.",
+  "approach": "Sweep line: sort starts and ends separately; walk starts, freeing a room whenever the earliest end is <= the current start.",
+  "complexity": "O(n log n) time",
+  "body": [
+    "iOS link: laying out overlapping events side by side in a calendar day view uses the same column assignment."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func minMeetingRooms(_ intervals: [[Int]]) -> Int {\n    let starts = intervals.map { $0[0] }.sorted(), ends = intervals.map { $0[1] }.sorted()\n    var rooms = 0, e = 0\n    for s in starts {\n        if s >= ends[e] { e += 1 } else { rooms += 1 }\n    }\n    return rooms\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/meeting-rooms-ii/"
+    }
+  ],
+  "category": "intervals"
+}

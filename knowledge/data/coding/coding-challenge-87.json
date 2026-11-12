@@ -1,0 +1,29 @@
+{
+  "id": "longest-common-subsequence",
+  "title": "Longest Common Subsequence",
+  "difficulty": "Medium",
+  "tags": [
+    "2d dp"
+  ],
+  "summary": "Length of the longest subsequence common to two strings.",
+  "approach": "dp[i][j] = dp[i-1][j-1] + 1 if chars match, else max(dp[i-1][j], dp[i][j-1]). Keep one row.",
+  "complexity": "O(m * n) time, O(n) space",
+  "body": [
+    "This is the core of diff algorithms; relates to how list diffing (e.g. `CollectionDifference`) computes inserts and removals."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func longestCommonSubsequence(_ text1: String, _ text2: String) -> Int {\n    let a = Array(text1), b = Array(text2)\n    var prev = [Int](repeating: 0, count: b.count + 1)\n    for i in a.indices {\n        var cur = [Int](repeating: 0, count: b.count + 1)\n        for j in b.indices {\n            cur[j + 1] = a[i] == b[j] ? prev[j] + 1 : max(prev[j + 1], cur[j])\n        }\n        prev = cur\n    }\n    return prev[b.count]\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/longest-common-subsequence/"
+    }
+  ],
+  "category": "dynamic-programming"
+}

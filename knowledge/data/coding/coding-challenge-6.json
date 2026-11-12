@@ -1,0 +1,28 @@
+{
+  "id": "top-k-frequent-elements",
+  "title": "Top K Frequent Elements",
+  "difficulty": "Medium",
+  "tags": [
+    "bucket sort",
+    "hash map"
+  ],
+  "summary": "Return the k most frequent elements.",
+  "approach": "Count with a dictionary, then bucket by frequency (index = count) and read buckets from high to low. Avoids a heap.",
+  "complexity": "O(n) time, O(n) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func topKFrequent(_ nums: [Int], _ k: Int) -> [Int] {\n    var freq: [Int: Int] = [:]\n    for n in nums { freq[n, default: 0] += 1 }\n    var buckets = [[Int]](repeating: [], count: nums.count + 1)\n    for (n, c) in freq { buckets[c].append(n) }\n    var result: [Int] = []\n    for c in stride(from: nums.count, through: 1, by: -1) {\n        result += buckets[c]\n        if result.count >= k { return Array(result.prefix(k)) }\n    }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/top-k-frequent-elements/"
+    }
+  ],
+  "category": "arrays-hashing"
+}

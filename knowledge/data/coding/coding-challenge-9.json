@@ -1,0 +1,28 @@
+{
+  "id": "valid-sudoku",
+  "title": "Valid Sudoku",
+  "difficulty": "Medium",
+  "tags": [
+    "hash set",
+    "matrix"
+  ],
+  "summary": "Check whether a partially filled 9x9 board breaks Sudoku rules.",
+  "approach": "Track seen digits per row, column and 3x3 box (box index = (r/3)*3 + c/3).",
+  "complexity": "O(81) time and space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func isValidSudoku(_ board: [[Character]]) -> Bool {\n    var rows = [Set<Character>](repeating: [], count: 9)\n    var cols = rows, boxes = rows\n    for r in 0..<9 {\n        for c in 0..<9 {\n            let ch = board[r][c]\n            if ch == \".\" { continue }\n            let b = (r / 3) * 3 + c / 3\n            if !rows[r].insert(ch).inserted || !cols[c].insert(ch).inserted || !boxes[b].insert(ch).inserted {\n                return false\n            }\n        }\n    }\n    return true\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/valid-sudoku/"
+    }
+  ],
+  "category": "arrays-hashing"
+}

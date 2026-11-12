@@ -1,0 +1,52 @@
+{
+  "id": "testing-strategy",
+  "title": "Testing strategy: unit, snapshot, UI tests and Swift Testing",
+  "category": "testing-release",
+  "tags": [
+    "swift testing",
+    "xctest",
+    "snapshot",
+    "mocking",
+    "staff"
+  ],
+  "summary": "Have many fast unit tests for logic, some snapshot tests for UI components, a few integration tests, and a small number of UI tests for critical flows. Swift Testing is the modern unit-test framework; XCTest is still used for UI and performance tests.",
+  "body": [
+    "**The testing pyramid:** bottom - lots of **unit tests** (view models, business rules, parsers) that run in milliseconds. Middle - **snapshot tests** (render a view and compare to a saved image) and **integration tests** (real components with a stubbed network). Top - a few **UI tests** (XCUITest) for flows like login and purchase; they are slow and flaky, so keep them few.",
+    "**Making code testable:** inject dependencies (API client, database, clock) through protocols or closures, so tests can use fakes. Keep logic out of views.",
+    "**Test doubles:** **stub** returns fixed data; **mock** also records how it was called so you can assert on it; **fake** is a working lightweight version (in-memory database).",
+    "**Swift Testing:** `@Test` functions, `#expect(a == b)`, `#require` (unwrap or stop), parameterized tests `@Test(arguments:)`, traits (`.tags`, `.timeLimit`, `.disabled`), suites are structs so each test gets fresh state, runs in parallel by default. Exit tests check code that crashes.",
+    "**Async tests:** mark the test `async` and `await`; inject a controllable clock instead of `sleep`; use `confirmation` for events that must happen.",
+    "**Flaky tests:** usually caused by shared state, real time, real network, or test order. Quarantine and fix; track flakiness automatically.",
+    "**Staff angle:** CI time budget, run only tests affected by a change on PRs, coverage as a signal not a target, ownership dashboards."
+  ],
+  "keyPoints": [
+    "Pyramid: many unit tests, some snapshot/integration, few UI tests.",
+    "Dependency injection makes code testable; know stub vs mock vs fake.",
+    "Swift Testing: `@Test`, `#expect`, `#require`, parameterized, parallel by default.",
+    "Never sleep in tests; inject clocks.",
+    "Fight flakiness actively; keep CI fast."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Swift Testing with a fake client",
+      "text": "import Testing\n\n@Suite struct FeedViewModelTests {\n    @Test func loadsPosts() async throws {\n        let model = await FeedViewModel(api: FakeFeedAPI(result: .success(Post.samples)))\n        await model.refresh()\n        guard case .loaded(let posts) = await model.state else {\n            Issue.record(\"expected loaded\"); return\n        }\n        #expect(posts.count == Post.samples.count)\n    }\n\n    @Test(arguments: [(1999, \"$19.99\"), (0, \"$0.00\"), (100_000, \"$1,000.00\")])\n    func formatsCents(cents: Int, expected: String) {\n        #expect(PriceFormatter(locale: .init(identifier: \"en_US\")).string(cents: cents) == expected)\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Testing private implementation details instead of behavior.",
+    "Hitting the real network in unit tests.",
+    "Lots of UI tests for things unit tests could cover."
+  ],
+  "followups": [
+    "**How do you test a view model that calls an API?** Inject a fake API returning success/failure and assert the published state.",
+    "**How do you test code with `Date()` or timers?** Inject a date provider/clock.",
+    "**XCTest vs Swift Testing?** Swift Testing for new unit tests (better syntax, parallel, parameterized); XCTest still needed for UI and performance tests; both can live in one target."
+  ],
+  "links": [
+    {
+      "label": "Swift Testing",
+      "url": "https://developer.apple.com/documentation/testing"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "higher-order-functions",
+  "title": "map, filter, reduce, compactMap, flatMap",
+  "category": "swift-language",
+  "tags": [
+    "functional",
+    "collections",
+    "map",
+    "reduce"
+  ],
+  "summary": "Higher-order functions take a closure and apply it to every element, so you describe what you want instead of writing loops.",
+  "body": [
+    "**In simple words:** Instead of writing a `for` loop with a temporary array, you say: \"give me the names\" (`map`), \"only adults\" (`filter`), \"add them up\" (`reduce`).",
+    "**The five you must know:** `map` transforms each element (same count). `filter` keeps elements that pass a test. `reduce` combines all elements into one value. `compactMap` transforms and drops `nil` results. `flatMap` transforms each element into an array and joins all arrays into one.",
+    "**Other useful ones:** `first(where:)`, `contains(where:)`, `allSatisfy`, `sorted(by:)`, `Dictionary(grouping:by:)`, `forEach`, `zip`, `enumerated()`.",
+    "**Performance:** each call creates a new array. For long chains on big data, use `.lazy` so elements flow through the chain one at a time without intermediate arrays."
+  ],
+  "keyPoints": [
+    "`map` = transform, `filter` = keep some, `reduce` = combine into one, `compactMap` = transform and drop nils, `flatMap` = flatten nested arrays.",
+    "They make intent clear and avoid mutable temp variables.",
+    "Use `.lazy` for long chains or when you only need the first few results.",
+    "`reduce(into:)` is faster than `reduce` for building arrays or dictionaries because it mutates in place."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Common chains",
+      "text": "let users = [User(name: \"Asha\", age: 31), User(name: \"Ravi\", age: 17)]\n\nlet names  = users.map(\\.name)                         // [\"Asha\", \"Ravi\"]\nlet adults = users.filter { $0.age >= 18 }              // [Asha]\nlet total  = users.reduce(0) { $0 + $1.age }            // 48\nlet ids    = [\"1\", \"x\", \"3\"].compactMap(Int.init)       // [1, 3]\nlet tags   = posts.flatMap(\\.tags)                      // all tags in one array\nlet byAge  = Dictionary(grouping: users) { $0.age >= 18 ? \"adult\" : \"minor\" }\n\nlet firstBig = hugeArray.lazy.map(expensive).first { $0 > 100 }  // stops early"
+    }
+  ],
+  "mistakes": [
+    "Using `flatMap` to drop nils (old Swift) - that is `compactMap` now.",
+    "Using `forEach` when you need to `return`/`break` early - use a `for` loop."
+  ],
+  "followups": [
+    "**Difference between `map` and `compactMap`?** `compactMap` removes `nil` results and unwraps the rest.",
+    "**Is `map` faster than a for loop?** About the same; choose for readability. `.lazy` avoids extra arrays."
+  ],
+  "links": [
+    {
+      "label": "Swift standard library: Sequence",
+      "url": "https://developer.apple.com/documentation/swift/sequence"
+    }
+  ]
+}

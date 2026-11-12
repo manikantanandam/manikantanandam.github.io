@@ -1,0 +1,27 @@
+{
+  "id": "remove-nth-node-from-end-of-list",
+  "title": "Remove Nth Node From End of List",
+  "difficulty": "Medium",
+  "tags": [
+    "two pointers"
+  ],
+  "summary": "Remove the n-th node from the end in one pass.",
+  "approach": "Advance a lead pointer n+1 steps from a dummy head, then move both until lead is nil; the trailing pointer is just before the target.",
+  "complexity": "O(n) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class ListNode { var val: Int; var next: ListNode?; init(_ v: Int, _ n: ListNode? = nil) { val = v; next = n } }\nfunc removeNthFromEnd(_ head: ListNode?, _ n: Int) -> ListNode? {\n    let dummy = ListNode(0, head)\n    var lead: ListNode? = dummy, trail = dummy\n    for _ in 0...n { lead = lead?.next }\n    while lead != nil { lead = lead?.next; trail = trail.next! }\n    trail.next = trail.next?.next\n    return dummy.next\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/"
+    }
+  ],
+  "category": "linked-list"
+}

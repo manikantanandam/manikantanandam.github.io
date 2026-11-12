@@ -1,0 +1,26 @@
+{
+  "id": "limit-concurrency",
+  "title": "Limit concurrent async work (async semaphore)",
+  "difficulty": "Medium",
+  "tags": [
+    "concurrency",
+    "actor",
+    "continuations"
+  ],
+  "summary": "Allow at most N concurrent operations (e.g. uploads) across the app, queueing the rest in FIFO order.",
+  "approach": "Actor with a permit count and a queue of continuations. `acquire` suspends when no permits; `release` resumes the next waiter.",
+  "complexity": "O(1) acquire/release",
+  "body": [
+    "Follow-ups: cancellation while waiting (store an id per waiter and remove it in `withTaskCancellationHandler`); why not `DispatchSemaphore` (blocks cooperative threads); task-group sliding window as the structured alternative."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "actor AsyncSemaphore {\n    private var permits: Int\n    private var waiters: [CheckedContinuation<Void, Never>] = []\n\n    init(_ permits: Int) { self.permits = permits }\n\n    func acquire() async {\n        if permits > 0 { permits -= 1; return }\n        await withCheckedContinuation { waiters.append($0) }\n    }\n\n    func release() {\n        if waiters.isEmpty { permits += 1 } else { waiters.removeFirst().resume() }\n    }\n\n    func run<T: Sendable>(_ work: @Sendable () async throws -> T) async rethrows -> T {\n        await acquire()\n        defer { release() }\n        return try await work()\n    }\n}\n\n// let uploads = AsyncSemaphore(3)\n// try await uploads.run { try await upload(file) }"
+    }
+  ],
+  "links": [],
+  "category": "ios-practical"
+}

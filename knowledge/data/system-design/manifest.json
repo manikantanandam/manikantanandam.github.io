@@ -1,0 +1,36 @@
+{
+  "title": "System Design",
+  "intro": "Mobile system design for staff-level iOS loops: a repeatable interview framework, the fundamentals interviewers probe (offline sync, pagination, real-time, API evolution, observability, large-app architecture), and full client-focused designs. Each design lists requirements, components, trade-offs, then data flow, failure modes and the staff-level discussion.",
+  "categories": [
+    {
+      "id": "fundamentals",
+      "title": "Fundamentals"
+    },
+    {
+      "id": "designs",
+      "title": "Worked designs"
+    }
+  ],
+  "entries": [
+    "system-design-1.json",
+    "system-design-2.json",
+    "system-design-3.json",
+    "system-design-4.json",
+    "system-design-5.json",
+    "system-design-6.json",
+    "system-design-7.json",
+    "system-design-8.json",
+    "system-design-9.json",
+    "system-design-10.json",
+    "system-design-11.json",
+    "system-design-12.json",
+    "system-design-13.json",
+    "system-design-14.json",
+    "system-design-15.json",
+    "system-design-16.json",
+    "system-design-17.json",
+    "system-design-18.json",
+    "system-design-19.json",
+    "system-design-20.json"
+  ]
+}

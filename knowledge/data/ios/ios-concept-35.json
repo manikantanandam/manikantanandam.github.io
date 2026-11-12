@@ -1,0 +1,47 @@
+{
+  "id": "dependency-injection",
+  "title": "Dependency injection",
+  "category": "architecture",
+  "tags": [
+    "di",
+    "testability",
+    "architecture"
+  ],
+  "summary": "Dependency injection means giving an object the things it needs (API client, database) from outside instead of creating or fetching them inside. It makes code testable and flexible.",
+  "body": [
+    "**In simple words:** Instead of `let api = APIClient()` inside your view model, you pass `api` in through `init`. In production you pass the real client; in tests you pass a fake that returns fixed data.",
+    "**Real-life analogy:** A chef who is handed ingredients can cook anywhere. A chef who must go to one specific shop for every ingredient cannot work if that shop is closed.",
+    "**Types:** **Initializer injection** (best: explicit, checked by compiler). Property injection (set after init; used for storyboards). Method injection (pass per call).",
+    "**Composition root:** one place (the app target / app start) creates the real implementations and wires them together. Feature modules only see protocols.",
+    "**At scale:** group dependencies in a per-feature `Dependencies` struct to avoid huge inits; containers like Factory/Swinject, or `swift-dependencies`; SwiftUI `@Environment` for view-level services.",
+    "**Singletons:** acceptable for truly global, stateless things, but hide them behind a protocol so tests can replace them."
+  ],
+  "keyPoints": [
+    "Pass dependencies in; prefer initializer injection.",
+    "Depend on protocols or structs of closures so tests can use fakes.",
+    "Wire real implementations in one composition root.",
+    "Containers trade compile-time safety for convenience (missing registration = runtime crash).",
+    "DI enables unit tests without network, database or time."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Struct-of-closures client (easy to fake)",
+      "text": "struct FeedClient: Sendable {\n    var fetch: @Sendable (_ page: Int) async throws -> [Post]\n}\n\nextension FeedClient {\n    static func live(session: URLSession) -> Self {\n        Self { page in try await session.decode([Post].self, from: .feed(page: page)) }\n    }\n    static let preview = Self { _ in Post.samples }\n    static let failing = Self { _ in throw URLError(.notConnectedToInternet) }\n}\n\nlet model = FeedViewModel(client: .failing)   // test the error state"
+    }
+  ],
+  "mistakes": [
+    "Calling `APIClient.shared` deep inside view models.",
+    "Service locators used everywhere, hiding what each type really needs."
+  ],
+  "followups": [
+    "**How do you test time-based code?** Inject a clock (`any Clock<Duration>`) and advance it in tests.",
+    "**DI container or manual DI?** Manual for small/medium apps; containers when the graph is large, with tests that verify all registrations."
+  ],
+  "links": [
+    {
+      "label": "swift-dependencies",
+      "url": "https://github.com/pointfreeco/swift-dependencies"
+    }
+  ]
+}

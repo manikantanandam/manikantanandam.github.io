@@ -1,0 +1,27 @@
+{
+  "id": "last-stone-weight",
+  "title": "Last Stone Weight",
+  "difficulty": "Easy",
+  "tags": [
+    "heap"
+  ],
+  "summary": "Repeatedly smash the two heaviest stones; return the last weight (or 0).",
+  "approach": "Max-heap: pop two, push the difference if non-zero.",
+  "complexity": "O(n log n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func lastStoneWeight(_ stones: [Int]) -> Int {\n    var heap = Heap<Int>(>)          // max-heap, Heap from Kth Largest\n    stones.forEach { heap.push($0) }\n    while heap.count > 1 {\n        let a = heap.pop()!, b = heap.pop()!\n        if a != b { heap.push(a - b) }\n    }\n    return heap.top ?? 0\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/last-stone-weight/"
+    }
+  ],
+  "category": "heap"
+}

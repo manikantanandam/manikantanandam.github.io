@@ -1,0 +1,47 @@
+{
+  "id": "core-data-concurrency",
+  "title": "Core Data: contexts, threading and migrations",
+  "category": "persistence",
+  "tags": [
+    "core data",
+    "concurrency",
+    "migrations"
+  ],
+  "summary": "Each Core Data object belongs to one context and must be used only on that context's queue. Do heavy work in a background context and pass object IDs, not objects, between threads.",
+  "body": [
+    "**Main pieces:** `NSPersistentContainer` sets up everything. The **model** describes entities. The **context** (`NSManagedObjectContext`) is a scratchpad where you create/edit objects and then `save()`. The **store** is the SQLite file.",
+    "**Threading rule:** a managed object is tied to its context, and a context to its queue. `viewContext` = main queue, for UI. For imports, use `newBackgroundContext()` or `performBackgroundTask`, and always access objects inside `context.perform { }`. To move an object across threads, pass its `NSManagedObjectID` and fetch it in the other context.",
+    "**Keeping UI updated:** `viewContext.automaticallyMergesChangesFromParent = true` and a merge policy such as `NSMergeByPropertyObjectTrumpMergePolicy` for conflicts.",
+    "**Big data:** batch insert/update/delete run directly on the store (fast, low memory) but skip contexts - use persistent history tracking to update the UI and extensions. Set `fetchBatchSize` for big lists; faulting loads row data only when touched.",
+    "**Migrations:** lightweight (automatic) for adding fields/entities; staged migrations (iOS 17) for multi-step changes; custom mapping models for complex transforms. Test with real old database files.",
+    "**Debug flag:** `-com.apple.CoreData.ConcurrencyDebug 1` crashes immediately on threading violations."
+  ],
+  "keyPoints": [
+    "Object ↔ context ↔ queue; never share managed objects across threads.",
+    "Pass `NSManagedObjectID`s; use `perform` blocks.",
+    "Background context for imports; merge into `viewContext`.",
+    "Batch requests for large changes; history tracking to sync contexts and extensions.",
+    "Lightweight migrations for additive changes; test with old stores."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Background batch import",
+      "text": "func importItems(_ dtos: [ItemDTO], container: NSPersistentContainer) async throws {\n    let context = container.newBackgroundContext()\n    context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy\n    try await context.perform {\n        let request = NSBatchInsertRequest(entity: Item.entity(), objects: dtos.map(\\.dictionary))\n        request.resultType = .objectIDs\n        try context.execute(request)\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Passing a managed object from a background context to the main thread.",
+    "Fetching thousands of objects without `fetchBatchSize` or predicates."
+  ],
+  "followups": [
+    "**What is a fault?** A placeholder object whose data is loaded from disk only when you access a property.",
+    "**What does `NSFetchedResultsController` do?** Watches a fetch request and reports changes to drive a table/collection view (works with diffable snapshots)."
+  ],
+  "links": [
+    {
+      "label": "Core Data",
+      "url": "https://developer.apple.com/documentation/coredata"
+    }
+  ]
+}

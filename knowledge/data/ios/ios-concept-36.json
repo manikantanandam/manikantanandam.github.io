@@ -1,0 +1,48 @@
+{
+  "id": "modularization",
+  "title": "Modularization with Swift packages",
+  "category": "architecture",
+  "tags": [
+    "spm",
+    "modularization",
+    "build times",
+    "staff"
+  ],
+  "summary": "Split a big app into modules (feature, domain, core) with one-way dependencies. You get faster builds, clear ownership, enforced boundaries and faster tests and previews.",
+  "body": [
+    "**In simple words:** Instead of one giant app target, you create packages: `Networking`, `DesignSystem`, `Profile`, `Feed`... Each compiles separately, and the compiler stops one feature from reaching into another's internals.",
+    "**Typical layers:** App shell → Feature modules (UI) → Feature interface modules → Domain/Services → Core (networking, persistence, design system, utilities). Arrows only point down.",
+    "**Interface / implementation split:** `ProfileInterface` (tiny: protocols, route types) and `Profile` (heavy implementation). Other features depend only on the interface, so changing Profile's code does not rebuild them, and there are no cycles.",
+    "**Benefits:** incremental builds, parallel builds, demo apps per feature for fast iteration, isolated tests, CODEOWNERS per module, `internal` really means internal.",
+    "**Pitfalls:** too many tiny modules (link and indexing overhead), a \"Common\" module that becomes a dumping ground, resources (`Bundle.module`), static library duplicates.",
+    "**Staff angle:** measure clean/incremental build and CI time before and after, extract core modules first, enforce dependency rules in CI, provide a module template generator."
+  ],
+  "keyPoints": [
+    "Layered, one-way dependency graph; features never depend on other features' implementations.",
+    "Interface modules break cycles and reduce rebuilds.",
+    "Per-feature demo apps and tests speed iteration.",
+    "Use `package` access and `internal import` to avoid leaking dependencies.",
+    "Measure build times to prove the value."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Feature with an interface split",
+      "text": "// Package.swift (excerpt)\n.target(name: \"ProfileInterface\", dependencies: [\"Core\"]),\n.target(name: \"Profile\", dependencies: [\"ProfileInterface\", \"DesignSystem\", \"Networking\"]),\n.target(name: \"Feed\", dependencies: [\"FeedInterface\", \"ProfileInterface\"]),   // not \"Profile\"\n.testTarget(name: \"ProfileTests\", dependencies: [\"Profile\"])"
+    }
+  ],
+  "mistakes": [
+    "Splitting into modules without an agreed dependency direction (cycles).",
+    "Putting everything shared into one \"Common\" module."
+  ],
+  "followups": [
+    "**How do two features navigate to each other without depending on each other?** Through route types in interface modules and a router/registry resolved at the app level.",
+    "**SPM vs CocoaPods?** SPM is built into Xcode and the standard now; CocoaPods is in maintenance mode."
+  ],
+  "links": [
+    {
+      "label": "Swift Package Manager",
+      "url": "https://www.swift.org/documentation/package-manager/"
+    }
+  ]
+}

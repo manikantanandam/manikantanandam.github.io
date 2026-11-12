@@ -1,0 +1,30 @@
+{
+  "id": "implement-trie-prefix-tree",
+  "title": "Implement Trie (Prefix Tree)",
+  "difficulty": "Medium",
+  "tags": [
+    "trie",
+    "design"
+  ],
+  "summary": "Insert words, search exact words and check prefixes.",
+  "approach": "Each node holds a children dictionary and an end-of-word flag.",
+  "complexity": "O(L) per operation for word length L",
+  "body": [
+    "iOS link: on-device typeahead/autocomplete for contacts or commands; store a top-k list per node for ranked suggestions."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "final class Trie {\n    private final class Node { var children: [Character: Node] = [:]; var isWord = false }\n    private let root = Node()\n\n    func insert(_ word: String) {\n        var node = root\n        for c in word {\n            if node.children[c] == nil { node.children[c] = Node() }\n            node = node.children[c]!\n        }\n        node.isWord = true\n    }\n    func search(_ word: String) -> Bool { find(word)?.isWord ?? false }\n    func startsWith(_ prefix: String) -> Bool { find(prefix) != nil }\n\n    private func find(_ s: String) -> Node? {\n        var node = root\n        for c in s { guard let next = node.children[c] else { return nil }; node = next }\n        return node\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/implement-trie-prefix-tree/"
+    }
+  ],
+  "category": "tries"
+}

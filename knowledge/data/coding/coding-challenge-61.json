@@ -1,0 +1,27 @@
+{
+  "id": "insert-interval",
+  "title": "Insert Interval",
+  "difficulty": "Medium",
+  "tags": [
+    "intervals"
+  ],
+  "summary": "Insert a new interval into a sorted, non-overlapping list and merge as needed.",
+  "approach": "Three phases: copy intervals ending before the new one, merge all overlapping ones into it, copy the rest.",
+  "complexity": "O(n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func insert(_ intervals: [[Int]], _ newInterval: [Int]) -> [[Int]] {\n    var result: [[Int]] = [], i = 0, cur = newInterval\n    while i < intervals.count && intervals[i][1] < cur[0] { result.append(intervals[i]); i += 1 }\n    while i < intervals.count && intervals[i][0] <= cur[1] {\n        cur = [min(cur[0], intervals[i][0]), max(cur[1], intervals[i][1])]; i += 1\n    }\n    result.append(cur)\n    return result + intervals[i...]\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/insert-interval/"
+    }
+  ],
+  "category": "intervals"
+}

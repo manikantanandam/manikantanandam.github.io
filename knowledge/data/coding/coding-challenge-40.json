@@ -1,0 +1,30 @@
+{
+  "id": "copy-list-with-random-pointer",
+  "title": "Copy List with Random Pointer",
+  "difficulty": "Medium",
+  "tags": [
+    "hash map",
+    "deep copy"
+  ],
+  "summary": "Deep-copy a list where each node also has a random pointer.",
+  "approach": "Map original nodes to copies (`ObjectIdentifier` keys), then wire next and random in a second pass.",
+  "complexity": "O(n) time, O(n) space",
+  "body": [
+    "Same idea as deep-copying any object graph with shared references or cycles (e.g. cloning a document model)."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class Node { var val: Int; var next, random: Node?; init(_ v: Int) { val = v } }\nfunc copyRandomList(_ head: Node?) -> Node? {\n    var map: [ObjectIdentifier: Node] = [:]\n    var cur = head\n    while let n = cur { map[ObjectIdentifier(n)] = Node(n.val); cur = n.next }\n    cur = head\n    while let n = cur {\n        let copy = map[ObjectIdentifier(n)]!\n        copy.next = n.next.map { map[ObjectIdentifier($0)]! }\n        copy.random = n.random.map { map[ObjectIdentifier($0)]! }\n        cur = n.next\n    }\n    return head.map { map[ObjectIdentifier($0)]! }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/copy-list-with-random-pointer/"
+    }
+  ],
+  "category": "linked-list"
+}

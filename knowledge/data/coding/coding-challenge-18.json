@@ -1,0 +1,28 @@
+{
+  "id": "longest-repeating-character-replacement",
+  "title": "Longest Repeating Character Replacement",
+  "difficulty": "Medium",
+  "tags": [
+    "sliding window",
+    "counting"
+  ],
+  "summary": "Replace at most k characters to get the longest run of one letter.",
+  "approach": "Window is valid while `length - maxFreq <= k`. Shrink from the left when invalid. `maxFreq` never needs to decrease for correctness of the answer.",
+  "complexity": "O(n) time, O(26) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func characterReplacement(_ s: String, _ k: Int) -> Int {\n    let a = Array(s.utf8)\n    var count = [Int](repeating: 0, count: 26)\n    var left = 0, maxFreq = 0, best = 0\n    for right in a.indices {\n        let i = Int(a[right] - 65)\n        count[i] += 1\n        maxFreq = max(maxFreq, count[i])\n        while right - left + 1 - maxFreq > k {\n            count[Int(a[left] - 65)] -= 1\n            left += 1\n        }\n        best = max(best, right - left + 1)\n    }\n    return best\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/longest-repeating-character-replacement/"
+    }
+  ],
+  "category": "sliding-window"
+}

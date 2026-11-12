@@ -1,0 +1,44 @@
+{
+  "id": "mutex-atomics",
+  "title": "Locks, Mutex and atomics",
+  "category": "concurrency",
+  "tags": [
+    "mutex",
+    "atomics",
+    "synchronization"
+  ],
+  "summary": "A lock lets only one thread into a piece of code at a time. Use `Mutex` for tiny synchronous sections, actors for async code, atomics for simple counters and flags.",
+  "body": [
+    "**In simple words:** A lock is a key to a room. Only the thread holding the key can enter; others wait outside. It protects shared data in non-async code.",
+    "**Choosing:** caller is synchronous and the work is tiny → `Mutex` (iOS 18+, Synchronization module) or `OSAllocatedUnfairLock`. Caller is async or the work may suspend → actor. Just a counter or flag → `Atomic<Int>`.",
+    "**Rules:** keep the locked section tiny, never `await` while holding a lock (the compiler blocks this for `Mutex`), and do not call unknown code (callbacks) while holding a lock.",
+    "**Why not spin locks?** On iOS, spinning wastes CPU and causes priority inversion. `OSSpinLock` was deprecated for this reason.",
+    "**Older options:** `NSLock`, `NSRecursiveLock`, serial `DispatchQueue`, `pthread_mutex`. Still valid in legacy code."
+  ],
+  "keyPoints": [
+    "`Mutex` for small sync critical sections, actor for async, `Atomic` for counters/flags.",
+    "Never hold a lock across `await` or while calling external callbacks.",
+    "Unfair locks/Mutex donate priority to the owner; semaphores do not.",
+    "`os_unfair_lock` must not be stored as a plain Swift `var`; use `OSAllocatedUnfairLock` or `Mutex`."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Mutex and Atomic",
+      "text": "import Synchronization\n\nfinal class Metrics: Sendable {\n    private let events = Mutex<[String]>([])\n    private let count = Atomic<Int>(0)\n\n    func record(_ name: String) {\n        events.withLock { $0.append(name) }\n        count.wrappingAdd(1, ordering: .relaxed)\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Doing network or disk work while holding a lock.",
+    "Taking two locks in different orders in different places (deadlock)."
+  ],
+  "followups": [
+    "**Actor or Mutex for an in-memory cache read from many places?** If callers are synchronous and reads are quick, `Mutex`; if fetching may be async, actor."
+  ],
+  "links": [
+    {
+      "label": "Synchronization",
+      "url": "https://developer.apple.com/documentation/synchronization"
+    }
+  ]
+}

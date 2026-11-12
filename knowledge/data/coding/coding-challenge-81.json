@@ -1,0 +1,27 @@
+{
+  "id": "alien-dictionary",
+  "title": "Alien Dictionary",
+  "difficulty": "Hard",
+  "tags": [
+    "topological sort"
+  ],
+  "summary": "Given words sorted in an unknown alphabet, return a valid letter order (or empty if inconsistent).",
+  "approach": "Compare adjacent words: the first differing letters give an edge. Invalid if a word is followed by its own prefix. Then topological sort.",
+  "complexity": "O(total characters) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func alienOrder(_ words: [String]) -> String {\n    var adj: [Character: Set<Character>] = [:], indegree: [Character: Int] = [:]\n    for w in words { for c in w { adj[c, default: []] = adj[c, default: []]; indegree[c, default: 0] += 0 } }\n    for (a, b) in zip(words, words.dropFirst()) {\n        if a.count > b.count && a.hasPrefix(b) { return \"\" }\n        for (x, y) in zip(a, b) where x != y {\n            if adj[x]!.insert(y).inserted { indegree[y]! += 1 }\n            break\n        }\n    }\n    var queue = indegree.filter { $0.value == 0 }.map(\\.key), order: [Character] = []\n    while let c = queue.popLast() {\n        order.append(c)\n        for n in adj[c]! { indegree[n]! -= 1; if indegree[n] == 0 { queue.append(n) } }\n    }\n    return order.count == indegree.count ? String(order) : \"\"\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/alien-dictionary/"
+    }
+  ],
+  "category": "graphs"
+}

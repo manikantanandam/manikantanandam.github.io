@@ -1,0 +1,27 @@
+{
+  "id": "largest-rectangle-in-histogram",
+  "title": "Largest Rectangle in Histogram",
+  "difficulty": "Hard",
+  "tags": [
+    "monotonic stack"
+  ],
+  "summary": "Largest rectangle area in a histogram.",
+  "approach": "Increasing stack of indices. When a shorter bar arrives, pop: the popped bar's rectangle extends from the new stack top + 1 to i - 1. Append a 0 sentinel to flush.",
+  "complexity": "O(n) time, O(n) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func largestRectangleArea(_ heights: [Int]) -> Int {\n    let h = heights + [0]\n    var stack: [Int] = [], best = 0\n    for i in h.indices {\n        while let top = stack.last, h[top] > h[i] {\n            stack.removeLast()\n            let left = stack.last ?? -1\n            best = max(best, h[top] * (i - left - 1))\n        }\n        stack.append(i)\n    }\n    return best\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/largest-rectangle-in-histogram/"
+    }
+  ],
+  "category": "stack"
+}

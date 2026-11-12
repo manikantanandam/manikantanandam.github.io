@@ -1,0 +1,43 @@
+{
+  "id": "large-app-architecture",
+  "title": "Architecture for a large app and many teams",
+  "tags": [
+    "modularization",
+    "platform",
+    "ownership",
+    "staff"
+  ],
+  "summary": "When 50-200 engineers ship one iOS app, the architecture is mostly about boundaries: modules with owners, a thin app shell, shared platform services, fast builds, and guardrails that keep the main branch releasable.",
+  "requirements": [
+    "Teams ship features independently without stepping on each other.",
+    "Build and CI times stay low as the codebase grows.",
+    "Consistent quality: performance budgets, accessibility, analytics conventions."
+  ],
+  "components": [
+    "App shell: composition root, navigation router, feature registration",
+    "Feature modules with interface/implementation split and demo apps",
+    "Platform modules: networking, persistence, design system, analytics, flags, logging",
+    "Build tooling: SPM or Bazel/Tuist, remote cache, module graph linting",
+    "Governance: CODEOWNERS, RFC/ADR process, architecture review"
+  ],
+  "tradeoffs": [
+    "More modules give better isolation and incremental builds but add link time, indexing load and boilerplate.",
+    "Central platform team ensures consistency but can become a bottleneck; enable contributions with clear standards.",
+    "Bazel gives hermetic, cached builds at scale but adds tooling complexity versus SPM/Xcode."
+  ],
+  "body": [
+    "**Boundaries:** features communicate through interface modules and the router, never by importing each other's implementation. Shared state goes through platform services with explicit APIs.",
+    "**Guardrails in CI:** dependency rules, app size and launch-time budgets, snapshot tests for design-system components, lint for analytics event schemas, mandatory feature flags for new features.",
+    "**Migration story:** extract platform modules first (networking, design system), then carve features starting from the most-changed code, keeping the app shippable every week.",
+    "**Staff signals:** measure (build time, PR cycle time, crash rate by module), write the RFC, get buy-in across teams, provide tooling (module generator), and define deprecation paths for old patterns."
+  ],
+  "code": [
+    {
+      "lang": "text",
+      "caption": "Module graph",
+      "text": "App (shell, composition root)\n |-- FeedFeature ------> FeedInterface, ProfileInterface\n |-- ProfileFeature ---> ProfileInterface\n |-- CheckoutFeature --> CheckoutInterface, PaymentsInterface\n '-- Platform: Networking, Persistence, DesignSystem, Analytics, FeatureFlags, Logging"
+    }
+  ],
+  "links": [],
+  "category": "fundamentals"
+}

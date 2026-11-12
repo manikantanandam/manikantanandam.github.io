@@ -1,0 +1,45 @@
+{
+  "id": "release-engineering",
+  "title": "Release engineering: CI, feature flags, phased rollout",
+  "category": "testing-release",
+  "tags": [
+    "ci",
+    "feature flags",
+    "rollout",
+    "staff"
+  ],
+  "summary": "You cannot roll back an app on users' phones, so safety comes from feature flags, phased rollout, fast crash detection and a regular release train.",
+  "body": [
+    "**In simple words:** On the web, a bad deploy is fixed in minutes. On iOS, a bad build lives on phones until users update. So you ship in ways that let you turn things off without a new build.",
+    "**Release train:** fixed schedule (weekly or every two weeks): branch cut → regression testing → submit → phased release. Features not ready ship hidden behind flags; the train never waits for one feature.",
+    "**Feature flags:** remote config that turns features on/off per user %, country, app version. Safe local defaults, kill switches for risky features and third-party SDKs, and a cleanup process - old flags are tech debt.",
+    "**Phased release:** App Store rolls out automatic updates over 7 days (1%, 2%, 5%, 10%, 20%, 50%, 100%); you can pause it. Combine with server-side flag ramp-ups for finer control.",
+    "**Health signals:** crash-free users/sessions, hang rate, launch time, key business funnels (sign-up, checkout) compared with the previous version, with automatic alerts and a go/no-go owner.",
+    "**CI:** every PR builds, runs unit tests and lint, checks size/launch budgets; remote build cache; parallel test shards; a merge queue keeps main green. Tools: Xcode Cloud, GitHub Actions, Bitrise, fastlane.",
+    "**Forced updates:** a minimum-supported-version check from remote config for when an old version must stop (security, API removal)."
+  ],
+  "keyPoints": [
+    "No rollback on mobile → flags + phased rollout + monitoring.",
+    "Release train with fixed cadence; unfinished features ship dark.",
+    "Flags with safe defaults, kill switches and expiry.",
+    "Watch crash-free rate, hangs, launch time, funnels per version.",
+    "Fast, reliable CI with caching and a merge queue."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Typed feature flags with safe defaults",
+      "text": "enum Flag: String, CaseIterable {\n    case newCheckout, videoAutoplay\n    var defaultValue: Bool { false }          // safe if remote config fails\n}\n\nprotocol FlagProvider: Sendable { func isEnabled(_ flag: Flag) -> Bool }\n\nstruct RemoteFlags: FlagProvider {\n    let snapshot: [String: Bool]              // fetched, cached on disk\n    func isEnabled(_ flag: Flag) -> Bool { snapshot[flag.rawValue] ?? flag.defaultValue }\n}"
+    }
+  ],
+  "followups": [
+    "**A crash spikes at 10% rollout - what do you do?** Pause rollout, kill-switch the feature, hotfix (expedited review if needed), postmortem.",
+    "**How do you avoid flag debt?** Owner and expiry date per flag, lint for expired flags, cleanup tickets in the definition of done."
+  ],
+  "links": [
+    {
+      "label": "Release a version update in phases",
+      "url": "https://developer.apple.com/help/app-store-connect/update-your-app/release-a-version-update-in-phases"
+    }
+  ]
+}

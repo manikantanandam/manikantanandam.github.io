@@ -1,0 +1,28 @@
+{
+  "id": "trapping-rain-water",
+  "title": "Trapping Rain Water",
+  "difficulty": "Hard",
+  "tags": [
+    "two pointers",
+    "prefix max"
+  ],
+  "summary": "Compute how much water is trapped between bars.",
+  "approach": "Water at i = min(maxLeft, maxRight) - height. With two pointers, process the side with the smaller max: its bound is known.",
+  "complexity": "O(n) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func trap(_ h: [Int]) -> Int {\n    var l = 0, r = h.count - 1, leftMax = 0, rightMax = 0, water = 0\n    while l < r {\n        if h[l] < h[r] {\n            leftMax = max(leftMax, h[l]); water += leftMax - h[l]; l += 1\n        } else {\n            rightMax = max(rightMax, h[r]); water += rightMax - h[r]; r -= 1\n        }\n    }\n    return water\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/trapping-rain-water/"
+    }
+  ],
+  "category": "two-pointers"
+}

@@ -1,0 +1,30 @@
+{
+  "id": "merge-intervals",
+  "title": "Merge Intervals",
+  "difficulty": "Medium",
+  "tags": [
+    "sorting",
+    "intervals"
+  ],
+  "summary": "Merge all overlapping intervals.",
+  "approach": "Sort by start; extend the last merged interval while the next one starts before it ends.",
+  "complexity": "O(n log n) time",
+  "body": [
+    "iOS link: merging busy ranges in a calendar day view, or coalescing downloaded byte ranges for resumable media."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func merge(_ intervals: [[Int]]) -> [[Int]] {\n    var result: [[Int]] = []\n    for iv in intervals.sorted(by: { $0[0] < $1[0] }) {\n        if let last = result.last, iv[0] <= last[1] {\n            result[result.count - 1][1] = max(last[1], iv[1])\n        } else {\n            result.append(iv)\n        }\n    }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/merge-intervals/"
+    }
+  ],
+  "category": "intervals"
+}

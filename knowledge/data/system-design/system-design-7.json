@@ -1,0 +1,44 @@
+{
+  "id": "mobile-api-design",
+  "title": "API design and versioning for mobile clients",
+  "tags": [
+    "api",
+    "rest",
+    "graphql",
+    "versioning",
+    "bff"
+  ],
+  "summary": "Mobile APIs must stay compatible with app versions that live for months. Design for additive change, tolerant clients, server-driven configuration, and choose REST, GraphQL or gRPC by team and payload needs.",
+  "requirements": [
+    "Old app versions keep working; new fields can ship without breaking anything.",
+    "Minimize round trips and payload size on cellular."
+  ],
+  "components": [
+    "Backend-for-frontend (BFF) that aggregates microservices into screen-shaped responses",
+    "Schema with explicit versioning policy (URL `/v2`, header, or GraphQL evolution)",
+    "Minimum supported version endpoint + force-upgrade flow",
+    "Tolerant decoding on the client (unknown enum cases, missing optional fields)"
+  ],
+  "tradeoffs": [
+    "REST: cacheable, simple, but over/under-fetching and many round trips for complex screens.",
+    "GraphQL: client picks fields, one round trip, strong typing with codegen; harder HTTP caching, query cost control on the server.",
+    "gRPC/protobuf: compact and fast, great for streaming; less tooling for HTTP caching and debugging on iOS.",
+    "Server-driven UI: ship UI changes without app releases, but harder to test, less native feel, and complex versioning of components."
+  ],
+  "body": [
+    "**Rules for evolution:** only add optional fields; never change meaning or type of an existing field; enums must have an `unknown` fallback on the client; deprecate with telemetry showing remaining usage by app version.",
+    "**Client decoding:** decode unknown enum values to `.unknown(String)`; one malformed item should not fail the whole list (lossy array decoding).",
+    "**Idempotency:** mutation endpoints accept an `Idempotency-Key` so retries from flaky networks are safe.",
+    "**Errors:** structured error bodies (code, user message, retryable flag) instead of raw HTTP codes only.",
+    "**Staff angle:** define the contract process (schema review, codegen for iOS/Android, contract tests in CI), and how mobile and backend teams coordinate releases."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Forward-compatible enum decoding",
+      "text": "enum PaymentStatus: Decodable, Equatable {\n    case pending, succeeded, failed\n    case unknown(String)\n\n    init(from decoder: Decoder) throws {\n        let raw = try decoder.singleValueContainer().decode(String.self)\n        switch raw {\n        case \"pending\": self = .pending\n        case \"succeeded\": self = .succeeded\n        case \"failed\": self = .failed\n        default: self = .unknown(raw)\n        }\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "fundamentals"
+}

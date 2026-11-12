@@ -1,0 +1,28 @@
+{
+  "id": "missing-number",
+  "title": "Missing Number",
+  "difficulty": "Easy",
+  "tags": [
+    "math",
+    "xor"
+  ],
+  "summary": "Array contains n distinct numbers from 0...n; find the missing one.",
+  "approach": "Expected sum n(n+1)/2 minus the actual sum (or XOR indices and values to avoid overflow).",
+  "complexity": "O(n) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func missingNumber(_ nums: [Int]) -> Int {\n    var x = nums.count\n    for (i, n) in nums.enumerated() { x ^= i ^ n }\n    return x\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/missing-number/"
+    }
+  ],
+  "category": "bit-math"
+}

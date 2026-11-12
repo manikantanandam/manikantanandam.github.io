@@ -1,0 +1,52 @@
+{
+  "id": "vc-lifecycle-responder",
+  "title": "View controller lifecycle and the responder chain",
+  "category": "uikit-runtime",
+  "tags": [
+    "uikit",
+    "lifecycle",
+    "responder chain",
+    "hit testing"
+  ],
+  "summary": "A view controller goes through load → appear → layout → disappear callbacks; each has a job. Touches find the deepest view under the finger (hit-testing) and unhandled events bubble up the responder chain.",
+  "body": [
+    "**Lifecycle in order:** `loadView` (create the root view; override only when building views in code without a storyboard) → `viewDidLoad` (once: one-time setup, add subviews, constraints) → `viewWillAppear` (every time before showing: refresh data) → `viewIsAppearing` (iOS 13+ back-deployed: sizes and traits are now correct, good for geometry work) → `viewWillLayoutSubviews` / `viewDidLayoutSubviews` (can run many times) → `viewDidAppear` (start animations, analytics, timers) → `viewWillDisappear` / `viewDidDisappear` (stop timers, save, stop observers) → `deinit` (should run when popped; if not, you have a leak).",
+    "**Real-life analogy:** A play. `viewDidLoad` = build the stage once. `viewWillAppear` = actors get ready before the curtain opens each night. `viewDidAppear` = the show is running. `viewDidDisappear` = curtain closes; turn off the lights.",
+    "**Child view controllers:** `addChild(child)` → add `child.view` → `child.didMove(toParent: self)`. Removing reverses it. Skipping these breaks appearance callbacks and rotation/trait updates.",
+    "**Hit-testing:** when you tap, UIKit asks the window \"which view is under this point?\" and goes down the tree with `hitTest(_:with:)` and `point(inside:with:)`. Hidden views, `alpha < 0.01` or `isUserInteractionEnabled = false` are skipped.",
+    "**Responder chain:** if the tapped view does not handle an event, it goes to its `next` responder: superview → view controller → window → application. Used for touches, keyboard shortcuts, menu actions, and \"first responder\" (the text field currently receiving keyboard input)."
+  ],
+  "keyPoints": [
+    "viewDidLoad once; viewWillAppear every show; viewIsAppearing/viewDidLayoutSubviews for geometry; viewDidAppear for animations/analytics.",
+    "Layout callbacks can run many times - keep them cheap.",
+    "Proper child containment: addChild, addSubview, didMove(toParent:).",
+    "Hit-testing goes down the view tree; the responder chain goes up.",
+    "Check `deinit` to catch leaked view controllers."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Bigger tap area and pass-through overlay",
+      "text": "final class HitButton: UIButton {\n    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {\n        bounds.insetBy(dx: -12, dy: -12).contains(point)   // 12pt larger target\n    }\n}\n\nfinal class PassThroughView: UIView {\n    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {\n        let hit = super.hitTest(point, with: event)\n        return hit === self ? nil : hit                     // touches go to views below\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Reading frame sizes in `viewDidLoad` (not final yet).",
+    "Starting work in `viewWillAppear` without stopping it in `viewWillDisappear`, so it runs multiple times."
+  ],
+  "followups": [
+    "**Why is my button not receiving taps?** Outside its superview's bounds, user interaction disabled on a parent, or another view on top.",
+    "**`setNeedsLayout` vs `layoutIfNeeded`?** setNeedsLayout schedules layout for the next cycle; layoutIfNeeded performs pending layout right now (used inside animations).",
+    "**What is first responder?** The object that receives keyboard and edit events first; `becomeFirstResponder()` shows the keyboard for a text field."
+  ],
+  "links": [
+    {
+      "label": "UIViewController",
+      "url": "https://developer.apple.com/documentation/uikit/uiviewcontroller"
+    },
+    {
+      "label": "Using responders and the responder chain",
+      "url": "https://developer.apple.com/documentation/uikit/using-responders-and-the-responder-chain-to-handle-events"
+    }
+  ]
+}

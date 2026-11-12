@@ -1,0 +1,46 @@
+{
+  "id": "code-signing",
+  "title": "Code signing, provisioning and App Store distribution",
+  "category": "testing-release",
+  "tags": [
+    "code signing",
+    "provisioning",
+    "entitlements",
+    "testflight",
+    "app store"
+  ],
+  "summary": "iOS only runs apps signed with a certificate Apple trusts. A provisioning profile ties together who signed it (certificate), which app (bundle ID), which capabilities (entitlements) and which devices may run it.",
+  "body": [
+    "**In simple words:** Signing proves the app comes from you and was not modified. Provisioning says where and how it is allowed to run.",
+    "**The pieces:** **Certificate** - your identity (Development or Distribution), with a private key on your Mac or CI. **App ID / Bundle ID** - `com.shop.app`. **Entitlements** - capabilities like push, App Groups, Keychain sharing, iCloud, Associated Domains. **Provisioning profile** - certificate + app ID + entitlements (+ device list for development/ad hoc).",
+    "**Profile types:** Development (your test devices), Ad Hoc (up to 100 registered devices), App Store (TestFlight and App Store), Enterprise (in-house, separate program).",
+    "**Release path:** Archive → upload to App Store Connect → TestFlight (internal testers immediately; external testers after a short beta review) → submit for App Review → release (manual, automatic, or phased over 7 days).",
+    "**CI tips:** automatic signing for local dev; on CI use App Store Connect API keys, fastlane match or Xcode Cloud to manage certificates and profiles. Most \"build failed\" signing errors are a missing entitlement in the profile or an expired certificate.",
+    "**App Review:** follow the guidelines (privacy, in-app purchase rules, no hidden features); expedited review exists for critical fixes."
+  ],
+  "keyPoints": [
+    "Certificate = who; bundle ID = what; entitlements = capabilities; profile = all tied together.",
+    "Profiles: development, ad hoc, App Store, enterprise.",
+    "Archive → App Store Connect → TestFlight → review → (phased) release.",
+    "Automate signing on CI (API keys, match, Xcode Cloud).",
+    "Entitlement mismatch is the most common signing error."
+  ],
+  "mistakes": [
+    "Sharing a single developer's personal certificate across the team without managed storage.",
+    "Adding a capability in Xcode but not regenerating the profile on CI."
+  ],
+  "followups": [
+    "**Why does push not work in a TestFlight build but works in debug?** Debug uses the sandbox APNs environment; the server must use production for TestFlight/App Store, and the profile must include the push entitlement.",
+    "**What happens when a distribution certificate expires?** Existing App Store apps keep working; you just cannot sign new builds until you create a new one (enterprise apps are different - they stop launching)."
+  ],
+  "links": [
+    {
+      "label": "Distributing your app",
+      "url": "https://developer.apple.com/documentation/xcode/distribution"
+    },
+    {
+      "label": "TestFlight",
+      "url": "https://developer.apple.com/testflight/"
+    }
+  ]
+}

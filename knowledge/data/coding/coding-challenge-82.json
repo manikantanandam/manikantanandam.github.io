@@ -1,0 +1,30 @@
+{
+  "id": "climbing-stairs",
+  "title": "Climbing Stairs",
+  "difficulty": "Easy",
+  "tags": [
+    "dp",
+    "fibonacci"
+  ],
+  "summary": "Ways to climb n stairs taking 1 or 2 steps.",
+  "approach": "ways(n) = ways(n-1) + ways(n-2); keep two variables.",
+  "complexity": "O(n) time, O(1) space",
+  "body": [
+    "Talk through the progression: recursion → memoization → bottom-up → O(1) space. Interviewers grade the reasoning."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func climbStairs(_ n: Int) -> Int {\n    var (a, b) = (1, 1)\n    for _ in 0..<n { (a, b) = (b, a + b) }\n    return a\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/climbing-stairs/"
+    }
+  ],
+  "category": "dynamic-programming"
+}

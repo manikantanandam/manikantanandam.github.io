@@ -1,0 +1,28 @@
+{
+  "id": "reorder-list",
+  "title": "Reorder List",
+  "difficulty": "Medium",
+  "tags": [
+    "linked list",
+    "fast and slow pointers"
+  ],
+  "summary": "Reorder L0→L1→…→Ln into L0→Ln→L1→Ln-1→… in place.",
+  "approach": "Find the middle (slow/fast), reverse the second half, then interleave the two halves.",
+  "complexity": "O(n) time, O(1) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class ListNode { var val: Int; var next: ListNode?; init(_ v: Int, _ n: ListNode? = nil) { val = v; next = n } }\nfunc reorderList(_ head: ListNode?) {\n    guard let head else { return }\n    var slow = head, fast = head\n    while let next = fast.next?.next { slow = slow.next!; fast = next }\n    var second = slow.next, prev: ListNode? = nil\n    slow.next = nil\n    while let node = second { second = node.next; node.next = prev; prev = node }\n    var first: ListNode? = head, back = prev\n    while let f = first, let b = back {\n        let fNext = f.next, bNext = b.next\n        f.next = b; b.next = fNext\n        first = fNext; back = bNext\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/reorder-list/"
+    }
+  ],
+  "category": "linked-list"
+}

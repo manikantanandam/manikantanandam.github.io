@@ -1,0 +1,50 @@
+{
+  "id": "notification-system",
+  "title": "Push notification system (end to end)",
+  "tags": [
+    "apns",
+    "notifications",
+    "backend",
+    "delivery"
+  ],
+  "summary": "Deliver timely, relevant notifications to millions of devices: token registry, preference checks, rate limiting, fan-out to APNs, rich content via extensions, and delivery/open tracking.",
+  "requirements": [
+    "Transactional (order shipped) and marketing (campaign) notifications; per-user preferences and quiet hours.",
+    "Reliable, deduplicated, at most N per day per user; localized.",
+    "Rich content (images, actions), deep links, analytics on delivery and opens."
+  ],
+  "components": [
+    "Device registry: (userID, deviceID, APNs token, app version, locale, timezone, permissions)",
+    "Notification service: templates, preference and quiet-hour checks, frequency caps, dedupe keys",
+    "Queue (Kafka/SQS) and sender workers holding HTTP/2 connections to APNs with token-based auth",
+    "Feedback handling: 410 Unregistered prunes tokens; retries with backoff on 429/5xx",
+    "Client: permission prompt strategy, token upload, Notification Service Extension, categories and actions, deep link routing"
+  ],
+  "tradeoffs": [
+    "APNs is best-effort; critical state must also be fetched by the app on open.",
+    "Provisional authorization delivers quietly without a prompt, increasing reach but lowering visibility.",
+    "Collapse IDs reduce noise (e.g. 'score updated') but lose intermediate updates.",
+    "Large fan-out campaigns need rate shaping to avoid backend stampedes when users tap at once."
+  ],
+  "body": [
+    "**Permission strategy:** ask in context after the user sees value (pre-prompt screen), not at first launch; denied users can only be re-enabled in Settings.",
+    "**Client handling:** `UNUserNotificationCenterDelegate` for foreground presentation and taps; route the payload's deep link through the app router; track open events with the notification ID.",
+    "**Delivery tracking:** the Notification Service Extension can report 'received' (it runs for `mutable-content` pushes) so you can compute delivery rate.",
+    "**Time-sensitive vs passive** interruption levels and relevance score determine how Focus and notification summaries treat them.",
+    "**Live Activities** for ongoing state (delivery tracking) via ActivityKit push tokens."
+  ],
+  "code": [
+    {
+      "lang": "text",
+      "caption": "APNs request",
+      "text": "POST https://api.push.apple.com/3/device/<token>\nauthorization: bearer <JWT signed with .p8 key>\napns-push-type: alert\napns-topic: com.example.app\napns-priority: 10\napns-collapse-id: order-123\napns-expiration: 1767225600\n\n{\"aps\":{\"alert\":{\"title\":\"Order shipped\",\"body\":\"Arrives Tuesday\"},\n        \"mutable-content\":1,\"thread-id\":\"orders\",\"interruption-level\":\"time-sensitive\"},\n \"deeplink\":\"app://orders/123\",\"image\":\"https://cdn.example.com/p/123.jpg\",\"nid\":\"n-789\"}"
+    }
+  ],
+  "links": [
+    {
+      "label": "Sending notification requests to APNs",
+      "url": "https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns"
+    }
+  ],
+  "category": "designs"
+}

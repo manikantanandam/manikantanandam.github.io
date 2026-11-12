@@ -1,0 +1,51 @@
+{
+  "id": "gcd-vs-swift-concurrency",
+  "title": "GCD and OperationQueue basics (and how they compare to async/await)",
+  "category": "concurrency",
+  "tags": [
+    "gcd",
+    "dispatch queue",
+    "operationqueue",
+    "threads"
+  ],
+  "summary": "GCD runs blocks of work on queues: the main queue for UI, background queues for heavy work. Swift concurrency (async/await) is the modern replacement, but GCD is still asked in every interview.",
+  "body": [
+    "**In simple words:** A thread is a worker. A queue is a to-do list. With GCD you do not manage threads yourself; you put closures on a queue and GCD picks a worker to run them.",
+    "**Serial vs concurrent queue:** a serial queue runs one task at a time, in order (like one cashier). A concurrent queue can run many at once (several cashiers). The **main queue** is serial and is the only place to update UI.",
+    "**sync vs async:** `async` = \"add to the queue and continue, do not wait\". `sync` = \"add and wait until it finishes\". Calling `DispatchQueue.main.sync` from the main thread deadlocks: main waits for itself.",
+    "**QoS (priority):** `.userInteractive` (animations), `.userInitiated` (user is waiting), `.utility` (long, with progress), `.background` (user does not notice).",
+    "**Other tools:** `DispatchGroup` waits for several tasks to finish, `asyncAfter` delays work, a **barrier** on a concurrent queue gives \"many readers, one writer\". `OperationQueue` adds dependencies between operations, cancellation and `maxConcurrentOperationCount`.",
+    "**Why async/await is better now:** GCD spawns more threads when work blocks, which can cause **thread explosion** (many threads, lots of memory and switching). Swift concurrency uses a small fixed pool (about one thread per CPU core) and suspends instead of blocking. It also checks data races at compile time."
+  ],
+  "keyPoints": [
+    "Main queue = serial, UI only. Global queues = concurrent with QoS levels.",
+    "`async` does not wait; `sync` waits. `main.sync` from main = deadlock.",
+    "Serial queue protects state by running one block at a time; barrier = reader-writer lock.",
+    "`DispatchGroup` ≈ `async let`/task group; OperationQueue = dependencies + cancellation.",
+    "Swift concurrency avoids thread explosion by suspending instead of blocking."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Common GCD patterns",
+      "text": "// Heavy work in background, UI on main\nDispatchQueue.global(qos: .userInitiated).async {\n    let image = applyFilter(original)\n    DispatchQueue.main.async { imageView.image = image }\n}\n\n// Wait for several calls\nlet group = DispatchGroup()\nfor url in urls {\n    group.enter()\n    fetch(url) { _ in group.leave() }\n}\ngroup.notify(queue: .main) { reloadUI() }\n\n// Thread-safe store: many readers, one writer\nfinal class Store: @unchecked Sendable {\n    private var dict: [String: Int] = [:]\n    private let queue = DispatchQueue(label: \"store\", attributes: .concurrent)\n    func get(_ k: String) -> Int? { queue.sync { dict[k] } }\n    func set(_ k: String, _ v: Int) { queue.async(flags: .barrier) { self.dict[k] = v } }\n}"
+    }
+  ],
+  "mistakes": [
+    "Updating UI from a background queue (random crashes and glitches).",
+    "Calling `sync` on the queue you are already on (deadlock).",
+    "Using `DispatchSemaphore.wait()` inside async code (can deadlock the cooperative pool)."
+  ],
+  "followups": [
+    "**Is a serial queue the same as the main thread?** No. The main queue is one special serial queue; other serial queues run on any background thread.",
+    "**What is thread explosion?** GCD creating too many threads because tasks block; each thread costs memory and context switches.",
+    "**When would you still use OperationQueue?** When tasks need dependencies (B after A) and cancellation in legacy code.",
+    "**Difference between concurrency and parallelism?** Concurrency = dealing with many tasks at once (can interleave on one core); parallelism = actually running at the same time on multiple cores."
+  ],
+  "links": [
+    {
+      "label": "Dispatch",
+      "url": "https://developer.apple.com/documentation/dispatch"
+    }
+  ]
+}

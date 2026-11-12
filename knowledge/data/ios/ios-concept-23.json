@@ -1,0 +1,48 @@
+{
+  "id": "swiftui-navigation",
+  "title": "Navigation and deep linking in SwiftUI",
+  "category": "swiftui",
+  "tags": [
+    "navigation",
+    "deep links",
+    "routing",
+    "coordinator"
+  ],
+  "summary": "Use `NavigationStack(path:)` where the path is an array of route values. Navigation becomes data: push = append, pop = removeLast, deep link = set the array.",
+  "body": [
+    "**In simple words:** Instead of telling the screen \"push this view\", you keep an array like `[.product(id: 5), .reviews]`. SwiftUI shows the screens for whatever is in that array.",
+    "**Router (coordinator) object:** an `@Observable` class that owns the path and has methods like `showProduct(id:)`. Views call the router instead of knowing about other screens. This is the SwiftUI version of the Coordinator pattern.",
+    "**Deep links:** `.onOpenURL { url in router.handle(url) }` parses the URL into routes and sets the path. If the user is logged out, store the pending route and apply it after login.",
+    "**Sheets and full-screen covers** are separate state (`.sheet(item:)`). Include them in the router if deep links can open them.",
+    "**State restoration:** make routes `Codable` and save the path in `@SceneStorage`.",
+    "**Large apps:** each feature module registers its own destinations so the app shell does not import every screen."
+  ],
+  "keyPoints": [
+    "`NavigationStack(path:)` + `navigationDestination(for:)` = value-based navigation.",
+    "A router/coordinator owns navigation state; views stay unaware of each other.",
+    "Deep link = parse URL → routes → assign path.",
+    "Codable routes enable state restoration.",
+    "`NavigationView` is deprecated; use `NavigationStack` or `NavigationSplitView` (iPad)."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Router-driven navigation",
+      "text": "enum Route: Hashable, Codable { case product(id: String), cart, checkout }\n\n@Observable @MainActor\nfinal class Router {\n    var path: [Route] = []\n    func show(_ route: Route) { path.append(route) }\n    func popToRoot() { path.removeAll() }\n    func handle(_ url: URL) {            // myshop://product/42\n        if url.host == \"product\" { path = [.product(id: url.lastPathComponent)] }\n        else if url.host == \"cart\" { path = [.cart] }\n    }\n}\n\nstruct RootView: View {\n    @State private var router = Router()\n    var body: some View {\n        NavigationStack(path: $router.path) {\n            HomeView()\n                .navigationDestination(for: Route.self) { route in\n                    switch route {\n                    case .product(let id): ProductView(id: id)\n                    case .cart:            CartView()\n                    case .checkout:        CheckoutView()\n                    }\n                }\n        }\n        .environment(router)\n        .onOpenURL { router.handle($0) }\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Putting `NavigationLink(destination:)` everywhere so screens are tightly coupled.",
+    "Nesting a `NavigationStack` inside another stack."
+  ],
+  "followups": [
+    "**Universal links vs custom URL schemes?** Universal links are https URLs verified by your domain; custom schemes can be claimed by any app.",
+    "**How do you test navigation?** Assert on the router's `path` array in unit tests."
+  ],
+  "links": [
+    {
+      "label": "NavigationStack",
+      "url": "https://developer.apple.com/documentation/swiftui/navigationstack"
+    }
+  ]
+}

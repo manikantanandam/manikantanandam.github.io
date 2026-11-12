@@ -1,0 +1,27 @@
+{
+  "id": "koko-eating-bananas",
+  "title": "Koko Eating Bananas",
+  "difficulty": "Medium",
+  "tags": [
+    "binary search on answer"
+  ],
+  "summary": "Minimum eating speed to finish all piles within h hours.",
+  "approach": "Binary search on the answer: hours needed is monotonic in speed. Find the smallest speed with hours <= h.",
+  "complexity": "O(n log maxPile) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func minEatingSpeed(_ piles: [Int], _ h: Int) -> Int {\n    var lo = 1, hi = piles.max()!\n    while lo < hi {\n        let k = (lo + hi) / 2\n        let hours = piles.reduce(0) { $0 + ($1 + k - 1) / k }\n        if hours <= h { hi = k } else { lo = k + 1 }\n    }\n    return lo\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/koko-eating-bananas/"
+    }
+  ],
+  "category": "binary-search"
+}

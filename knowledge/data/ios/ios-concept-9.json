@@ -1,0 +1,47 @@
+{
+  "id": "error-handling",
+  "title": "Error handling, Result and typed throws",
+  "category": "swift-language",
+  "tags": [
+    "errors",
+    "throws",
+    "result",
+    "typed throws"
+  ],
+  "summary": "Functions that can fail are marked `throws`; callers must handle failure with `try` inside `do/catch`. `Result` stores success-or-failure as a value.",
+  "body": [
+    "**In simple words:** Errors in Swift are normal values (any type conforming to `Error`, usually an enum). A function says it may fail with `throws`; the caller writes `try` so failure points are visible in code.",
+    "**Ways to call a throwing function:** `try` inside `do { } catch { }`; `try?` turns the result into an optional (error ignored); `try!` crashes on error (avoid).",
+    "**`Result<Success, Failure>`** is an enum with `.success` and `.failure`. Useful to store an outcome or pass it in old completion-handler APIs. With async/await, prefer plain `throws`.",
+    "**Typed throws (Swift 6):** `throws(ParseError)` says exactly which error type can come out, so the caller can switch over it exhaustively. Use it for small, closed error sets (parsers, internal modules). For app code where errors change over time, plain `throws` is usually better.",
+    "**Good practice:** convert low-level errors (URLError, DecodingError) into your own domain errors at module boundaries, keep the original for logging, and show the user a friendly message with a retry action."
+  ],
+  "keyPoints": [
+    "`throws` + `try` makes failure explicit at the call site.",
+    "`try?` → optional, `try!` → crash on error, `do/catch` → handle.",
+    "Use `Result` for stored outcomes and callbacks; `throws` for async APIs.",
+    "Typed throws fits closed error sets; untyped `throws` fits evolving app code.",
+    "Map errors to domain errors at boundaries; never log tokens or personal data."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Domain errors and typed throws",
+      "text": "enum LoginError: Error { case wrongPassword, noNetwork, server(code: Int) }\n\nfunc login(_ user: String, _ pass: String) async throws(LoginError) -> Session {\n    do {\n        return try await api.login(user, pass)\n    } catch let e as URLError where e.code == .notConnectedToInternet {\n        throw .noNetwork\n    } catch {\n        throw .server(code: (error as NSError).code)\n    }\n}\n\ndo {\n    let session = try await login(\"a\", \"b\")\n} catch .wrongPassword { showWrongPassword()\n} catch .noNetwork     { showOffline()\n} catch                { showGeneric() }"
+    }
+  ],
+  "mistakes": [
+    "Using `try?` everywhere and silently losing errors.",
+    "Showing raw `error.localizedDescription` from the server to users."
+  ],
+  "followups": [
+    "**`rethrows` vs `throws`?** `rethrows` throws only if the closure passed in throws (e.g. `map`).",
+    "**How do errors cross async boundaries?** A throwing `async` function propagates errors to the awaiting caller; in a task group the first thrown error cancels the siblings."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Error handling",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/errorhandling/"
+    }
+  ]
+}

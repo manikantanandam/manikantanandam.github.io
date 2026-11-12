@@ -1,0 +1,49 @@
+{
+  "id": "state-property-wrappers",
+  "title": "SwiftUI data flow: @State, @Binding, @Observable, @Environment",
+  "category": "swiftui",
+  "tags": [
+    "swiftui",
+    "state",
+    "binding",
+    "data flow"
+  ],
+  "summary": "Choose the wrapper by asking \"who owns this data?\". `@State` owns it, `@Binding` borrows it with write access, `@Environment` receives it from far above, `@Bindable` makes bindings to an observable model.",
+  "body": [
+    "**In simple words:** SwiftUI views are recreated all the time, so normal `var`s would be reset. Property wrappers tell SwiftUI to keep data in its own storage and to refresh the view when it changes.",
+    "**The modern set (iOS 17+ with `@Observable`):** `@State` - this view owns the value (a Bool, a String, or an `@Observable` model). Plain property (`let model: Model`) - read an observable model owned elsewhere; SwiftUI still tracks what you read. `@Binding` - a two-way link to someone else's value (a child toggle editing the parent's Bool). `@Bindable` - create bindings (`$model.name`) into an `@Observable` model. `@Environment` - read values or models injected high up (`.environment(model)`).",
+    "**The older set (`ObservableObject`, still in many apps):** `@StateObject` - owns the object; `@ObservedObject` - borrows it; `@EnvironmentObject` - injected; properties marked `@Published`. Drawback: any `@Published` change refreshes every view observing the object.",
+    "**Others to name:** `@AppStorage` (UserDefaults), `@SceneStorage` (state restoration), `@FocusState` (keyboard focus), `@Query` (SwiftData), `@Environment(\\.dismiss)`.",
+    "**Real-life analogy:** `@State` is your own notebook. `@Binding` is a friend letting you write in their notebook. `@Environment` is the notice board everyone in the building can read."
+  ],
+  "keyPoints": [
+    "Ownership decides the wrapper: own → `@State`; borrow read-write → `@Binding`; injected → `@Environment`.",
+    "With `@Observable`, pass models as plain properties and use `@Bindable` for `$` bindings.",
+    "Legacy: `@StateObject` owns, `@ObservedObject` borrows; `@ObservedObject` for an owned object is a bug (recreated).",
+    "Keep `@State` private; it is internal to the view.",
+    "One source of truth per piece of data."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Owner, child binding, bindable model",
+      "text": "@Observable final class Profile { var name = \"\"; var notifications = true }\n\nstruct ProfileScreen: View {\n    @State private var profile = Profile()     // owns the model\n    @State private var showHelp = false        // owns a simple value\n\n    var body: some View {\n        Form {\n            NameField(profile: profile)\n            SettingsToggle(isOn: $showHelp)    // pass a binding\n        }\n        .environment(profile)                  // available to all children\n    }\n}\n\nstruct NameField: View {\n    @Bindable var profile: Profile             // to get $profile.name\n    var body: some View { TextField(\"Name\", text: $profile.name) }\n}\n\nstruct SettingsToggle: View {\n    @Binding var isOn: Bool                    // borrowed, can write\n    var body: some View { Toggle(\"Show help\", isOn: $isOn) }\n}"
+    }
+  ],
+  "mistakes": [
+    "Using `@ObservedObject var vm = ViewModel()` - the object is recreated whenever the parent redraws; use `@StateObject` (or `@State` with `@Observable`).",
+    "Initializing `@State` from an init parameter and expecting it to update when the parent changes - it is set only once.",
+    "Making `@State` non-private and setting it from outside."
+  ],
+  "followups": [
+    "**`@StateObject` vs `@ObservedObject`?** StateObject creates and owns the object once for the view's lifetime; ObservedObject only observes an object owned elsewhere.",
+    "**How does a child change parent state?** Pass a `Binding` (`$value`) or a closure.",
+    "**Why is `@Observable` better than `ObservableObject`?** Views refresh only when a property they actually read changes."
+  ],
+  "links": [
+    {
+      "label": "Managing model data in your app",
+      "url": "https://developer.apple.com/documentation/swiftui/managing-model-data-in-your-app"
+    }
+  ]
+}

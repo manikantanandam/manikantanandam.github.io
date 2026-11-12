@@ -1,0 +1,26 @@
+{
+  "id": "token-bucket-rate-limiter",
+  "title": "Token bucket rate limiter",
+  "difficulty": "Medium",
+  "tags": [
+    "rate limiting",
+    "design"
+  ],
+  "summary": "Allow bursts up to N requests but an average of R per second; reject or delay the rest.",
+  "approach": "Tokens refill continuously at R/s up to capacity N. Each request consumes one token; compute refill lazily from elapsed time.",
+  "complexity": "O(1) per request",
+  "body": [
+    "Wrap it in an actor (or `Mutex`) for concurrent callers. Passing `now` in makes it deterministic to test.",
+    "Compare with fixed window (bursty at edges) and sliding log (accurate, more memory)."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "struct TokenBucket {\n    private let capacity: Double, refillPerSecond: Double\n    private var tokens: Double\n    private var lastRefill: ContinuousClock.Instant\n\n    init(capacity: Int, refillPerSecond: Double, now: ContinuousClock.Instant = .now) {\n        self.capacity = Double(capacity); self.refillPerSecond = refillPerSecond\n        tokens = Double(capacity); lastRefill = now\n    }\n\n    mutating func tryConsume(now: ContinuousClock.Instant = .now) -> Bool {\n        let elapsed = now - lastRefill\n        let seconds = Double(elapsed.components.seconds) + Double(elapsed.components.attoseconds) / 1e18\n        tokens = min(capacity, tokens + seconds * refillPerSecond)\n        lastRefill = now\n        guard tokens >= 1 else { return false }\n        tokens -= 1\n        return true\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "ios-practical"
+}

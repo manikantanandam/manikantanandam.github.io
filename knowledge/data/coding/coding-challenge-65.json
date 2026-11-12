@@ -1,0 +1,27 @@
+{
+  "id": "jump-game",
+  "title": "Jump Game",
+  "difficulty": "Medium",
+  "tags": [
+    "greedy"
+  ],
+  "summary": "Can you reach the last index if nums[i] is the max jump from i?",
+  "approach": "Track the farthest reachable index; fail if you stand beyond it.",
+  "complexity": "O(n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func canJump(_ nums: [Int]) -> Bool {\n    var reach = 0\n    for (i, n) in nums.enumerated() {\n        if i > reach { return false }\n        reach = max(reach, i + n)\n    }\n    return true\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/jump-game/"
+    }
+  ],
+  "category": "greedy"
+}

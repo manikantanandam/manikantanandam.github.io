@@ -1,0 +1,30 @@
+{
+  "id": "time-based-key-value-store",
+  "title": "Time Based Key-Value Store",
+  "difficulty": "Medium",
+  "tags": [
+    "binary search",
+    "design"
+  ],
+  "summary": "set(key, value, timestamp) and get(key, timestamp) returning the value with the largest timestamp <= the query.",
+  "approach": "Timestamps per key arrive increasing, so append and binary search for the last timestamp <= t.",
+  "complexity": "set O(1), get O(log n)",
+  "body": [
+    "iOS link: this is how you'd look up the state of a document at a point in time in a versioned local store."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "struct TimeMap {\n    private var store: [String: [(t: Int, v: String)]] = [:]\n    mutating func set(_ key: String, _ value: String, _ timestamp: Int) {\n        store[key, default: []].append((timestamp, value))\n    }\n    func get(_ key: String, _ timestamp: Int) -> String {\n        guard let list = store[key] else { return \"\" }\n        var lo = 0, hi = list.count          // first index with t > timestamp\n        while lo < hi {\n            let mid = (lo + hi) / 2\n            if list[mid].t <= timestamp { lo = mid + 1 } else { hi = mid }\n        }\n        return lo == 0 ? \"\" : list[lo - 1].v\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/time-based-key-value-store/"
+    }
+  ],
+  "category": "binary-search"
+}

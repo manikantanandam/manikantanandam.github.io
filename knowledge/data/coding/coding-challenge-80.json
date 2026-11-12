@@ -1,0 +1,29 @@
+{
+  "id": "word-ladder",
+  "title": "Word Ladder",
+  "difficulty": "Hard",
+  "tags": [
+    "bfs"
+  ],
+  "summary": "Shortest transformation length from beginWord to endWord changing one letter at a time.",
+  "approach": "BFS over words; generate neighbors by replacing each position with a-z and checking a set; remove visited words from the set.",
+  "complexity": "O(N * L * 26) time",
+  "body": [
+    "Bidirectional BFS roughly square-roots the search space; mention it as the follow-up."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func ladderLength(_ beginWord: String, _ endWord: String, _ wordList: [String]) -> Int {\n    var words = Set(wordList)\n    guard words.contains(endWord) else { return 0 }\n    var level = [beginWord], steps = 1\n    let letters = Array(\"abcdefghijklmnopqrstuvwxyz\")\n    while !level.isEmpty {\n        var next: [String] = []\n        for word in level {\n            var chars = Array(word)\n            for i in chars.indices {\n                let original = chars[i]\n                for l in letters where l != original {\n                    chars[i] = l\n                    let candidate = String(chars)\n                    if candidate == endWord { return steps + 1 }\n                    if words.remove(candidate) != nil { next.append(candidate) }\n                }\n                chars[i] = original\n            }\n        }\n        level = next; steps += 1\n    }\n    return 0\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/word-ladder/"
+    }
+  ],
+  "category": "graphs"
+}

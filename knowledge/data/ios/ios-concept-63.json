@@ -1,0 +1,51 @@
+{
+  "id": "communication-patterns",
+  "title": "Delegate vs closure vs NotificationCenter vs KVO vs Combine",
+  "category": "architecture",
+  "tags": [
+    "delegate",
+    "closure",
+    "notificationcenter",
+    "kvo",
+    "communication"
+  ],
+  "summary": "Objects talk to each other in a few standard ways. Pick by how many listeners there are and how tightly the objects are related.",
+  "body": [
+    "**Delegate (one-to-one, many events):** a protocol the owner implements, held `weak`. Example: `UITableViewDelegate`. Clear contract, good when there are several related callbacks.",
+    "**Closure / callback (one-to-one, one event):** pass a function to call later, e.g. `onSave: (Item) -> Void`. Lightweight; watch for retain cycles.",
+    "**async/await (one request, one answer):** replaces many completion closures; easier error handling.",
+    "**NotificationCenter (one-to-many, loosely coupled):** broadcast by name; anyone can listen. Good for system events (keyboard shown, app backgrounded). Overuse makes flows hard to trace.",
+    "**KVO (observe a property):** watch an `@objc dynamic` property of an NSObject, often of Apple APIs (e.g. `AVPlayer.status`).",
+    "**Combine / AsyncSequence / Observation (streams of values):** for values that change over time with transformations (debounce, combine).",
+    "**Real-life analogy:** Delegate = your personal assistant. Closure = a sticky note \"call me when done\". NotificationCenter = a PA announcement in an office. KVO = watching a specific thermometer."
+  ],
+  "keyPoints": [
+    "One-to-one: delegate (multiple callbacks) or closure (single callback); async/await for request-response.",
+    "One-to-many: NotificationCenter, Combine subjects, `@Observable` models.",
+    "Delegates must be `weak` and protocols `AnyObject`.",
+    "Notifications are loosely coupled but hard to trace and untyped; prefer typed APIs inside your own code.",
+    "Choose the simplest mechanism that fits the number of listeners."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Same event, three ways",
+      "text": "// 1. Delegate\nprotocol EditorDelegate: AnyObject { func editor(_ e: Editor, didSave item: Item) }\nfinal class Editor { weak var delegate: EditorDelegate? }\n\n// 2. Closure\nfinal class Editor2 { var onSave: ((Item) -> Void)? }\neditor2.onSave = { [weak self] item in self?.refresh(item) }\n\n// 3. NotificationCenter\nextension Notification.Name { static let itemSaved = Notification.Name(\"itemSaved\") }\nNotificationCenter.default.post(name: .itemSaved, object: item)\nlet token = NotificationCenter.default.addObserver(forName: .itemSaved, object: nil, queue: .main) { note in\n    print(note.object as? Item as Any)\n}"
+    }
+  ],
+  "mistakes": [
+    "Strong delegate references (retain cycle).",
+    "Using NotificationCenter for direct parent-child communication.",
+    "Forgetting to remove block-based notification observers (keep the token, remove in deinit)."
+  ],
+  "followups": [
+    "**Delegate vs closure - when do you choose which?** Delegate for a group of related callbacks and data source style APIs; closure for a single simple callback.",
+    "**Why must a delegate be weak?** The delegate usually owns the object that holds it; strong both ways = retain cycle."
+  ],
+  "links": [
+    {
+      "label": "NotificationCenter",
+      "url": "https://developer.apple.com/documentation/foundation/notificationcenter"
+    }
+  ]
+}

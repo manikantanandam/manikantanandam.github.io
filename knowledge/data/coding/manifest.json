@@ -1,0 +1,176 @@
+{
+  "title": "Coding Challenges",
+  "intro": "100 interview problems grouped by pattern, with Swift solutions, plus iOS-specific practical rounds (caches, debounce, rate limiting, concurrency). For each: state the brute force, name the pattern, code the optimal solution, then test edge cases out loud.",
+  "categories": [
+    {
+      "id": "arrays-hashing",
+      "title": "Arrays and hashing"
+    },
+    {
+      "id": "caching",
+      "title": "Design-style coding"
+    },
+    {
+      "id": "two-pointers",
+      "title": "Two pointers"
+    },
+    {
+      "id": "sliding-window",
+      "title": "Sliding window"
+    },
+    {
+      "id": "stack",
+      "title": "Stack"
+    },
+    {
+      "id": "binary-search",
+      "title": "Binary search"
+    },
+    {
+      "id": "linked-list",
+      "title": "Linked list"
+    },
+    {
+      "id": "trees",
+      "title": "Trees"
+    },
+    {
+      "id": "tries",
+      "title": "Tries"
+    },
+    {
+      "id": "heap",
+      "title": "Heap / priority queue"
+    },
+    {
+      "id": "intervals",
+      "title": "Intervals"
+    },
+    {
+      "id": "greedy",
+      "title": "Greedy"
+    },
+    {
+      "id": "backtracking",
+      "title": "Backtracking"
+    },
+    {
+      "id": "graphs",
+      "title": "Graphs"
+    },
+    {
+      "id": "dynamic-programming",
+      "title": "Dynamic programming"
+    },
+    {
+      "id": "bit-math",
+      "title": "Bit manipulation and math"
+    },
+    {
+      "id": "ios-practical",
+      "title": "iOS practical rounds"
+    }
+  ],
+  "entries": [
+    "coding-challenge-1.json",
+    "coding-challenge-2.json",
+    "coding-challenge-3.json",
+    "coding-challenge-4.json",
+    "coding-challenge-5.json",
+    "coding-challenge-6.json",
+    "coding-challenge-7.json",
+    "coding-challenge-8.json",
+    "coding-challenge-9.json",
+    "coding-challenge-10.json",
+    "coding-challenge-11.json",
+    "coding-challenge-12.json",
+    "coding-challenge-13.json",
+    "coding-challenge-14.json",
+    "coding-challenge-15.json",
+    "coding-challenge-16.json",
+    "coding-challenge-17.json",
+    "coding-challenge-18.json",
+    "coding-challenge-19.json",
+    "coding-challenge-20.json",
+    "coding-challenge-21.json",
+    "coding-challenge-22.json",
+    "coding-challenge-23.json",
+    "coding-challenge-24.json",
+    "coding-challenge-25.json",
+    "coding-challenge-26.json",
+    "coding-challenge-27.json",
+    "coding-challenge-28.json",
+    "coding-challenge-29.json",
+    "coding-challenge-30.json",
+    "coding-challenge-31.json",
+    "coding-challenge-32.json",
+    "coding-challenge-33.json",
+    "coding-challenge-34.json",
+    "coding-challenge-35.json",
+    "coding-challenge-36.json",
+    "coding-challenge-37.json",
+    "coding-challenge-38.json",
+    "coding-challenge-39.json",
+    "coding-challenge-40.json",
+    "coding-challenge-41.json",
+    "coding-challenge-42.json",
+    "coding-challenge-43.json",
+    "coding-challenge-44.json",
+    "coding-challenge-45.json",
+    "coding-challenge-46.json",
+    "coding-challenge-47.json",
+    "coding-challenge-48.json",
+    "coding-challenge-49.json",
+    "coding-challenge-50.json",
+    "coding-challenge-51.json",
+    "coding-challenge-52.json",
+    "coding-challenge-53.json",
+    "coding-challenge-54.json",
+    "coding-challenge-55.json",
+    "coding-challenge-56.json",
+    "coding-challenge-57.json",
+    "coding-challenge-58.json",
+    "coding-challenge-59.json",
+    "coding-challenge-60.json",
+    "coding-challenge-61.json",
+    "coding-challenge-62.json",
+    "coding-challenge-63.json",
+    "coding-challenge-64.json",
+    "coding-challenge-65.json",
+    "coding-challenge-66.json",
+    "coding-challenge-67.json",
+    "coding-challenge-68.json",
+    "coding-challenge-69.json",
+    "coding-challenge-70.json",
+    "coding-challenge-71.json",
+    "coding-challenge-72.json",
+    "coding-challenge-73.json",
+    "coding-challenge-74.json",
+    "coding-challenge-75.json",
+    "coding-challenge-76.json",
+    "coding-challenge-77.json",
+    "coding-challenge-78.json",
+    "coding-challenge-79.json",
+    "coding-challenge-80.json",
+    "coding-challenge-81.json",
+    "coding-challenge-82.json",
+    "coding-challenge-83.json",
+    "coding-challenge-84.json",
+    "coding-challenge-85.json",
+    "coding-challenge-86.json",
+    "coding-challenge-87.json",
+    "coding-challenge-88.json",
+    "coding-challenge-89.json",
+    "coding-challenge-90.json",
+    "coding-challenge-91.json",
+    "coding-challenge-92.json",
+    "coding-challenge-93.json",
+    "coding-challenge-94.json",
+    "coding-challenge-95.json",
+    "coding-challenge-96.json",
+    "coding-challenge-97.json",
+    "coding-challenge-98.json",
+    "coding-challenge-99.json",
+    "coding-challenge-100.json"
+  ]
+}

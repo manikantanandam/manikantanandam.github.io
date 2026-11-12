@@ -1,0 +1,27 @@
+{
+  "id": "n-queens",
+  "title": "N-Queens",
+  "difficulty": "Hard",
+  "tags": [
+    "backtracking"
+  ],
+  "summary": "Place n queens so none attack each other; return all boards.",
+  "approach": "Row by row; track used columns and both diagonals (r - c and r + c) in sets for O(1) checks.",
+  "complexity": "O(n!) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func solveNQueens(_ n: Int) -> [[String]] {\n    var cols = Set<Int>(), d1 = Set<Int>(), d2 = Set<Int>()\n    var placement = [Int](repeating: 0, count: n), result: [[String]] = []\n    func place(_ r: Int) {\n        if r == n {\n            result.append(placement.map { c in String((0..<n).map { $0 == c ? \"Q\" : \".\" }) })\n            return\n        }\n        for c in 0..<n where !cols.contains(c) && !d1.contains(r - c) && !d2.contains(r + c) {\n            cols.insert(c); d1.insert(r - c); d2.insert(r + c); placement[r] = c\n            place(r + 1)\n            cols.remove(c); d1.remove(r - c); d2.remove(r + c)\n        }\n    }\n    place(0)\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/n-queens/"
+    }
+  ],
+  "category": "backtracking"
+}

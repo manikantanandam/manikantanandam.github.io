@@ -1,0 +1,48 @@
+{
+  "id": "webview",
+  "title": "WKWebView and JavaScript bridges",
+  "category": "app-platform",
+  "tags": [
+    "wkwebview",
+    "web",
+    "hybrid",
+    "javascript"
+  ],
+  "summary": "`WKWebView` shows web content inside your app. The app and the page can talk through message handlers (JS → native) and `evaluateJavaScript` (native → JS).",
+  "body": [
+    "**In simple words:** Some screens (help pages, promotions, checkout) are built on the web and shown inside the app with `WKWebView`. It runs the page in a separate process, so a crashing page does not crash your app.",
+    "**JS → native:** register `WKScriptMessageHandler` with a name; the page calls `window.webkit.messageHandlers.<name>.postMessage(data)`. **Native → JS:** `webView.evaluateJavaScript(\"...\")` or `callAsyncJavaScript`.",
+    "**Control navigation:** `WKNavigationDelegate.decidePolicyFor` lets you block or open links externally and intercept deep links.",
+    "**Cookies and login:** share session via `WKWebsiteDataStore.httpCookieStore`. Note it is separate from `HTTPCookieStorage.shared`.",
+    "**Security:** only allow trusted domains, validate every message from JS (treat as untrusted input), never expose sensitive native APIs broadly, and avoid `loadHTMLString` with untrusted content.",
+    "**Retain cycle trap:** `userContentController.add(self, name:)` holds `self` strongly; remove the handler on teardown or use a weak proxy.",
+    "**Alternatives:** `SFSafariViewController` for showing external sites with Safari features and shared cookies (no control over content); SwiftUI `WebView` (iOS 26)."
+  ],
+  "keyPoints": [
+    "WKWebView runs out of process; use delegates to control navigation.",
+    "Bridge: message handlers (JS → native) and evaluateJavaScript (native → JS).",
+    "Treat all JS messages as untrusted; allow-list domains.",
+    "Message handlers retain their target - remove them to avoid leaks.",
+    "SFSafariViewController for plain external browsing."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Simple bridge with a weak proxy",
+      "text": "final class WeakHandler: NSObject, WKScriptMessageHandler {\n    weak var target: WKScriptMessageHandler?\n    init(_ t: WKScriptMessageHandler) { target = t }\n    func userContentController(_ c: WKUserContentController, didReceive m: WKScriptMessage) {\n        target?.userContentController(c, didReceive: m)\n    }\n}\n\nfinal class CheckoutWebVC: UIViewController, WKScriptMessageHandler {\n    private var webView: WKWebView!\n    override func viewDidLoad() {\n        super.viewDidLoad()\n        let config = WKWebViewConfiguration()\n        config.userContentController.add(WeakHandler(self), name: \"payment\")\n        webView = WKWebView(frame: view.bounds, configuration: config)\n        view.addSubview(webView)\n        webView.load(URLRequest(url: URL(string: \"https://shop.com/checkout\")!))\n    }\n    func userContentController(_ c: WKUserContentController, didReceive m: WKScriptMessage) {\n        guard m.frameInfo.securityOrigin.host == \"shop.com\",\n              let body = m.body as? [String: Any], body[\"status\"] as? String == \"success\" else { return }\n        navigationController?.popViewController(animated: true)\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Not checking the origin of JS messages.",
+    "Using the deprecated `UIWebView`."
+  ],
+  "followups": [
+    "**Native vs web screen - how do you decide?** Web for frequently changing content and shared flows across platforms; native for performance, offline use and platform integration."
+  ],
+  "links": [
+    {
+      "label": "WKWebView",
+      "url": "https://developer.apple.com/documentation/webkit/wkwebview"
+    }
+  ]
+}

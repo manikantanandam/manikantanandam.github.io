@@ -1,0 +1,46 @@
+{
+  "id": "binary-size-linking",
+  "title": "App size, static vs dynamic linking",
+  "category": "memory-performance",
+  "tags": [
+    "build",
+    "app size",
+    "linking"
+  ],
+  "summary": "Static libraries are copied into your app binary (faster launch, unused code removed). Dynamic frameworks are loaded at launch (can be shared with extensions, but slower launch). Default to static.",
+  "body": [
+    "**In simple words:** **Static** linking glues library code into your app at build time. **Dynamic** linking keeps it as a separate framework that is loaded when the app starts.",
+    "**Trade-offs:** static = faster launch and dead-code stripping, but code used by app and extensions is duplicated. Dynamic = shared between app and extensions, but each framework adds launch time. Mergeable libraries (Xcode 15+) are dynamic in debug (fast builds) and merged statically in release.",
+    "**Gotcha:** linking the same static library into two dynamic frameworks puts two copies in the app - bigger size and possible \"class implemented in both\" runtime warnings.",
+    "**Reducing app size:** asset catalogs (App Store thins per device), compress/stream large media, on-demand resources, remove unused code and assets, audit third-party SDKs (often the biggest), strip debug symbols, consider `-Osize` where performance allows.",
+    "**Why size matters:** large downloads reduce install conversion, especially on cellular; there is a cellular download size prompt.",
+    "**Staff angle:** track download/install size per build (App Store Connect size reports, app thinning report) and fail CI on unexpected growth."
+  ],
+  "keyPoints": [
+    "Static = faster launch, stripped; dynamic = shareable with extensions, launch cost.",
+    "Default SPM packages to static; dynamic only for sharing with extensions.",
+    "Mergeable libraries give dynamic debug + static release.",
+    "Biggest size wins: assets, third-party SDKs, unused code.",
+    "Track size per build and alert on growth."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "SPM product types",
+      "text": "products: [\n    .library(name: \"DesignSystem\", targets: [\"DesignSystem\"]),          // automatic (usually static)\n    .library(name: \"SharedKit\", type: .dynamic, targets: [\"SharedKit\"]) // shared by app + extensions\n]"
+    }
+  ],
+  "followups": [
+    "**How do generics affect size?** Specialization creates copies of generic code per concrete type, which can grow the binary."
+  ],
+  "links": [
+    {
+      "label": "Reducing your app's size",
+      "url": "https://developer.apple.com/documentation/xcode/reducing-your-app-s-size"
+    },
+    {
+      "label": "Mergeable libraries",
+      "url": "https://developer.apple.com/documentation/xcode/configuring-your-project-to-use-mergeable-libraries"
+    }
+  ]
+}

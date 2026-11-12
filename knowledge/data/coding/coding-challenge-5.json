@@ -1,0 +1,28 @@
+{
+  "id": "group-anagrams",
+  "title": "Group Anagrams",
+  "difficulty": "Medium",
+  "tags": [
+    "hash map",
+    "sorting"
+  ],
+  "summary": "Group strings that are anagrams of each other.",
+  "approach": "Use a canonical key per word (sorted characters, or a 26-count signature) and bucket words in a dictionary.",
+  "complexity": "O(n * k log k) with sorted keys; O(n * k) with count keys",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func groupAnagrams(_ strs: [String]) -> [[String]] {\n    var groups: [[Int]: [String]] = [:]\n    for s in strs {\n        var key = [Int](repeating: 0, count: 26)\n        for b in s.utf8 { key[Int(b - 97)] += 1 }\n        groups[key, default: []].append(s)\n    }\n    return Array(groups.values)\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/group-anagrams/"
+    }
+  ],
+  "category": "arrays-hashing"
+}

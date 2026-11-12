@@ -1,0 +1,47 @@
+{
+  "id": "hangs-hitches",
+  "title": "Hangs and hitches (UI responsiveness)",
+  "category": "memory-performance",
+  "tags": [
+    "responsiveness",
+    "main thread",
+    "metrickit",
+    "scrolling"
+  ],
+  "summary": "A hang is when the app does not respond to touches for 250 ms or more. A hitch is a frame shown late, which looks like stutter. Both come from too much work on the main thread.",
+  "body": [
+    "**In simple words:** Hang = \"I tapped and nothing happened\". Hitch = \"scrolling is jerky\". Same root cause: the main thread is busy.",
+    "**Usual causes:** synchronous file, database or Keychain access on main; big JSON decoding on main; Core Data fetches on the main context; image decoding; heavy layout; main thread waiting on a lock held by a background thread; `DispatchQueue.main.sync` from background.",
+    "**Find in development:** Thread Performance Checker (Xcode warnings), Instruments (Hangs, Time Profiler, Animation Hitches).",
+    "**Find in production:** Xcode Organizer hang reports with stack traces, MetricKit `MXHangDiagnostic`, and hitch-rate metrics (ms of hitch per second of scrolling).",
+    "**Fix:** move work off main (async functions marked `@concurrent`, background contexts), precompute and cache formatted values, load data incrementally, avoid main waiting for low-priority work.",
+    "**Staff angle:** dashboards for hang rate and hitch rate per screen and release, owners per screen, alerts on regressions during phased rollout."
+  ],
+  "keyPoints": [
+    "Hang ≥ 250 ms unresponsive; hitch = late frame.",
+    "Root cause is main-thread work: I/O, decoding, heavy layout, lock contention.",
+    "Dev tools: Thread Performance Checker, Instruments. Field: Organizer, MetricKit.",
+    "Hitch rate = hitch time / scroll time; track per screen.",
+    "Fix by moving work off main and doing less per frame."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Collecting hang diagnostics with MetricKit",
+      "text": "final class Diagnostics: NSObject, MXMetricManagerSubscriber {\n    func start() { MXMetricManager.shared.add(self) }\n    func didReceive(_ payloads: [MXDiagnosticPayload]) {\n        for payload in payloads {\n            for hang in payload.hangDiagnostics ?? [] {\n                upload(hang.jsonRepresentation())     // includes the call stack\n            }\n        }\n    }\n}"
+    }
+  ],
+  "followups": [
+    "**User says \"the app freezes on the home screen sometimes\". How do you investigate?** Check Organizer hang reports for that screen, reproduce with Time Profiler, look for sync I/O or locks on main, fix, verify hang rate drops in the next release."
+  ],
+  "links": [
+    {
+      "label": "Improving app responsiveness",
+      "url": "https://developer.apple.com/documentation/xcode/improving-app-responsiveness"
+    },
+    {
+      "label": "MetricKit",
+      "url": "https://developer.apple.com/documentation/metrickit"
+    }
+  ]
+}

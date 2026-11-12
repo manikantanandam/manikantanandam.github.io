@@ -1,0 +1,53 @@
+{
+  "id": "init-properties",
+  "title": "Initializers and properties (lazy, computed, observers, wrappers)",
+  "category": "swift-language",
+  "tags": [
+    "init",
+    "properties",
+    "lazy",
+    "property wrapper"
+  ],
+  "summary": "Every stored property must have a value before an object is used. Swift gives several kinds of properties: stored, computed, lazy, with observers, or wrapped by a property wrapper.",
+  "body": [
+    "**In simple words:** An initializer (`init`) prepares a new value so that every property has a value. Swift refuses to compile code that could read an uninitialized property.",
+    "**Structs:** get a free memberwise init (`User(name:age:)`). **Classes:** have **designated** inits (fully set up this class and call `super.init`) and **convenience** inits (shortcuts that must call another init of the same class). A `required` init must be implemented by every subclass. A **failable** init (`init?`) returns `nil` when input is invalid.",
+    "**Two-phase init for classes:** phase 1 - every class in the chain sets its own stored properties (subclass first, then `super.init`). Phase 2 - now `self` is fully ready and methods can be called. This is why you cannot call `self.method()` before `super.init`.",
+    "**Kinds of properties:** stored (`var name`), computed (`var fullName: String { first + \" \" + last }` - calculated on every read, no storage), `lazy var` (calculated on first use, good for expensive setup; not thread-safe), observers (`willSet`/`didSet` run when the value changes), and `static` (one per type, lazily created and thread-safe).",
+    "**Property wrappers** move repeated get/set logic into a reusable type: `@Published`, `@AppStorage`, `@State` are all property wrappers. You can write your own, e.g. `@Clamped(0...100) var volume`."
+  ],
+  "keyPoints": [
+    "All stored properties must be set before use; Swift enforces it at compile time.",
+    "Designated inits call `super.init`; convenience inits call `self.init`.",
+    "Two-phase init: set own properties, call super, then use `self`.",
+    "`lazy` = computed once on first access; computed = every access; `static let` = lazily created once and thread-safe (good for singletons).",
+    "Property wrappers package reusable property behavior (`wrappedValue`, `projectedValue` accessed with `$`)."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Failable init, lazy, observers and a property wrapper",
+      "text": "struct Email {\n    let value: String\n    init?(_ raw: String) {                 // failable\n        guard raw.contains(\"@\") else { return nil }\n        value = raw\n    }\n}\n\nfinal class ProfileViewController: UIViewController {\n    lazy var formatter = DateFormatter()   // created on first use\n    var name = \"\" {\n        didSet { titleLabel.text = name }  // runs after change\n    }\n}\n\n@propertyWrapper\nstruct Clamped<V: Comparable> {\n    private var value: V\n    let range: ClosedRange<V>\n    init(wrappedValue: V, _ range: ClosedRange<V>) {\n        self.range = range\n        value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n    var wrappedValue: V {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n}\n\nstruct Player { @Clamped(0...100) var volume = 50 }"
+    }
+  ],
+  "mistakes": [
+    "Expecting `didSet` to run during `init` - it does not for the class's own properties.",
+    "Using `lazy var` from several threads at once - it can initialize twice.",
+    "Doing heavy work in a computed property that is read many times (e.g. inside SwiftUI `body`)."
+  ],
+  "followups": [
+    "**Why must a subclass call `super.init`?** So the parent's stored properties get set up (phase 1).",
+    "**Can a struct have a convenience init?** No keyword needed; add extra inits in an extension to keep the free memberwise init.",
+    "**What is `$` on a property wrapper?** The `projectedValue`, e.g. `$text` is a `Binding` for `@State`."
+  ],
+  "links": [
+    {
+      "label": "Swift book: Initialization",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/initialization/"
+    },
+    {
+      "label": "Swift book: Properties",
+      "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/properties/"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "longest-substring-without-repeating-characters",
+  "title": "Longest Substring Without Repeating Characters",
+  "difficulty": "Medium",
+  "tags": [
+    "sliding window",
+    "hash map"
+  ],
+  "summary": "Length of the longest substring with all distinct characters.",
+  "approach": "Keep the last index of each character; when a repeat is inside the window, jump the left edge past it.",
+  "complexity": "O(n) time, O(k) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func lengthOfLongestSubstring(_ s: String) -> Int {\n    var last: [Character: Int] = [:]\n    var left = 0, best = 0\n    for (i, c) in s.enumerated() {\n        if let j = last[c], j >= left { left = j + 1 }\n        last[c] = i\n        best = max(best, i - left + 1)\n    }\n    return best\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/longest-substring-without-repeating-characters/"
+    }
+  ],
+  "category": "sliding-window"
+}

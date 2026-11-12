@@ -1,0 +1,27 @@
+{
+  "id": "rotting-oranges",
+  "title": "Rotting Oranges",
+  "difficulty": "Medium",
+  "tags": [
+    "multi-source bfs"
+  ],
+  "summary": "Minutes until all oranges rot, or -1.",
+  "approach": "Multi-source BFS from every rotten orange at once; count levels; check if fresh ones remain.",
+  "complexity": "O(rows * cols) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func orangesRotting(_ grid: [[Int]]) -> Int {\n    var g = grid, queue: [(Int, Int)] = [], fresh = 0\n    for r in g.indices { for c in g[0].indices {\n        if g[r][c] == 2 { queue.append((r, c)) } else if g[r][c] == 1 { fresh += 1 }\n    } }\n    var minutes = 0\n    while !queue.isEmpty && fresh > 0 {\n        var next: [(Int, Int)] = []\n        for (r, c) in queue {\n            for (nr, nc) in [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]\n            where nr >= 0 && nr < g.count && nc >= 0 && nc < g[0].count && g[nr][nc] == 1 {\n                g[nr][nc] = 2; fresh -= 1; next.append((nr, nc))\n            }\n        }\n        queue = next; minutes += 1\n    }\n    return fresh == 0 ? minutes : -1\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/rotting-oranges/"
+    }
+  ],
+  "category": "graphs"
+}

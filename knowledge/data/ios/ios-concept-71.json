@@ -1,0 +1,53 @@
+{
+  "id": "accessibility",
+  "title": "Accessibility (VoiceOver, Dynamic Type)",
+  "category": "ui-quality",
+  "tags": [
+    "accessibility",
+    "voiceover",
+    "dynamic type",
+    "a11y"
+  ],
+  "summary": "Accessibility means everyone can use your app: blind users with VoiceOver, people who need larger text (Dynamic Type), reduced motion, sufficient contrast. It is also a legal and App Store quality expectation.",
+  "body": [
+    "**In simple words:** VoiceOver reads the screen aloud and users navigate by swiping. Each element needs a good **label** (what it is), **value** (current state), **hint** (what happens) and **traits** (button, header, selected).",
+    "**VoiceOver basics:** standard controls are accessible by default. Custom views need `isAccessibilityElement = true` and labels. Icon-only buttons must have a label (\"Delete\", not \"trash.fill\"). Group related elements (a cell with title, price, rating) into one element with a combined label. Hide decorative images.",
+    "**Dynamic Type:** use text styles (`.body`, `.headline`, `UIFont.preferredFont(forTextStyle:)`) so text grows with the user's setting. Layout must adapt: allow multi-line labels, switch horizontal layouts to vertical at accessibility sizes, use scroll views.",
+    "**Other settings:** Reduce Motion (tone down animations), Reduce Transparency, Increase Contrast, Bold Text, Smart Invert. Colour contrast at least 4.5:1 for text; never use colour alone to convey meaning. Tap targets at least 44×44 pt.",
+    "**Testing:** Accessibility Inspector (audit), turn VoiceOver on and use the app, Xcode Previews with large Dynamic Type, automated `XCUIApplication().performAccessibilityAudit()` in UI tests.",
+    "**Staff angle:** build accessibility into design-system components so every feature gets it for free, add audits to CI, and include it in the definition of done."
+  ],
+  "keyPoints": [
+    "VoiceOver needs labels, values, hints and traits; group related content.",
+    "Dynamic Type via text styles; layouts must adapt to large sizes.",
+    "Respect Reduce Motion and contrast settings; 44×44 pt tap targets.",
+    "Test with Accessibility Inspector, real VoiceOver, and automated audits.",
+    "Solve it once in the design system."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "SwiftUI and UIKit examples",
+      "text": "// SwiftUI\nHStack {\n    Image(systemName: \"star.fill\").accessibilityHidden(true)    // decorative\n    Text(product.name)\n    Text(product.price)\n}\n.accessibilityElement(children: .combine)                        // one element\n.accessibilityHint(\"Opens product details\")\n\nButton(action: delete) { Image(systemName: \"trash\") }\n    .accessibilityLabel(\"Delete\")\n\n// UIKit\ntitleLabel.font = .preferredFont(forTextStyle: .headline)\ntitleLabel.adjustsFontForContentSizeCategory = true\ntitleLabel.numberOfLines = 0\n\n// UI test\nfunc testAccessibility() throws {\n    let app = XCUIApplication(); app.launch()\n    try app.performAccessibilityAudit()\n}"
+    }
+  ],
+  "mistakes": [
+    "Icon-only buttons without labels (VoiceOver says \"button\").",
+    "Fixed font sizes and fixed-height containers that clip large text.",
+    "Treating accessibility as a final QA step."
+  ],
+  "followups": [
+    "**How do you make a custom slider accessible?** Mark it as an element with `.adjustable` trait and implement `accessibilityIncrement/Decrement` (SwiftUI: `accessibilityAdjustableAction`).",
+    "**What is the accessibility rotor?** A VoiceOver feature to jump between headings, links, etc. Mark section titles with the header trait."
+  ],
+  "links": [
+    {
+      "label": "Accessibility for UIKit / SwiftUI",
+      "url": "https://developer.apple.com/documentation/accessibility"
+    },
+    {
+      "label": "HIG: Accessibility",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility"
+    }
+  ]
+}

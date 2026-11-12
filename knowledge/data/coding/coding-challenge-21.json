@@ -1,0 +1,27 @@
+{
+  "id": "sliding-window-maximum",
+  "title": "Sliding Window Maximum",
+  "difficulty": "Hard",
+  "tags": [
+    "monotonic deque"
+  ],
+  "summary": "Maximum of every window of size k.",
+  "approach": "Monotonic decreasing deque of indices: drop smaller values from the back, drop out-of-window indices from the front; the front is the max.",
+  "complexity": "O(n) time, O(k) space",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func maxSlidingWindow(_ nums: [Int], _ k: Int) -> [Int] {\n    var deque: [Int] = []   // indices; use a head pointer for O(1) pops\n    var head = 0, result: [Int] = []\n    for i in nums.indices {\n        while deque.count > head && nums[deque.last!] <= nums[i] { deque.removeLast() }\n        deque.append(i)\n        if deque[head] <= i - k { head += 1 }\n        if i >= k - 1 { result.append(nums[deque[head]]) }\n    }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/sliding-window-maximum/"
+    }
+  ],
+  "category": "sliding-window"
+}

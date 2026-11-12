@@ -1,0 +1,56 @@
+{
+  "id": "persistence-choices",
+  "title": "Choosing storage: UserDefaults, files, Keychain, SwiftData, Core Data, SQLite",
+  "category": "persistence",
+  "tags": [
+    "swiftdata",
+    "core data",
+    "sqlite",
+    "userdefaults",
+    "storage"
+  ],
+  "summary": "Pick storage by what you save: small settings → UserDefaults; secrets → Keychain; images and blobs → files; searchable related records → SwiftData / Core Data / SQLite.",
+  "body": [
+    "**UserDefaults:** tiny key-value settings (theme, \"onboarding seen\"). Loaded into memory at launch - never store big data or secrets here.",
+    "**Keychain:** passwords, tokens, keys. Encrypted by the system, survives app reinstall.",
+    "**Files:** images, downloads, JSON caches. `Caches/` can be deleted by the system when space is low; `Application Support/` is kept and backed up (exclude big re-downloadable files from backup). Write atomically.",
+    "**SwiftData (iOS 17+):** `@Model` classes, `@Query` in SwiftUI, background work with `@ModelActor`. Easiest for new apps; less control for complex migrations and very large data.",
+    "**Core Data:** mature object graph framework - faulting (loads objects lazily), batch operations, CloudKit sync, migrations, history tracking. More code but more control.",
+    "**SQLite (often via GRDB):** plain SQL tables, predictable performance, full-text search; good for sync engines. You write more code.",
+    "**Data protection:** files can be encrypted until the user unlocks the device. The default (`completeUntilFirstUserAuthentication`) is readable after first unlock; `.complete` is safer but unreadable in background while locked.",
+    "**Offline-first:** treat the local database as the source of truth for the UI and sync with the server in the background (see System Design: \"Offline-first sync\")."
+  ],
+  "keyPoints": [
+    "UserDefaults = small settings; Keychain = secrets; files = blobs; DB = structured, queryable data.",
+    "SwiftData for new SwiftUI apps; Core Data for mature/complex needs; SQLite/GRDB for full control.",
+    "`Caches/` is purgeable; `Application Support/` persists.",
+    "Choose a data-protection class that matches background access needs.",
+    "Test migrations with real old stores from every shipped version."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "SwiftData model and background import",
+      "text": "@Model final class Note {\n    @Attribute(.unique) var id: UUID\n    var text: String\n    var updatedAt: Date\n    init(id: UUID = UUID(), text: String) { self.id = id; self.text = text; updatedAt = .now }\n}\n\n@ModelActor\nactor NoteImporter {\n    func importNotes(_ dtos: [NoteDTO]) throws {\n        for dto in dtos { modelContext.insert(Note(id: dto.id, text: dto.text)) }\n        try modelContext.save()\n    }\n}\n\nstruct NotesView: View {\n    @Query(sort: \\Note.updatedAt, order: .reverse) var notes: [Note]\n    var body: some View { List(notes) { Text($0.text) } }\n}"
+    }
+  ],
+  "mistakes": [
+    "Storing tokens in UserDefaults (plain text in a plist).",
+    "Storing large arrays/images in UserDefaults (slows launch).",
+    "Doing big database work on the main context."
+  ],
+  "followups": [
+    "**How do you handle a corrupt database?** Detect on open, move the file aside, recreate, resync from server, report the event.",
+    "**How do you share data with a widget?** App Group container (shared files, `UserDefaults(suiteName:)`, or a shared database)."
+  ],
+  "links": [
+    {
+      "label": "SwiftData",
+      "url": "https://developer.apple.com/documentation/swiftdata"
+    },
+    {
+      "label": "GRDB",
+      "url": "https://github.com/groue/GRDB.swift"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "localization",
+  "title": "Localization and internationalization",
+  "category": "ui-quality",
+  "tags": [
+    "localization",
+    "i18n",
+    "string catalog",
+    "rtl"
+  ],
+  "summary": "Internationalization (i18n) is making the app ready for any language and region; localization (l10n) is adding the actual translations. Use String Catalogs, system formatters and layouts that work right-to-left.",
+  "body": [
+    "**In simple words:** Never hard-code user-facing text, dates, numbers or currencies. Let the system format them for the user's language and region.",
+    "**Strings:** String Catalogs (`.xcstrings`, Xcode 15+) collect strings automatically from `Text(\"Hello\")` and `String(localized:)`, and track what is translated. Add a **comment** to give translators context.",
+    "**Plurals:** \"1 item\" vs \"5 items\" - languages have different plural rules (Arabic has six forms). Use plural variations in the String Catalog, never `count == 1 ? \"item\" : \"items\"`.",
+    "**Formatting:** `Date.formatted()`, `number.formatted(.currency(code: \"INR\"))`, `Measurement`, `PersonNameComponents`. The same date prints as 13/11/2026 in India and 11/13/2026 in the US.",
+    "**Right-to-left (Arabic, Hebrew):** use leading/trailing instead of left/right; SwiftUI and Auto Layout flip automatically. Flip directional icons. Test with the \"Right-to-Left Pseudolanguage\" scheme option.",
+    "**Text length:** German can be 30-40% longer than English. Avoid fixed widths; test with the double-length pseudolanguage.",
+    "**Server content:** send `Accept-Language`, and decide which strings come from the server already localized."
+  ],
+  "keyPoints": [
+    "i18n = make it possible; l10n = translate. Do i18n from day one.",
+    "String Catalogs with translator comments; plural variations instead of if/else.",
+    "Always use system formatters for dates, numbers, currency.",
+    "Leading/trailing layout for RTL; test with pseudolanguages.",
+    "Leave room for longer text."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Localized text and formatting",
+      "text": "Text(\"Welcome back, \\(user.name)\")          // picked up by the String Catalog\n\nlet title = String(localized: \"cart.title\",\n                   defaultValue: \"Your cart\",\n                   comment: \"Title of the shopping cart screen\")\n\nText(\"\\(count) items in cart\")              // plural variants defined in the catalog\n\nlet price = 1499.0.formatted(.currency(code: \"INR\"))   // ₹1,499.00 in en-IN\nlet date = order.date.formatted(date: .abbreviated, time: .shortened)"
+    }
+  ],
+  "mistakes": [
+    "Concatenating translated fragments (\"You have\" + n + \"messages\") - word order differs by language.",
+    "Using `.left`/`.right` alignment and constraints.",
+    "Formatting dates with a fixed `dateFormat` string for display."
+  ],
+  "followups": [
+    "**How do you test without translations?** Pseudolanguages (double length, RTL, accented) from the scheme options.",
+    "**What is `Locale` vs language?** Language = translation; locale/region = formats (dates, currency, units). A user can have English language with Indian region."
+  ],
+  "links": [
+    {
+      "label": "Localization",
+      "url": "https://developer.apple.com/documentation/xcode/localization"
+    }
+  ]
+}

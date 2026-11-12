@@ -1,0 +1,27 @@
+{
+  "id": "binary-tree-maximum-path-sum",
+  "title": "Binary Tree Maximum Path Sum",
+  "difficulty": "Hard",
+  "tags": [
+    "dfs"
+  ],
+  "summary": "Maximum sum of any path (any node to any node).",
+  "approach": "Each node returns the best downward path (ignoring negative branches); the best path through the node is val + left + right.",
+  "complexity": "O(n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "// final class TreeNode { var val: Int; var left, right: TreeNode?; init(_ v: Int) { val = v } }\nfunc maxPathSum(_ root: TreeNode?) -> Int {\n    var best = Int.min\n    func gain(_ node: TreeNode?) -> Int {\n        guard let node else { return 0 }\n        let l = max(0, gain(node.left)), r = max(0, gain(node.right))\n        best = max(best, node.val + l + r)\n        return node.val + max(l, r)\n    }\n    _ = gain(root)\n    return best\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/binary-tree-maximum-path-sum/"
+    }
+  ],
+  "category": "trees"
+}

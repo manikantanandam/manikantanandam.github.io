@@ -1,0 +1,140 @@
+{
+  "title": "iOS Knowledge",
+  "intro": "Plain-English iOS notes for staff-level interview prep and quick revision. Each topic gives the idea in one line, a simple explanation (often with an analogy), what to say in the interview, a small code example, common mistakes and likely follow-up questions. Topics run from Swift basics to concurrency, SwiftUI/UIKit, performance, architecture, platform, security, release engineering and the staff engineer playbook.",
+  "categories": [
+    {
+      "id": "swift-language",
+      "title": "Swift language"
+    },
+    {
+      "id": "concurrency",
+      "title": "Concurrency"
+    },
+    {
+      "id": "swiftui",
+      "title": "SwiftUI"
+    },
+    {
+      "id": "uikit-runtime",
+      "title": "UIKit, rendering and runtime"
+    },
+    {
+      "id": "memory-performance",
+      "title": "Memory and performance"
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture and design patterns"
+    },
+    {
+      "id": "persistence",
+      "title": "Persistence"
+    },
+    {
+      "id": "networking",
+      "title": "Networking"
+    },
+    {
+      "id": "app-platform",
+      "title": "App lifecycle and platform"
+    },
+    {
+      "id": "ui-quality",
+      "title": "Accessibility and localization"
+    },
+    {
+      "id": "security-privacy",
+      "title": "Security and privacy"
+    },
+    {
+      "id": "testing-release",
+      "title": "Testing, debugging and release"
+    },
+    {
+      "id": "staff",
+      "title": "Staff engineer playbook"
+    },
+    {
+      "id": "whats-new",
+      "title": "What's new (Swift 6.x, iOS 26/27)"
+    }
+  ],
+  "entries": [
+    "ios-concept-51.json",
+    "ios-concept-2.json",
+    "ios-concept-5.json",
+    "ios-concept-1.json",
+    "ios-concept-11.json",
+    "ios-concept-55.json",
+    "ios-concept-52.json",
+    "ios-concept-53.json",
+    "ios-concept-6.json",
+    "ios-concept-7.json",
+    "ios-concept-9.json",
+    "ios-concept-54.json",
+    "ios-concept-8.json",
+    "ios-concept-10.json",
+    "ios-concept-17.json",
+    "ios-concept-3.json",
+    "ios-concept-56.json",
+    "ios-concept-12.json",
+    "ios-concept-13.json",
+    "ios-concept-14.json",
+    "ios-concept-57.json",
+    "ios-concept-18.json",
+    "ios-concept-58.json",
+    "ios-concept-16.json",
+    "ios-concept-15.json",
+    "ios-concept-59.json",
+    "ios-concept-4.json",
+    "ios-concept-19.json",
+    "ios-concept-60.json",
+    "ios-concept-20.json",
+    "ios-concept-22.json",
+    "ios-concept-23.json",
+    "ios-concept-21.json",
+    "ios-concept-24.json",
+    "ios-concept-26.json",
+    "ios-concept-61.json",
+    "ios-concept-28.json",
+    "ios-concept-25.json",
+    "ios-concept-27.json",
+    "ios-concept-62.json",
+    "ios-concept-29.json",
+    "ios-concept-32.json",
+    "ios-concept-66.json",
+    "ios-concept-30.json",
+    "ios-concept-31.json",
+    "ios-concept-33.json",
+    "ios-concept-34.json",
+    "ios-concept-63.json",
+    "ios-concept-64.json",
+    "ios-concept-65.json",
+    "ios-concept-35.json",
+    "ios-concept-36.json",
+    "ios-concept-37.json",
+    "ios-concept-38.json",
+    "ios-concept-39.json",
+    "ios-concept-40.json",
+    "ios-concept-41.json",
+    "ios-concept-42.json",
+    "ios-concept-43.json",
+    "ios-concept-73.json",
+    "ios-concept-44.json",
+    "ios-concept-74.json",
+    "ios-concept-71.json",
+    "ios-concept-72.json",
+    "ios-concept-45.json",
+    "ios-concept-46.json",
+    "ios-concept-47.json",
+    "ios-concept-67.json",
+    "ios-concept-68.json",
+    "ios-concept-69.json",
+    "ios-concept-70.json",
+    "ios-concept-48.json",
+    "ios-concept-75.json",
+    "ios-concept-76.json",
+    "ios-concept-49.json",
+    "ios-concept-50.json"
+  ]
+}

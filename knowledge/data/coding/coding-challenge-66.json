@@ -1,0 +1,27 @@
+{
+  "id": "gas-station",
+  "title": "Gas Station",
+  "difficulty": "Medium",
+  "tags": [
+    "greedy"
+  ],
+  "summary": "Find the start station to complete a circuit, or -1.",
+  "approach": "If total gas < total cost, impossible. Otherwise reset the start whenever the running tank goes negative.",
+  "complexity": "O(n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func canCompleteCircuit(_ gas: [Int], _ cost: [Int]) -> Int {\n    var total = 0, tank = 0, start = 0\n    for i in gas.indices {\n        let diff = gas[i] - cost[i]\n        total += diff; tank += diff\n        if tank < 0 { start = i + 1; tank = 0 }\n    }\n    return total >= 0 ? start : -1\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/gas-station/"
+    }
+  ],
+  "category": "greedy"
+}

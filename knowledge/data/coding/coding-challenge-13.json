@@ -1,0 +1,28 @@
+{
+  "id": "three-sum",
+  "title": "3Sum",
+  "difficulty": "Medium",
+  "tags": [
+    "sorting",
+    "two pointers"
+  ],
+  "summary": "Find all unique triplets that sum to zero.",
+  "approach": "Sort. For each i (skipping duplicate values), run two pointers on the rest; skip duplicates after a match.",
+  "complexity": "O(n^2) time, O(1) extra space besides sorting",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func threeSum(_ nums: [Int]) -> [[Int]] {\n    let a = nums.sorted()\n    var result: [[Int]] = []\n    for i in a.indices where a[i] <= 0 {\n        if i > 0 && a[i] == a[i - 1] { continue }\n        var l = i + 1, r = a.count - 1\n        while l < r {\n            let s = a[i] + a[l] + a[r]\n            if s < 0 { l += 1 }\n            else if s > 0 { r -= 1 }\n            else {\n                result.append([a[i], a[l], a[r]])\n                l += 1; r -= 1\n                while l < r && a[l] == a[l - 1] { l += 1 }\n            }\n        }\n    }\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/3sum/"
+    }
+  ],
+  "category": "two-pointers"
+}

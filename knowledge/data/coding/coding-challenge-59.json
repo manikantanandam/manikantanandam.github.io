@@ -1,0 +1,30 @@
+{
+  "id": "find-median-from-data-stream",
+  "title": "Find Median from Data Stream",
+  "difficulty": "Hard",
+  "tags": [
+    "two heaps",
+    "design"
+  ],
+  "summary": "Add numbers and query the running median.",
+  "approach": "Max-heap for the lower half, min-heap for the upper half; keep sizes balanced (lower may have one extra).",
+  "complexity": "add O(log n), median O(1)",
+  "body": [
+    "iOS link: rolling p50 of network latency in an on-device metrics SDK (or approximate with a t-digest when memory is bounded)."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "struct MedianFinder {\n    private var low = Heap<Int>(>)    // max-heap\n    private var high = Heap<Int>(<)   // min-heap\n\n    mutating func addNum(_ num: Int) {\n        low.push(num)\n        high.push(low.pop()!)\n        if high.count > low.count { low.push(high.pop()!) }\n    }\n    func findMedian() -> Double {\n        low.count > high.count ? Double(low.top!) : Double(low.top! + high.top!) / 2\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/find-median-from-data-stream/"
+    }
+  ],
+  "category": "heap"
+}

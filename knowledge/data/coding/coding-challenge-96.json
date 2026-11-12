@@ -1,0 +1,27 @@
+{
+  "id": "debounce-throttle",
+  "title": "Debounce and throttle",
+  "difficulty": "Medium",
+  "tags": [
+    "concurrency",
+    "search",
+    "timing"
+  ],
+  "summary": "Implement debounce (run after input stops for an interval) and throttle (run at most once per interval) for search-as-you-type.",
+  "approach": "Debounce: cancel the previous pending `Task` and start a new one that sleeps then runs. Throttle: remember the last fire time and drop calls inside the window.",
+  "complexity": "O(1) per call",
+  "body": [
+    "SwiftUI shortcut: `.task(id: query) { try? await Task.sleep(for: .milliseconds(300)); await search(query) }` debounces because changing `id` cancels the previous task.",
+    "Also cancel the in-flight network request so stale results never overwrite newer ones."
+  ],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "@MainActor\nfinal class Debouncer {\n    private var task: Task<Void, Never>?\n    private let delay: Duration\n    init(delay: Duration) { self.delay = delay }\n\n    func callAsFunction(_ action: @escaping @MainActor () async -> Void) {\n        task?.cancel()\n        task = Task {\n            try? await Task.sleep(for: delay)\n            guard !Task.isCancelled else { return }\n            await action()\n        }\n    }\n}\n\n@MainActor\nfinal class Throttler {\n    private var last: ContinuousClock.Instant?\n    private let interval: Duration\n    init(interval: Duration) { self.interval = interval }\n\n    func callAsFunction(_ action: () -> Void) {\n        let now = ContinuousClock.now\n        if let last, now - last < interval { return }\n        last = now\n        action()\n    }\n}\n\n// usage: debounce(searchQuery) { await viewModel.search(query) }"
+    }
+  ],
+  "links": [],
+  "category": "ios-practical"
+}

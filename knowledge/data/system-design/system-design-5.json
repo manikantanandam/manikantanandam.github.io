@@ -1,0 +1,40 @@
+{
+  "id": "pagination",
+  "title": "Pagination and infinite scroll",
+  "tags": [
+    "pagination",
+    "feeds",
+    "api"
+  ],
+  "summary": "Use cursor-based pagination for feeds that change while you scroll; offset pagination skips or duplicates items when new ones are inserted. Prefetch ahead and dedupe by ID on the client.",
+  "requirements": [
+    "Smooth infinite scroll with no duplicates or gaps while new items arrive.",
+    "Pull to refresh for newer items; resume from cache on relaunch."
+  ],
+  "components": [
+    "API: `GET /feed?after=<cursor>&limit=20` returns items + `nextCursor` (+ `hasMore`)",
+    "Client paginator: state machine (idle, loading, error, exhausted) per direction",
+    "Prefetch trigger when the user is N items from the end",
+    "Local cache of pages keyed by feed + cursor"
+  ],
+  "tradeoffs": [
+    "Offset/limit is simple and supports jumping to page N, but is unstable for live data and slow for deep pages on the server.",
+    "Cursor (opaque, encodes sort key + id) is stable and efficient; cannot jump to arbitrary pages.",
+    "Bigger pages mean fewer requests but slower first paint and more wasted data."
+  ],
+  "body": [
+    "**Gaps:** when refreshing the top after being away, the server may return a page that does not connect to cached items. Detect (last new item not in cache) and show a 'load more' gap marker or drop the stale cache.",
+    "**Dedup:** merge by stable ID; diffable data sources make updates animate correctly.",
+    "**Errors:** keep loaded items, show inline retry at the bottom; never block the whole list.",
+    "**Performance:** cap items in memory for very long sessions (window the list), prefetch images for upcoming cells."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Paginator state",
+      "text": "@Observable @MainActor\nfinal class Paginator<Item: Identifiable & Sendable> {\n    private(set) var items: [Item] = []\n    private(set) var isLoading = false\n    private(set) var error: Error?\n    private var cursor: String?\n    private var hasMore = true\n    private let fetch: (String?) async throws -> (items: [Item], next: String?)\n\n    init(fetch: @escaping (String?) async throws -> (items: [Item], next: String?)) { self.fetch = fetch }\n\n    func loadMoreIfNeeded(current: Item) async {\n        guard hasMore, !isLoading,\n              let idx = items.firstIndex(where: { $0.id == current.id }),\n              idx >= items.count - 5 else { return }\n        isLoading = true; defer { isLoading = false }\n        do {\n            let page = try await fetch(cursor)\n            let known = Set(items.map(\\.id))\n            items += page.items.filter { !known.contains($0.id) }\n            cursor = page.next; hasMore = page.next != nil; error = nil\n        } catch { self.error = error }\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "fundamentals"
+}

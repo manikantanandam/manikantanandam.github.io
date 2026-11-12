@@ -1,0 +1,57 @@
+{
+  "id": "offline-first-sync",
+  "title": "Offline-first sync and conflict resolution",
+  "tags": [
+    "offline",
+    "sync",
+    "conflicts",
+    "crdt"
+  ],
+  "summary": "Make the local database the source of truth for the UI, queue mutations in an outbox, sync deltas with a server cursor, and resolve conflicts with an explicit policy (last-writer-wins, field-level merge, or CRDTs).",
+  "requirements": [
+    "App fully usable offline for reads and writes; changes sync when back online.",
+    "Same user on multiple devices; edits may conflict.",
+    "No lost writes; idempotent replay; bounded battery and data usage."
+  ],
+  "components": [
+    "Local DB (SQLite/SwiftData) observed by the UI",
+    "Outbox table of pending mutations with client-generated IDs and idempotency keys",
+    "Sync engine: push outbox, pull changes since cursor, apply in a transaction",
+    "Server change log with monotonically increasing sequence numbers (the cursor)",
+    "Triggers: app foreground, connectivity change (NWPathMonitor), silent push, BGAppRefresh"
+  ],
+  "tradeoffs": [
+    "Last-writer-wins (by server timestamp) is simple but silently drops concurrent edits.",
+    "Field-level merge keeps non-overlapping edits; true conflicts still need a rule or user prompt.",
+    "CRDTs (e.g. for text or lists) merge automatically without coordination but add metadata size and complexity.",
+    "Operation-based sync (send intents like 'add item') merges better than state-based (send whole objects) but needs server logic per operation.",
+    "Full resync is a safe fallback when the cursor is too old or the schema changed, but costs data."
+  ],
+  "body": [
+    "**Write path:** UI writes to the local DB and the outbox in one transaction (optimistic update). The sync engine sends outbox entries in order with idempotency keys; on success marks them done and stores server versions; on permanent failure (validation), rolls back the local change and informs the user.",
+    "**Read path:** `GET /changes?cursor=X` returns upserts and tombstones (deletes) plus a new cursor. Apply in a transaction, skipping entities with pending local mutations or rebasing those mutations on top.",
+    "**Conflict detection:** each entity carries a version (server-incremented). The client sends `baseVersion`; the server rejects or merges if the current version differs.",
+    "**IDs:** client-generated UUIDs (or UUIDv7 for ordering) avoid temp-ID remapping.",
+    "**Edge cases:** clock skew (never trust device time for ordering), app killed mid-sync (transactions + idempotency), schema migration while outbox has old-format entries, user logs out with unsynced changes (warn), very long offline periods (cursor expired → full resync).",
+    "**Apple stack option:** CloudKit with `CKSyncEngine` (iOS 17) handles change tokens, batching and scheduling; you still define conflict resolution.",
+    "**Staff angle:** sync is a platform used by many features. Provide a generic engine with per-entity conflict policies, metrics (outbox depth, sync latency, conflict rate), and a debug screen."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Outbox entry and sync loop sketch",
+      "text": "struct Mutation: Codable, Sendable {\n    let id: UUID                 // idempotency key\n    let entity: String\n    let entityID: UUID\n    let op: Op                   // .upsert(fields) / .delete\n    let baseVersion: Int?\n    let createdAt: Date\n}\n\nactor SyncEngine {\n    func sync() async throws {\n        for m in try store.pendingMutations() {          // ordered\n            switch try await api.push(m) {\n            case .applied(let version): try store.markSynced(m, version: version)\n            case .conflict(let server): try store.resolve(m, server: server, policy: policy(for: m.entity))\n            case .rejected(let reason): try store.rollback(m, reason: reason)\n            }\n        }\n        let page = try await api.changes(since: store.cursor)\n        try store.apply(page.changes, newCursor: page.cursor)   // one transaction\n    }\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "CKSyncEngine",
+      "url": "https://developer.apple.com/documentation/cloudkit/cksyncengine"
+    },
+    {
+      "label": "Local-first software (Ink & Switch)",
+      "url": "https://www.inkandswitch.com/local-first/"
+    }
+  ],
+  "category": "fundamentals"
+}

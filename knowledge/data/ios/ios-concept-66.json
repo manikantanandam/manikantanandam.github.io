@@ -1,0 +1,48 @@
+{
+  "id": "image-loading",
+  "title": "Image loading and caching",
+  "category": "memory-performance",
+  "tags": [
+    "images",
+    "cache",
+    "nscache",
+    "downsampling"
+  ],
+  "summary": "A good image loader checks memory cache, then disk cache, then network; decodes and downsamples off the main thread; dedupes duplicate requests; and cancels loads for cells that scroll away.",
+  "body": [
+    "**In simple words:** Images are the heaviest thing in most apps. Loading them well means: do not download twice, do not decode on main, do not keep huge bitmaps in memory, and do not waste work on cells already off screen.",
+    "**The pipeline:** request(url, targetSize) → memory cache (decoded, ready to draw) → disk cache (compressed file) → network download → decode + downsample on a background thread → store in both caches → set on the view if it still wants this URL.",
+    "**Two cache levels:** memory cache (`NSCache` with a cost limit, cleared under pressure) holds decoded images for instant display. Disk cache (files in `Caches/`, LRU eviction by size/age) avoids re-downloading. `URLCache` can also serve as an HTTP-level disk cache if the server sends cache headers.",
+    "**Dedupe and cancel:** if 3 cells ask for the same URL, run one download and share it. When a cell is reused, cancel its previous request so it does not show the wrong image.",
+    "**Prefetch:** start loads for rows about to appear (`prefetchItemsAt`), cancel when they no longer will.",
+    "**Libraries:** Kingfisher, Nuke, SDWebImage do all this. In an interview, explain the design even if you would use a library. See also the System Design page \"Image loading library\"."
+  ],
+  "keyPoints": [
+    "Memory cache (decoded, NSCache) → disk cache (compressed) → network.",
+    "Decode and downsample off main to the displayed pixel size.",
+    "Deduplicate in-flight requests; cancel on cell reuse.",
+    "Prefetch upcoming rows; respect Low Data Mode for large images.",
+    "Key cache by URL + target size so thumbnails and full images do not clash."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Minimal async image loader",
+      "text": "actor ImageLoader {\n    private let memory = NSCache<NSString, UIImage>()\n    private var inFlight: [String: Task<UIImage, Error>] = [:]\n\n    func image(_ url: URL, size: CGSize, scale: CGFloat) async throws -> UIImage {\n        let key = \"\\(url.absoluteString)@\\(Int(size.width))x\\(Int(size.height))\" as NSString\n        if let cached = memory.object(forKey: key) { return cached }\n        if let task = inFlight[key as String] { return try await task.value }\n\n        let task = Task.detached(priority: .userInitiated) {\n            let (data, _) = try await URLSession.shared.data(from: url)   // URLCache = disk cache\n            guard let img = downsample(data, to: size, scale: scale) else { throw URLError(.cannotDecodeContentData) }\n            return img\n        }\n        inFlight[key as String] = task\n        defer { inFlight[key as String] = nil }\n        let image = try await task.value\n        memory.setObject(image, forKey: key)\n        return image\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Decoding images on the main thread in `cellForRowAt`.",
+    "Not cancelling loads on reuse, causing flicker and wrong images."
+  ],
+  "followups": [
+    "**How would you size the memory cache?** As a cost in bytes of decoded pixels (e.g. 10-20% of available memory), not as an item count.",
+    "**What format would you request?** Server-resized images in modern formats (HEIC/WebP/AVIF) at the needed size; this saves bandwidth and decode time."
+  ],
+  "links": [
+    {
+      "label": "Nuke (open source image pipeline)",
+      "url": "https://github.com/kean/Nuke"
+    }
+  ]
+}

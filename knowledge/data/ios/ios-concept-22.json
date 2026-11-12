@@ -1,0 +1,48 @@
+{
+  "id": "swiftui-layout",
+  "title": "SwiftUI layout system",
+  "category": "swiftui",
+  "tags": [
+    "swiftui",
+    "layout",
+    "stacks",
+    "geometryreader"
+  ],
+  "summary": "Layout in SwiftUI is a conversation: the parent proposes a size, the child picks its own size, then the parent places the child. Everything else follows from this rule.",
+  "body": [
+    "**In simple words:** (1) Parent says \"you can have up to this much space\". (2) Child decides how big it actually wants to be. (3) Parent positions it. A child can ignore the offer - `Text` only takes what its words need.",
+    "**Flexible vs fixed views:** `Text` and non-resizable `Image` hug their content. `Color`, `Rectangle`, `Spacer` take all space offered. `.frame(maxWidth: .infinity)` makes something stretch.",
+    "**Stacks:** `HStack`, `VStack`, `ZStack` divide space among children; `layoutPriority` decides who gets space first. `LazyVStack`/`LazyHStack` create children only when visible (use for long scrolling content). `Grid` and `LazyVGrid` for grids.",
+    "**Reading sizes:** `GeometryReader` gives you the proposed size but takes all space - use sparingly. `onGeometryChange` is lighter. `ViewThatFits` picks the first layout that fits (e.g. HStack, else VStack).",
+    "**Custom layouts:** the `Layout` protocol (`sizeThatFits` + `placeSubviews`) - great for tag clouds/flow layouts without GeometryReader tricks.",
+    "**Accessibility:** layouts should adapt to large Dynamic Type sizes, e.g. switch HStack to VStack."
+  ],
+  "keyPoints": [
+    "Parent proposes, child chooses, parent places.",
+    "Modifier order matters (`padding` then `background` vs the reverse).",
+    "Lazy stacks/grids for long content; normal stacks for small content.",
+    "Avoid GeometryReader in every row; use `Layout`, `ViewThatFits` or `onGeometryChange`.",
+    "Safe area: content respects it by default; `ignoresSafeArea()` for backgrounds."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Adaptive layout without GeometryReader",
+      "text": "struct PriceRow: View {\n    let title: String\n    let price: String\n    var body: some View {\n        ViewThatFits {                           // first one that fits wins\n            HStack { Text(title); Spacer(); Text(price).bold() }\n            VStack(alignment: .leading) { Text(title); Text(price).bold() }\n        }\n    }\n}\n\n// Order matters\nText(\"Hi\").padding().background(.yellow)   // yellow includes padding\nText(\"Hi\").background(.yellow).padding()   // yellow only behind text"
+    }
+  ],
+  "mistakes": [
+    "Wrapping views in GeometryReader just to get the screen width.",
+    "Using `VStack` inside `ScrollView` for thousands of items (creates all of them) instead of `LazyVStack`/`List`."
+  ],
+  "followups": [
+    "**`List` vs `LazyVStack`?** List gives cell reuse, swipe actions, separators and system styling; LazyVStack gives full styling control.",
+    "**How would you build a tag/flow layout?** A custom `Layout` that wraps items to new rows."
+  ],
+  "links": [
+    {
+      "label": "Layout protocol",
+      "url": "https://developer.apple.com/documentation/swiftui/layout"
+    }
+  ]
+}

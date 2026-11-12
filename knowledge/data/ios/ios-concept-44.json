@@ -1,0 +1,51 @@
+{
+  "id": "extensions-widgets",
+  "title": "App extensions, widgets, Live Activities and App Intents",
+  "category": "app-platform",
+  "tags": [
+    "widgetkit",
+    "app intents",
+    "extensions",
+    "app groups"
+  ],
+  "summary": "Extensions (widgets, share sheet, notification service...) run as separate small processes with tight memory limits. They share data with the app through App Groups. App Intents expose app actions to Siri, Shortcuts, Spotlight and widgets.",
+  "body": [
+    "**In simple words:** An extension is a mini app that lives inside your app bundle and runs in its own process, started by the system (e.g. to draw a widget or process a notification).",
+    "**Sharing data:** extensions cannot read the app's private container. Use an **App Group**: a shared folder for files, a shared database, and `UserDefaults(suiteName:)`. Shared Keychain access group for secrets. Shared code goes in a framework/package both targets use.",
+    "**Limits:** low memory (widgets roughly 30 MB), no `UIApplication.shared`, short run times.",
+    "**Widgets (WidgetKit):** SwiftUI views rendered from a **timeline** of entries you provide; the system decides when to refresh (budgeted). Call `WidgetCenter.shared.reloadTimelines` after data changes. Interactive widgets run App Intents on tap.",
+    "**Live Activities (ActivityKit):** live status on Lock Screen and Dynamic Island (delivery tracking, scores); updated from the app or by push.",
+    "**App Intents:** define an action once (e.g. \"Start timer\") and it works in Shortcuts, Siri, Spotlight, the Action button, Control Center and widgets; Apple Intelligence also uses them."
+  ],
+  "keyPoints": [
+    "Extensions = separate processes, small memory budget.",
+    "Share data via App Groups and shared Keychain groups; share code via frameworks.",
+    "Widgets use timelines with system-controlled refresh.",
+    "Live Activities for ongoing events; updatable via push.",
+    "App Intents expose actions system-wide."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Minimal App Intent",
+      "text": "struct StartTimerIntent: AppIntent {\n    static let title: LocalizedStringResource = \"Start Focus Timer\"\n    @Parameter(title: \"Minutes\") var minutes: Int\n\n    func perform() async throws -> some IntentResult & ProvidesDialog {\n        await TimerStore.shared.start(minutes: minutes)\n        return .result(dialog: \"Timer started for \\(minutes) minutes\")\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Expecting the widget to update instantly whenever data changes.",
+    "Writing the same database from app and extension without coordination (corruption/locks)."
+  ],
+  "followups": [
+    "**How do the app and extension safely share a database?** SQLite in WAL mode in the App Group, or one writer plus file coordination / Darwin notifications to signal changes."
+  ],
+  "links": [
+    {
+      "label": "WidgetKit",
+      "url": "https://developer.apple.com/documentation/widgetkit"
+    },
+    {
+      "label": "App Intents",
+      "url": "https://developer.apple.com/documentation/appintents"
+    }
+  ]
+}

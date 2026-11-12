@@ -1,0 +1,28 @@
+{
+  "id": "minimum-window-substring",
+  "title": "Minimum Window Substring",
+  "difficulty": "Hard",
+  "tags": [
+    "sliding window",
+    "hash map"
+  ],
+  "summary": "Smallest substring of s containing all characters of t (with multiplicity).",
+  "approach": "Expand right until all requirements are met (`missing == 0`), then shrink left while still valid, recording the best window.",
+  "complexity": "O(|s| + |t|) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func minWindow(_ s: String, _ t: String) -> String {\n    let a = Array(s)\n    var need: [Character: Int] = [:]\n    for c in t { need[c, default: 0] += 1 }\n    var missing = t.count, left = 0, best = (start: 0, len: Int.max)\n    for right in a.indices {\n        if need[a[right], default: 0] > 0 { missing -= 1 }\n        need[a[right], default: 0] -= 1\n        while missing == 0 {\n            if right - left + 1 < best.len { best = (left, right - left + 1) }\n            need[a[left], default: 0] += 1\n            if need[a[left]]! > 0 { missing += 1 }\n            left += 1\n        }\n    }\n    return best.len == Int.max ? \"\" : String(a[best.start..<best.start + best.len])\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/minimum-window-substring/"
+    }
+  ],
+  "category": "sliding-window"
+}

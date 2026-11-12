@@ -1,0 +1,28 @@
+{
+  "id": "word-search",
+  "title": "Word Search",
+  "difficulty": "Medium",
+  "tags": [
+    "backtracking",
+    "grid"
+  ],
+  "summary": "Can the word be traced through adjacent grid cells without reuse?",
+  "approach": "DFS from every cell, marking visited cells temporarily and restoring them on return.",
+  "complexity": "O(cells * 3^L) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func exist(_ board: [[Character]], _ word: String) -> Bool {\n    var g = board\n    let w = Array(word), rows = g.count, cols = g[0].count\n    func dfs(_ r: Int, _ c: Int, _ i: Int) -> Bool {\n        if i == w.count { return true }\n        guard r >= 0, r < rows, c >= 0, c < cols, g[r][c] == w[i] else { return false }\n        g[r][c] = \"#\"\n        defer { g[r][c] = w[i] }\n        return dfs(r + 1, c, i + 1) || dfs(r - 1, c, i + 1) || dfs(r, c + 1, i + 1) || dfs(r, c - 1, i + 1)\n    }\n    for r in 0..<rows { for c in 0..<cols where dfs(r, c, 0) { return true } }\n    return false\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/word-search/"
+    }
+  ],
+  "category": "backtracking"
+}

@@ -1,0 +1,53 @@
+{
+  "id": "keychain-data-protection",
+  "title": "Keychain, data protection and secrets",
+  "category": "security-privacy",
+  "tags": [
+    "keychain",
+    "security",
+    "secure enclave",
+    "biometrics"
+  ],
+  "summary": "Store secrets (tokens, passwords, keys) in the Keychain, encrypt files with Data Protection, and never ship real secrets inside the app - anything in the binary can be extracted.",
+  "body": [
+    "**In simple words:** The Keychain is an encrypted vault managed by iOS. UserDefaults and plain files are not safe for secrets.",
+    "**Accessibility classes (when can the item be read?):** `WhenUnlocked` - only while the device is unlocked (default, safest for foreground use). `AfterFirstUnlock` - after the first unlock since reboot (needed if background tasks need the token). `...ThisDeviceOnly` - not included in backups or moved to a new phone.",
+    "**Biometrics:** protect an item with Face ID/Touch ID using `SecAccessControl` (`.biometryCurrentSet` invalidates it if fingerprints/faces change). Use `LAContext` for the prompt.",
+    "**Secure Enclave:** a separate chip that can create keys which never leave the hardware (`CryptoKit.SecureEnclave.P256`). Use for signing requests that prove \"this device\".",
+    "**Surprise:** Keychain items survive app deletion. On first launch after reinstall, clear old items if needed (track a flag in UserDefaults, which is deleted with the app).",
+    "**API keys in the app are public:** attackers can read strings from the binary. Keep secrets on the server, use short-lived tokens and App Attest.",
+    "**Other basics:** hide sensitive screens in the app switcher snapshot, avoid logging personal data, and clear sensitive data on logout."
+  ],
+  "keyPoints": [
+    "Secrets → Keychain with the narrowest accessibility class.",
+    "`AfterFirstUnlock` if background code needs access; `ThisDeviceOnly` to avoid backup/migration.",
+    "Secure Enclave keys never leave the device.",
+    "Keychain items survive reinstall; handle stale items.",
+    "No real secrets in the binary."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Saving a token",
+      "text": "func saveToken(_ token: Data, account: String) throws {\n    let query: [String: Any] = [\n        kSecClass as String: kSecClassGenericPassword,\n        kSecAttrService as String: \"com.app.auth\",\n        kSecAttrAccount as String: account\n    ]\n    SecItemDelete(query as CFDictionary)                     // replace old value\n    var add = query\n    add[kSecValueData as String] = token\n    add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly\n    let status = SecItemAdd(add as CFDictionary, nil)\n    guard status == errSecSuccess else { throw KeychainError(status) }\n}"
+    }
+  ],
+  "mistakes": [
+    "Storing tokens in UserDefaults or plain files.",
+    "Hard-coding API secrets and assuming obfuscation protects them."
+  ],
+  "followups": [
+    "**Is jailbreak detection worth it?** Only as a deterrent; it can be bypassed. Server-side checks and App Attest matter more.",
+    "**How do you share a login between the app and an extension?** Keychain access group shared by both targets."
+  ],
+  "links": [
+    {
+      "label": "Keychain services",
+      "url": "https://developer.apple.com/documentation/security/keychain-services"
+    },
+    {
+      "label": "CryptoKit",
+      "url": "https://developer.apple.com/documentation/cryptokit"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "combination-sum",
+  "title": "Combination Sum",
+  "difficulty": "Medium",
+  "tags": [
+    "backtracking"
+  ],
+  "summary": "All combinations (with reuse) of candidates that sum to target.",
+  "approach": "DFS with a start index so combinations are non-decreasing (no duplicates); allow reusing the same index.",
+  "complexity": "Exponential; pruned by sorting",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {\n    let c = candidates.sorted()\n    var result: [[Int]] = [], path: [Int] = []\n    func dfs(_ start: Int, _ remaining: Int) {\n        if remaining == 0 { result.append(path); return }\n        for i in start..<c.count {\n            if c[i] > remaining { break }\n            path.append(c[i]); dfs(i, remaining - c[i]); path.removeLast()\n        }\n    }\n    dfs(0, target)\n    return result\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/combination-sum/"
+    }
+  ],
+  "category": "backtracking"
+}

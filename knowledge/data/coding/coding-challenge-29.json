@@ -1,0 +1,27 @@
+{
+  "id": "search-in-rotated-sorted-array",
+  "title": "Search in Rotated Sorted Array",
+  "difficulty": "Medium",
+  "tags": [
+    "binary search"
+  ],
+  "summary": "Search a sorted array rotated at an unknown pivot (distinct values).",
+  "approach": "At each step one half is sorted. Check whether the target lies within the sorted half; otherwise search the other half.",
+  "complexity": "O(log n) time",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func search(_ nums: [Int], _ target: Int) -> Int {\n    var lo = 0, hi = nums.count - 1\n    while lo <= hi {\n        let mid = (lo + hi) / 2\n        if nums[mid] == target { return mid }\n        if nums[lo] <= nums[mid] {\n            if nums[lo] <= target && target < nums[mid] { hi = mid - 1 } else { lo = mid + 1 }\n        } else {\n            if nums[mid] < target && target <= nums[hi] { lo = mid + 1 } else { hi = mid - 1 }\n        }\n    }\n    return -1\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/search-in-rotated-sorted-array/"
+    }
+  ],
+  "category": "binary-search"
+}

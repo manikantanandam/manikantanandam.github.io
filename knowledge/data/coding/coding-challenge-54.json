@@ -1,0 +1,28 @@
+{
+  "id": "word-search-ii",
+  "title": "Word Search II",
+  "difficulty": "Hard",
+  "tags": [
+    "trie",
+    "backtracking"
+  ],
+  "summary": "Find all dictionary words that can be traced on a letter grid.",
+  "approach": "Build a trie of words, then DFS from each cell following trie children; store the word at its end node and clear it once found to avoid duplicates. Prune empty branches.",
+  "complexity": "O(cells * 4^L) worst case, much less with pruning",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func findWords(_ board: [[Character]], _ words: [String]) -> [String] {\n    final class Node { var kids: [Character: Node] = [:]; var word: String? }\n    let root = Node()\n    for w in words {\n        var n = root\n        for c in w { if n.kids[c] == nil { n.kids[c] = Node() }; n = n.kids[c]! }\n        n.word = w\n    }\n    var grid = board, found: [String] = []\n    let rows = grid.count, cols = grid[0].count\n    func dfs(_ r: Int, _ c: Int, _ parent: Node) {\n        let ch = grid[r][c]\n        guard let node = parent.kids[ch] else { return }\n        if let w = node.word { found.append(w); node.word = nil }\n        grid[r][c] = \"#\"\n        for (dr, dc) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {\n            let nr = r + dr, nc = c + dc\n            if nr >= 0, nr < rows, nc >= 0, nc < cols, grid[nr][nc] != \"#\" { dfs(nr, nc, node) }\n        }\n        grid[r][c] = ch\n        if node.kids.isEmpty && node.word == nil { parent.kids[ch] = nil }   // prune\n    }\n    for r in 0..<rows { for c in 0..<cols { dfs(r, c, root) } }\n    return found\n}"
+    }
+  ],
+  "links": [
+    {
+      "label": "LeetCode",
+      "url": "https://leetcode.com/problems/word-search-ii/"
+    }
+  ],
+  "category": "tries"
+}

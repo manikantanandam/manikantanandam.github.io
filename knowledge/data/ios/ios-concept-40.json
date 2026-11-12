@@ -1,0 +1,55 @@
+{
+  "id": "urlsession",
+  "title": "Networking with URLSession: caching and background transfers",
+  "category": "networking",
+  "tags": [
+    "urlsession",
+    "http",
+    "caching",
+    "background",
+    "rest"
+  ],
+  "summary": "Use a few configured `URLSession`s (not one per request), let HTTP caching save requests, and use background sessions for big uploads/downloads that must finish even if the app is suspended.",
+  "body": [
+    "**Basic call:** `let (data, response) = try await session.data(for: request)`, check the status code, decode JSON (off the main thread), map errors.",
+    "**A clean networking layer:** an `Endpoint` type (path, method, query, body), one `APIClient` that builds requests, adds auth headers, sends, validates status, decodes and maps errors. Features call `api.send(.feed(page: 2))`.",
+    "**Session configuration:** reuse sessions (connection reuse, HTTP/2 and HTTP/3). Set timeouts, `waitsForConnectivity = true` (wait for network instead of failing immediately), and respect Low Data Mode (`allowsConstrainedNetworkAccess`).",
+    "**HTTP caching:** server `ETag` + client `If-None-Match` → 304 Not Modified (no body re-sent). `Cache-Control: max-age` lets the client skip the request. Give `URLCache` a reasonable size.",
+    "**Background sessions:** `URLSessionConfiguration.background(withIdentifier:)` hands transfers to a system daemon; they continue while the app is suspended or even killed, and the app is relaunched with `handleEventsForBackgroundURLSession` when done. Upload from files, use delegate callbacks.",
+    "**Resilience:** retries with exponential backoff for safe requests, resumable downloads (`resumeData`), cancellation through Swift concurrency, and `NWPathMonitor` to react to connectivity changes.",
+    "**Metrics:** `URLSessionTaskMetrics` gives DNS, TLS and time-to-first-byte per request - send p50/p95 latencies to your monitoring."
+  ],
+  "keyPoints": [
+    "Few long-lived sessions; one API client handling auth, decoding and error mapping.",
+    "HTTP caching with ETag/Cache-Control saves data and battery.",
+    "Background sessions for large transfers that survive suspension.",
+    "Check HTTP status codes - `URLSession` does not throw on 404/500.",
+    "Measure latency with task metrics."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "A small API client",
+      "text": "struct Endpoint<Response: Decodable> {\n    var path: String\n    var method = \"GET\"\n    var query: [URLQueryItem] = []\n}\n\nstruct APIClient {\n    let baseURL: URL\n    let session: URLSession\n    let tokens: TokenProvider\n\n    func send<R>(_ endpoint: Endpoint<R>) async throws -> R {\n        var comps = URLComponents(url: baseURL.appending(path: endpoint.path), resolvingAgainstBaseURL: false)!\n        comps.queryItems = endpoint.query.isEmpty ? nil : endpoint.query\n        var request = URLRequest(url: comps.url!)\n        request.httpMethod = endpoint.method\n        request.setValue(\"Bearer \\(try await tokens.validToken())\", forHTTPHeaderField: \"Authorization\")\n\n        let (data, response) = try await session.data(for: request)\n        guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }\n        guard (200..<300).contains(http.statusCode) else { throw APIError.status(http.statusCode) }\n        return try JSONDecoder().decode(R.self, from: data)\n    }\n}"
+    }
+  ],
+  "mistakes": [
+    "Assuming a 500 response throws an error (it does not).",
+    "Creating a new `URLSession` per request (no connection reuse, possible leaks)."
+  ],
+  "followups": [
+    "**REST vs GraphQL for mobile?** GraphQL lets the client fetch exactly the fields it needs in one round trip; REST is simpler to cache over HTTP.",
+    "**How do you handle offline?** `waitsForConnectivity`, local cache as source of truth, queue writes and retry when online.",
+    "**How would you support pagination?** Cursor-based pages (`after=<cursor>`), load more near the end of the list."
+  ],
+  "links": [
+    {
+      "label": "URLSession",
+      "url": "https://developer.apple.com/documentation/foundation/urlsession"
+    },
+    {
+      "label": "Downloading files in the background",
+      "url": "https://developer.apple.com/documentation/foundation/downloading-files-in-the-background"
+    }
+  ]
+}

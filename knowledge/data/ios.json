@@ -1,0 +1,81 @@
+{
+  "title": "iOS Knowledge",
+  "intro": "Swift, SwiftUI, UIKit and the platform concepts I use day to day. Edit this file to update the page.",
+  "categories": [
+    {
+      "id": "swift-language",
+      "title": "Swift language",
+      "entries": [
+        {
+          "id": "arc",
+          "title": "ARC and retain cycles",
+          "tags": ["memory", "swift"],
+          "summary": "Automatic Reference Counting frees objects when strong references drop to zero. Closures and delegates are the usual cycle sources.",
+          "body": [
+            "Use `weak` for back-references such as a delegate, and `[weak self]` in escaping closures that capture self.",
+            "`unowned` is safe only when the referenced object is guaranteed to outlive the reference."
+          ],
+          "code": [
+            {
+              "lang": "swift",
+              "caption": "Breaking a closure cycle",
+              "text": "viewModel.onUpdate = { [weak self] value in\n    self?.render(value)\n}"
+            }
+          ],
+          "links": []
+        },
+        {
+          "id": "value-vs-reference",
+          "title": "Value types vs reference types",
+          "tags": ["swift", "design"],
+          "summary": "Structs and enums are copied on assignment; classes share one instance.",
+          "body": [
+            "Prefer structs for models and state snapshots. Use classes when identity or shared mutable state is required."
+          ],
+          "code": [],
+          "links": []
+        }
+      ]
+    },
+    {
+      "id": "concurrency",
+      "title": "Concurrency",
+      "entries": [
+        {
+          "id": "async-await",
+          "title": "async / await and actors",
+          "tags": ["concurrency"],
+          "summary": "Structured concurrency replaces nested completion handlers. Actors serialize access to mutable state.",
+          "body": [
+            "Mark UI-facing types with `@MainActor` so state changes happen on the main thread."
+          ],
+          "code": [
+            {
+              "lang": "swift",
+              "caption": "Loading data off the main actor",
+              "text": "@MainActor\nfinal class FeedViewModel: ObservableObject {\n    @Published private(set) var items: [Item] = []\n\n    func load() async {\n        items = await api.fetchItems()\n    }\n}"
+            }
+          ],
+          "links": []
+        }
+      ]
+    },
+    {
+      "id": "swiftui",
+      "title": "SwiftUI",
+      "entries": [
+        {
+          "id": "state-property-wrappers",
+          "title": "State and property wrappers",
+          "tags": ["swiftui"],
+          "summary": "@State owns local value state, @Binding borrows it, @StateObject owns a reference model, @ObservedObject borrows one.",
+          "body": [
+            "Use `@StateObject` when the view creates the model, and `@ObservedObject` when a parent passes it in."
+          ],
+          "code": [],
+          "links": []
+        }
+      ]
+    }
+  ]
+}

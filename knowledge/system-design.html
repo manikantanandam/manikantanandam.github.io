@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System Design | Manikanta Nandam</title>
+  <meta name="description" content="System design notes and worked designs: caching, URL shortener and more.">
+  <meta name="author" content="Manikanta Nandam">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://manikantanandam.github.io/knowledge/system-design.html">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0f17" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231d4ed8'/><text x='32' y='42' font-family='Arial' font-weight='700' font-size='26' fill='white' text-anchor='middle'>MN</text></svg>">
+  <script>
+    // Apply saved theme / text size before paint to avoid a flash.
+    (function () {
+      var r = document.documentElement;
+      r.className = 'js';
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        r.setAttribute('data-theme', t);
+        var s = localStorage.getItem('fontScale');
+        if (s) r.style.setProperty('--font-scale', s);
+      } catch (e) {
+        r.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header class="nav">
+    <nav class="container" aria-label="Primary">
+      <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">MN</span><span class="brand-name">Manikanta Nandam</span></a>
+      <button type="button" id="menu-toggle" class="icon-btn" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div class="nav-panel">
+        <ul id="menu">
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="../index.html#experience">Experience</a></li>
+          <li><a href="../index.html#projects">Work</a></li>
+          <li><a href="ios.html">iOS</a></li>
+          <li><a href="system-design.html" aria-current="page">System Design</a></li>
+          <li><a href="coding.html">Coding</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
+        </ul>
+        <div class="controls">
+          <button type="button" class="icon-btn" id="font-down" aria-label="Decrease text size">A−</button>
+          <button type="button" class="icon-btn" id="font-up" aria-label="Increase text size">A+</button>
+          <button type="button" class="icon-btn" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+          <a class="btn btn-primary btn-sm" href="../index.html#contact">Hire me</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="kb" class="container kb" data-src="data/system-design.json">
+    <p class="kb-muted">Loading…</p>
+  </main>
+
+  <footer class="container footer">
+    <p>© Manikanta Nandam · Senior iOS Developer · Hyderabad</p>
+    <p><a href="../index.html">Back to portfolio</a></p>
+  </footer>
+
+  <script src="kb.js"></script>
+  <script src="../script.js"></script>
+</body>
+</html>

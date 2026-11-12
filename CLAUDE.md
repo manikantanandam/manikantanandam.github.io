@@ -28,3 +28,11 @@ Personal portfolio at https://manikantanandam.github.io/, served by GitHub Pages
 - `script.js` (IIFE) adds interactivity only: theme, text size, mobile menu, copy email, nav scroll-spy, `.reveal` fade-in.
 - An inline script in `<head>` applies localStorage `theme`/`fontScale` before first paint (falls back to `prefers-color-scheme`) and adds `html.js`, so `.reveal` content stays visible without JS.
 - `style.css` themes with CSS variables and a `:root[data-theme="dark"]` override, plus `--font-scale`.
+
+## Knowledge pages
+
+- `knowledge/{ios,system-design,coding}.html` are static shells. `knowledge/kb.js` fetches the JSON named in `<main data-src>` and renders it. Edit only `knowledge/data/*.json`; these pages are not generated and need no build step.
+- Entry fields: `id`, `title`, `tags`, `summary`, `body` (strings; `` `code` `` and `**bold**` only; a string starting with ```` ``` ```` is a code block). Optional: `difficulty`, `approach`, `complexity`, `requirements`, `components`, `tradeoffs`, `code`, `solution` (both lists of `{lang, caption, text}`), `links`. Deep link: `knowledge/ios.html#<entry id>`.
+- Home-page cards and the sitemap read the `knowledge` list in `resume-builder/overrides/site.yaml`; rebuild with `python3 resume-builder/build.py site` when that list changes.
+
+Design decisions for these pages are recorded in `knowledge/DECISIONS.md`; read it before changing the renderer or the JSON schema.

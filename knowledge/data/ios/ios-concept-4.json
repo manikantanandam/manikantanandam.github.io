@@ -1,0 +1,14 @@
+{
+  "id": "state-property-wrappers",
+  "title": "State and property wrappers",
+  "tags": [
+    "swiftui"
+  ],
+  "summary": "@State owns local value state, @Binding borrows it, @StateObject owns a reference model, @ObservedObject borrows one.",
+  "body": [
+    "Use `@StateObject` when the view creates the model, and `@ObservedObject` when a parent passes it in."
+  ],
+  "code": [],
+  "links": [],
+  "category": "swiftui"
+}

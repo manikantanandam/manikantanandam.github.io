@@ -1,0 +1,23 @@
+{
+  "id": "two-sum",
+  "title": "Two Sum",
+  "difficulty": "Easy",
+  "tags": [
+    "array",
+    "hash map"
+  ],
+  "summary": "Return indices of two numbers that add up to a target.",
+  "approach": "Store each value's index in a hash map. For each number, check whether target minus the number is already in the map.",
+  "complexity": "Time O(n), space O(n)",
+  "body": [],
+  "code": [],
+  "solution": [
+    {
+      "lang": "swift",
+      "caption": "Solution",
+      "text": "func twoSum(_ nums: [Int], _ target: Int) -> [Int] {\n    var seen: [Int: Int] = [:]\n    for (i, n) in nums.enumerated() {\n        if let j = seen[target - n] { return [j, i] }\n        seen[n] = i\n    }\n    return []\n}"
+    }
+  ],
+  "links": [],
+  "category": "arrays-hashing"
+}

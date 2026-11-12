@@ -1,0 +1,15 @@
+{
+  "id": "value-vs-reference",
+  "title": "Value types vs reference types",
+  "tags": [
+    "swift",
+    "design"
+  ],
+  "summary": "Structs and enums are copied on assignment; classes share one instance.",
+  "body": [
+    "Prefer structs for models and state snapshots. Use classes when identity or shared mutable state is required."
+  ],
+  "code": [],
+  "links": [],
+  "category": "swift-language"
+}

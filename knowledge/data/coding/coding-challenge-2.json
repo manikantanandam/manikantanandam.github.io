@@ -1,0 +1,17 @@
+{
+  "id": "lru-cache",
+  "title": "LRU Cache",
+  "difficulty": "Medium",
+  "tags": [
+    "hash map",
+    "linked list"
+  ],
+  "summary": "Fixed-capacity cache that evicts the least recently used key.",
+  "approach": "Hash map for O(1) lookup plus a doubly linked list ordered by recency. Move a node to the front on access; evict from the back.",
+  "complexity": "get and put in O(1)",
+  "body": [],
+  "code": [],
+  "solution": [],
+  "links": [],
+  "category": "caching"
+}

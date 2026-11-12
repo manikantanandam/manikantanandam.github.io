@@ -1,0 +1,22 @@
+{
+  "id": "arc",
+  "title": "ARC and retain cycles",
+  "tags": [
+    "memory",
+    "swift"
+  ],
+  "summary": "Automatic Reference Counting frees objects when strong references drop to zero. Closures and delegates are the usual cycle sources.",
+  "body": [
+    "Use `weak` for back-references such as a delegate, and `[weak self]` in escaping closures that capture self.",
+    "`unowned` is safe only when the referenced object is guaranteed to outlive the reference."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Breaking a closure cycle",
+      "text": "viewModel.onUpdate = { [weak self] value in\n    self?.render(value)\n}"
+    }
+  ],
+  "links": [],
+  "category": "swift-language"
+}

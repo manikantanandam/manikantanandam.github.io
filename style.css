@@ -306,6 +306,10 @@ h1 { font-size: clamp(2.5rem, 6.5vw, 4.25rem); line-height: 1.02; letter-spacing
 .kb-code pre { margin: 0; padding: 14px 16px; overflow-x: auto; }
 .kb-code code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85em; line-height: 1.55; white-space: pre; }
 
+.kb-skeleton-wrap { display: grid; gap: 12px; }
+.kb-skeleton { height: 58px; background: linear-gradient(90deg, var(--bg-soft) 25%, var(--border) 37%, var(--bg-soft) 63%); background-size: 400% 100%; animation: kb-pulse 1.4s ease infinite; }
+@keyframes kb-pulse { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+
 .kb-card { display: block; color: inherit; text-decoration: none; }
 .kb-card:hover { border-color: var(--accent); }
 .kb-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

@@ -1,0 +1,18 @@
+{
+  "title": "System Design",
+  "intro": "Reusable building blocks and worked designs. Edit this file to update the page.",
+  "categories": [
+    {
+      "id": "fundamentals",
+      "title": "Fundamentals"
+    },
+    {
+      "id": "designs",
+      "title": "Worked designs"
+    }
+  ],
+  "entries": [
+    "system-design-1.json",
+    "system-design-2.json"
+  ]
+}

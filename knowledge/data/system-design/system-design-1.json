@@ -1,0 +1,20 @@
+{
+  "id": "caching",
+  "title": "Caching strategies",
+  "tags": [
+    "cache",
+    "performance"
+  ],
+  "summary": "Cache-aside, write-through and write-back trade freshness against latency and complexity.",
+  "body": [
+    "Cache-aside: read from cache, fall back to the database, then populate the cache. Most common default.",
+    "Always pair a cache with an eviction policy such as LRU and a TTL for staleness."
+  ],
+  "tradeoffs": [
+    "Stale reads are possible unless invalidation is handled on writes.",
+    "Cache stampedes can happen when a hot key expires; use request coalescing or jittered TTLs."
+  ],
+  "code": [],
+  "links": [],
+  "category": "fundamentals"
+}

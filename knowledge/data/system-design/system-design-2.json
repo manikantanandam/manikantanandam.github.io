@@ -1,0 +1,24 @@
+{
+  "id": "url-shortener",
+  "title": "URL shortener",
+  "tags": [
+    "storage",
+    "hashing"
+  ],
+  "summary": "Map a short code to a long URL with high read volume and simple writes.",
+  "requirements": [
+    "Create short links, redirect on read, optional expiry.",
+    "Read-heavy, roughly 100:1 reads to writes."
+  ],
+  "components": [
+    "API service behind a load balancer",
+    "Key-value store keyed by short code",
+    "Cache in front of the store for hot links"
+  ],
+  "tradeoffs": [
+    "Base62 counter-based IDs are simple and collision free; random IDs need a uniqueness check."
+  ],
+  "code": [],
+  "links": [],
+  "category": "designs"
+}

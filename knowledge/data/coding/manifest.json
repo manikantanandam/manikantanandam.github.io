@@ -1,0 +1,18 @@
+{
+  "title": "Coding Challenges",
+  "intro": "Problems I have solved, with approach, complexity and solution. Edit this file to update the page.",
+  "categories": [
+    {
+      "id": "arrays-hashing",
+      "title": "Arrays and hashing"
+    },
+    {
+      "id": "caching",
+      "title": "Design-style coding"
+    }
+  ],
+  "entries": [
+    "coding-challenge-1.json",
+    "coding-challenge-2.json"
+  ]
+}

@@ -3,10 +3,15 @@
 Decisions behind `knowledge/`, kept here so they travel with the repo.
 
 ## 1. Content is rendered from JSON in the browser
-- `knowledge/{ios,system-design,coding}.html` are static shells. `knowledge/kb.js` fetches the JSON named in `<main data-src>`.
-- Why: editing `knowledge/data/*.json` and pushing is enough. No Python, Chrome or build step.
+- `knowledge/{ios,system-design,coding}.html` are static shells. `knowledge/kb.js` fetches a manifest and the entry files it lists.
+- Why: editing files under `knowledge/data/` and pushing is enough. No Python, Chrome or build step.
 - Not routed through `resume-builder/build.py`, so content edits never trip the CI "generated files are stale" check.
 - Trade-off: the content is not pre-rendered, so search engines see less than they do for the home page. Accepted for a personal notes repo.
+
+## 1a. One file per entry, with a manifest per topic
+- Each topic is a folder (`knowledge/data/ios/`, `/system-design/`, `/coding/`) holding `manifest.json` plus one numbered file per entry (`coding-challenge-1.json`, `ios-concept-1.json`, `system-design-1.json`, ...).
+- Explicitly chosen over auto-numbered 404-probing: the manifest lists filenames up front, so loading doesn't guess at an upper bound, order/gaps don't matter, and adding an entry is "add a file + add its name to the manifest."
+- `kb.js` fetches every entry file in parallel (`Promise.allSettled`), not one at a time, and reconstructs the categories shape the renderer already expects. A single bad/missing entry file is skipped rather than blanking the page.
 
 ## 2. Three separate pages, one per topic
 - iOS, System Design and Coding Challenges each have their own page and JSON file.

@@ -1,0 +1,20 @@
+{
+  "id": "async-await",
+  "title": "async / await and actors",
+  "tags": [
+    "concurrency"
+  ],
+  "summary": "Structured concurrency replaces nested completion handlers. Actors serialize access to mutable state.",
+  "body": [
+    "Mark UI-facing types with `@MainActor` so state changes happen on the main thread."
+  ],
+  "code": [
+    {
+      "lang": "swift",
+      "caption": "Loading data off the main actor",
+      "text": "@MainActor\nfinal class FeedViewModel: ObservableObject {\n    @Published private(set) var items: [Item] = []\n\n    func load() async {\n        items = await api.fetchItems()\n    }\n}"
+    }
+  ],
+  "links": [],
+  "category": "concurrency"
+}

@@ -1,0 +1,24 @@
+{
+  "title": "iOS Knowledge",
+  "intro": "Swift, SwiftUI, UIKit and the platform concepts I use day to day. Edit this file to update the page.",
+  "categories": [
+    {
+      "id": "swift-language",
+      "title": "Swift language"
+    },
+    {
+      "id": "concurrency",
+      "title": "Concurrency"
+    },
+    {
+      "id": "swiftui",
+      "title": "SwiftUI"
+    }
+  ],
+  "entries": [
+    "ios-concept-1.json",
+    "ios-concept-2.json",
+    "ios-concept-3.json",
+    "ios-concept-4.json"
+  ]
+}
